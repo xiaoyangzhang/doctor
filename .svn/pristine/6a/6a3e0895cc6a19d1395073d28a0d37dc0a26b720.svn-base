@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhyt.health.mapper.DeptEvaluateResultMapper">
+    <resultMap id="BaseResultMap" type="com.yhyt.health.model.DeptEvaluateResult">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="department_id" jdbcType="BIGINT" property="departmentId"/>
+        <result column="avg_speed" jdbcType="REAL" property="avgSpeed"/>
+        <result column="avg_attitude" jdbcType="REAL" property="avgAttitude"/>
+        <result column="avg_satisfy" jdbcType="REAL" property="avgSatisfy"/>
+        <result column="total_count" jdbcType="INTEGER" property="totalCount"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, department_id, avg_speed, avg_attitude, avg_satisfy, total_count, update_time, 
+    create_time
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from dept_evaluate_result
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from dept_evaluate_result
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.yhyt.health.model.DeptEvaluateResult">
+    insert into dept_evaluate_result (id, department_id, avg_speed, 
+      avg_attitude, avg_satisfy, total_count, 
+      update_time, create_time)
+    values (#{id,jdbcType=BIGINT}, #{departmentId,jdbcType=BIGINT}, #{avgSpeed,jdbcType=REAL}, 
+      #{avgAttitude,jdbcType=REAL}, #{avgSatisfy,jdbcType=REAL}, #{totalCount,jdbcType=INTEGER}, 
+      #{updateTime,jdbcType=TIMESTAMP}, #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+    <insert id="insertSelective" parameterType="com.yhyt.health.model.DeptEvaluateResult">
+        insert into dept_evaluate_result
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="departmentId != null">
+                department_id,
+            </if>
+            <if test="avgSpeed != null">
+                avg_speed,
+            </if>
+            <if test="avgAttitude != null">
+                avg_attitude,
+            </if>
+            <if test="avgSatisfy != null">
+                avg_satisfy,
+            </if>
+            <if test="totalCount != null">
+                total_count,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="departmentId != null">
+                #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="avgSpeed != null">
+                #{avgSpeed,jdbcType=REAL},
+            </if>
+            <if test="avgAttitude != null">
+                #{avgAttitude,jdbcType=REAL},
+            </if>
+            <if test="avgSatisfy != null">
+                #{avgSatisfy,jdbcType=REAL},
+            </if>
+            <if test="totalCount != null">
+                #{totalCount,jdbcType=INTEGER},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yhyt.health.model.DeptEvaluateResult">
+        update dept_evaluate_result
+        <set>
+            <if test="departmentId != null">
+                department_id = #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="avgSpeed != null">
+                avg_speed = #{avgSpeed,jdbcType=REAL},
+            </if>
+            <if test="avgAttitude != null">
+                avg_attitude = #{avgAttitude,jdbcType=REAL},
+            </if>
+            <if test="avgSatisfy != null">
+                avg_satisfy = #{avgSatisfy,jdbcType=REAL},
+            </if>
+            <if test="totalCount != null">
+                total_count = #{totalCount,jdbcType=INTEGER},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yhyt.health.model.DeptEvaluateResult">
+    update dept_evaluate_result
+    set department_id = #{departmentId,jdbcType=BIGINT},
+      avg_speed = #{avgSpeed,jdbcType=REAL},
+      avg_attitude = #{avgAttitude,jdbcType=REAL},
+      avg_satisfy = #{avgSatisfy,jdbcType=REAL},
+      total_count = #{totalCount,jdbcType=INTEGER},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

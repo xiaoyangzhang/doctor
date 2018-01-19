@@ -1,0 +1,461 @@
+package com.yhyt.health.service.api;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.yhyt.health.constant.Constants;
+import com.yhyt.health.constant.DoctorConstant;
+import com.yhyt.health.constant.ResultCode;
+import com.yhyt.health.mapper.*;
+import com.yhyt.health.model.*;
+import com.yhyt.health.model.vo.DepartmentHospitalVO;
+import com.yhyt.health.model.vo.DoctorAppInfoVo;
+import com.yhyt.health.model.vo.app.PatientAppVO;
+import com.yhyt.health.result.AppResult;
+import com.yhyt.health.service.RedisService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Service
+public class DoctorApiImpl implements DoctorApi {
+
+    @Autowired
+    private DoctorDiseaseMapper doctorDiseaseMapper;
+    @Autowired
+    private DoctorReviewMapper doctorReviewMapper;
+    @Autowired
+    private DoctorMapper doctorMapper;
+    @Autowired
+    private DialogAppointmentMapper dialogAppointmentMapper;
+    @Autowired
+    private DialogAppointmentTransferMapper dialogAppointmentTransferMapper;
+    @Autowired
+    private DepartmentMapper departmentMapper;
+    @Autowired
+    private RedisService redisService;
+    @Autowired
+    private DoctorConstant doctorConstant;
+    @Autowired
+    private DoctorRequestpatientMapper doctorRequestpatientMapper;
+    @Autowired
+    private PatientDiagnoseRecordsMapper patientDiagnoseRecordsMapper;
+    @Autowired
+    private DeviceMapper deviceMapper;
+    @Autowired
+    private DeptPatientSignMapper deptPatientSignMapper;
+    @Autowired
+    private DoctorCareMapper doctorCareMapper;
+    @Autowired
+    private DialogMapper dialogMapper;
+    @Autowired
+    private DeptDoctorMapper deptDoctorMapper;
+//    @Autowired
+//    private SysUpgradeMapper sysUpgradeMapper;
+
+    private static Logger logger = LoggerFactory.getLogger(DoctorApiImpl.class);
+
+    @Override
+    public AppResult addDoctorDisease(DoctorDisease doctorDisease) {
+        AppResult appResult = new AppResult();
+        appResult.setResultCode(ResultCode.SUCCESS);
+        doctorDisease.setCreateTime(new Date());
+        doctorDiseaseMapper.insertSelective(doctorDisease);
+        return appResult;
+    }
+
+    @Override
+    public AppResult getDoctorReviewInfo(long id) {
+        AppResult appResult = new AppResult();
+        appResult.setResultCode(ResultCode.SUCCESS);
+        //查询医生信息
+        DoctorAppInfoVo doctor = doctorMapper.selectDoctorForAppById(id);
+        //查询审核状态表
+        DoctorReview doctorReview = null;
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("doctorId", doctor.getId());
+        map.put("sort", "apply_time desc");
+        List<DoctorReview> doctorReviews = doctorReviewMapper.getDoctorReviewList(map);
+        if (null != doctorReviews && doctorReviews.size() > 0) {
+            doctorReview = doctorReviews.get(0);
+        }else{
+            appResult.getBody().put("doctorReview", doctor);
+            return appResult;
+        }
+        //带入审核信息
+        //查询审核科室
+        if (null != doctorReview.getDepartmentId()) {
+            DepartmentHospitalVO department = departmentMapper.selectByPrimaryKeyForApp(doctorReview.getDepartmentId());
+            doctor.setHospital(department.getHospital());
+            doctor.setHospitalId(department.getHospitalId());
+            doctor.setDepartment(department.getName());
+        }
+        doctor.setRealname(doctorReview.getRealname());
+        doctor.setDepartmentId(doctorReview.getDepartmentId());
+        doctor.setTitle(doctorReview.getTitle());
+        doctor.setPracticeCertificate(doctorReview.getPracticeCertificate());
+        doctor.setQualificationCertificate(doctorReview.getQualificationCertificate());
+        doctor.setAuditState(String.valueOf(doctorReview.getState()));
+        doctor.setSex(doctorReview.getSex());
+        appResult.getBody().put("doctorReview", doctor);
+        return appResult;
+    }
+
+    @Override
+    public AppResult addDoctorReview(String token, DoctorReview doctorReview) {
+        AppResult appResult = new AppResult();
+        doctorReview.setApplyTime(new Date());
+        doctorReview.setIsLock((byte) 0);
+        Doctor doctor = (Doctor) redisService.get(doctorConstant.getRedis().get("global"), token);
+        if (null == doctorReview.getDoctorId()) {
+            doctorReview.setDoctorId(doctor.getId());
+        }
+        doctorReview.setMobileNumber(doctor.getUsername());
+        Map map = new HashMap();
+        map.put("doctorId", doctorReview.getDoctorId());
+        List<DoctorReview> doctorReviews = doctorReviewMapper.getDoctorReviewList(map);
+        if (doctorReviews != null && doctorReviews.size() > 0) {
+            for (DoctorReview doctorReviewResult : doctorReviews) {
+                if (1 == doctorReviewResult.getState() || 4 == doctorReviewResult.getState()) {
+                    appResult.setResultCode(ResultCode.FAILED);
+                    appResult.getBody().put("msg", "已存在审核信息，无需重复提交");
+                    return appResult;
+                }
+            }
+        }
+        doctorReviewMapper.insertSelective(doctorReview);
+
+        appResult.setResultCode(ResultCode.SUCCESS);
+        return appResult;
+    }
+
+    @Override
+    @Transactional
+    public AppResult updateDoctor(String token, Doctor doctor, String safeCode, String verificationCode) {
+        AppResult appResult = new AppResult();
+        //查询当前用户
+        Doctor doctorCurrent = (Doctor) redisService.get(doctorConstant.getRedis().get("global"), token);
+        //查询旧手机safecode 校验是否正确
+        String safeCodeOld = (String) redisService.get(doctorConstant.getRedis().get("global")+"safekey"+doctorCurrent.getUsername());
+        if (!safeCode.equals(safeCodeOld)) {
+            appResult.setResultCode(ResultCode.SAFEKEY_INVALID);
+            return appResult;
+        }
+
+        String sericutyCode = (String) redisService.get(doctorConstant.getRedis().get("global")+ "yzm" + doctor.getUsername());
+        if (!verificationCode.equals(sericutyCode)) {
+            appResult.setResultCode(ResultCode.SECURITY_ERROR);
+            return appResult;
+        }
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("username", doctor.getUsername());
+        if (null != doctorMapper.getDoctor(map)) {
+            appResult.setResultCode(ResultCode.USEREXIST_ALREADY);
+            return appResult;
+        }
+        appResult.setResultCode(ResultCode.SUCCESS);
+        long id = doctorMapper.updateByPrimaryKeySelective(doctor);
+
+        Doctor doctorNew = doctorMapper.selectByPrimaryKey(id);
+        appResult.getBody().put("doctor", doctorNew);
+
+        //修改手机号设置
+        redisService.put(doctorConstant.getRedis().get("global"), doctorNew.getUsername(), token, -1);
+        redisService.put(doctorConstant.getRedis().get("global"), token, doctorNew, -1);
+        return appResult;
+    }
+
+    @Override
+    //TODO 空指针异常
+    public AppResult queryDoctorById(long id) {
+        AppResult appResult = new AppResult();
+        appResult.setResultCode(ResultCode.SUCCESS);
+        DoctorAppInfoVo doctor = doctorMapper.selectDoctorForAppById(id);
+        doctor.setCreateTime(null);
+        doctor.setLastTime(null);
+        DoctorReview doctorReview = null;
+        //查询审核状态表
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("doctorId", doctor.getId());
+        map.put("sort", "apply_time desc");
+        List<DoctorReview> doctorReviews = doctorReviewMapper.getDoctorReviewList(map);
+        if (null != doctorReviews && doctorReviews.size() > 0) {
+            doctor.setAuditState(Byte.toString(doctorReviews.get(0).getState()));
+            doctorReview = doctorReviews.get(0);
+        }
+        if ((byte) 1 == doctor.getState() && "3".equals(doctor.getAuditState()) && null !=doctorReview) {
+            //带入审核信息
+            //查询审核科室
+            DepartmentHospitalVO department = departmentMapper.selectByPrimaryKeyForApp(doctorReview.getDepartmentId());
+            if (null != department) {
+                doctor.setHospital(department.getHospital());
+                doctor.setHospitalId(department.getHospitalId());
+                doctor.setDepartment(department.getName());
+            }
+            doctor.setRealname(doctorReview.getRealname());
+            doctor.setDepartmentId(doctorReview.getDepartmentId());
+            doctor.setTitle(doctorReview.getTitle());
+            doctor.setPracticeCertificate(doctorReview.getPracticeCertificate());
+            doctor.setQualificationCertificate(doctorReview.getQualificationCertificate());
+            doctor.setAuditState(String.valueOf(doctorReview.getState()));
+            doctor.setSex(doctorReview.getSex());
+        }
+        map.put("departmentId", doctor.getDepartmentId());
+        DeptDoctor deptDoctor = deptDoctorMapper.getDeptDoctorByDepartIdAndDoctorId(map);
+        if (null != deptDoctor) {
+            doctor.setIsAdmin(deptDoctor.getIsAdmin());
+        }
+        appResult.getBody().put("doctor", doctor);
+        return appResult;
+    }
+
+    @Override
+    public AppResult addAppointment(DialogAppointment dialogAppointment) {
+        AppResult appResult = new AppResult();
+        dialogAppointment.setCreateTime(new Date());
+        Map<String, Long> map = doctorMapper.getHospitalAndDeptByDoctorId(dialogAppointment.getDoctorIdAppointment());
+        if (map != null) {
+            dialogAppointment.setHospitalId(map.get("hospitalId"));
+            dialogAppointment.setDepartmentId(map.get("deptId"));
+        }
+        dialogAppointmentMapper.insertSelective(dialogAppointment);
+        return appResult;
+    }
+
+    @Override
+    public AppResult updateAppointment(DialogAppointment dialogAppointment) {
+        AppResult appResult = new AppResult();
+        dialogAppointmentMapper.updateByPrimaryKeySelective(dialogAppointment);
+        return appResult;
+    }
+
+    @Override
+    public AppResult queryAppointmentList(long dialogId) {
+        AppResult appResult = new AppResult();
+        List<DialogAppointment> dialogAppointments = dialogAppointmentMapper.queryDialogAppointmentList(dialogId);
+        appResult.getBody().put("list", dialogAppointments);
+        return appResult;
+    }
+
+    @Override
+    public AppResult queryAppointmentTransferList(long dialogId) {
+        AppResult appResult = new AppResult();
+        List<DialogAppointment> dialogAppointments = dialogAppointmentMapper.queryDialogAppointmentTransferList(dialogId);
+        appResult.getBody().put("list", dialogAppointments);
+        return appResult;
+    }
+
+    @Override
+    public AppResult createAppointmentTransfer(DialogAppointmentTransfer dialogAppointmentTransfer) {
+        AppResult appResult = new AppResult();
+        dialogAppointmentTransfer.setCreateTime(new Date());
+        Map<String, Long> map = doctorMapper.getHospitalAndDeptByDoctorId(dialogAppointmentTransfer.getDoctorId());
+        if (map != null) {
+            dialogAppointmentTransfer.setHospitalId(map.get("hospitalId"));
+            dialogAppointmentTransfer.setDepartmentId(map.get("deptId"));
+        }
+        dialogAppointmentTransferMapper.insertSelective(dialogAppointmentTransfer);
+        return appResult;
+    }
+
+    @Override
+    public AppResult updateAppointmentTransfer(DialogAppointmentTransfer dialogAppointmentTransfer) {
+        AppResult appResult = new AppResult();
+        dialogAppointmentTransferMapper.updateByPrimaryKeySelective(dialogAppointmentTransfer);
+        return appResult;
+    }
+
+    @Override
+    public AppResult queryDoctorsByDeptId(long deptId) {
+        AppResult appResult = new AppResult();
+        List<Doctor> doctors = doctorMapper.queryDoctorsByDeptId(deptId);
+        appResult.getBody().put("list", doctors);
+        return appResult;
+    }
+
+    @Override
+    public AppResult queryDeptOrDoctorOrDisease(String keyWord, int type) {
+        AppResult appResult = new AppResult();
+        if (type == 1) {
+            List<Doctor> doctorsListByName = doctorMapper.getDoctorsListByName(keyWord);
+        } else if (type == 2) {
+            List<Department> deptListByName = departmentMapper.getDeptListByName(keyWord);
+        } else if (type == 3) {
+            //TODO
+        }
+        return appResult;
+    }
+
+    @Override
+    @Transactional
+    public AppResult verifyOldPhone(String token, String username, String verificationCode) {
+        AppResult appResult = new AppResult();
+        String sericutyCode = (String) redisService.get(doctorConstant.getRedis().get("global")+"yzm" + username);
+        if (!verificationCode.equals(sericutyCode)) {
+            appResult.setResultCode(ResultCode.SECURITY_ERROR);
+            return appResult;
+        }
+        //生成随机安全码
+        String safeCode = String.valueOf((int) (Math.random() * 10000));
+        //把随机安全码存入redis
+        redisService.put(doctorConstant.getRedis().get("global")+"safekey"+username, safeCode, 300);
+        appResult.setResultCode(ResultCode.SUCCESS);
+        appResult.getBody().put("safeCode", safeCode);
+        return appResult;
+    }
+
+    @Override
+    @Transactional
+    public AppResult udpateDoctorStrogpoint(String token, Doctor doctor) {
+        AppResult appResult = new AppResult();
+        appResult.setResultCode(ResultCode.SUCCESS);
+        if (null == doctor.getStrongpoint() && null == doctor.getSummary() && null == doctor.getBirthday() && null == doctor.getHeadImage()) {
+            appResult.setResultCode(ResultCode.PARAMS_ERROR);
+            return appResult;
+        }
+        //更新
+        doctorMapper.updateByPrimaryKeySelective(doctor);
+        return appResult;
+    }
+
+    @Override
+    @Transactional
+    public AppResult queryDoctorByUserName(String token, Doctor doctor) {
+        AppResult appResult = new AppResult();
+        appResult.setResultCode(ResultCode.SUCCESS);
+        DoctorAppInfoVo doctorAppInfoVo = doctorMapper.selectDoctorForAppByUserName(doctor.getUsername());
+        if (null == doctorAppInfoVo) {
+            appResult.setResultCode(ResultCode.NO_EXSTIS);
+            return appResult;
+        }
+        doctor.setPassword(null);
+        appResult.getBody().put("doctor", doctorAppInfoVo);
+        return appResult;
+    }
+
+    @Override
+    public List<PatientAppVO> getDealingDiagnoseList(long deptId,Integer page,Integer pageSize) {
+        if (null == page || page==0){
+            page= Constants.PAGEINDEX;
+        }
+        if (null==pageSize || pageSize==0){
+            pageSize=Constants.PAGESIZE;
+        }
+        Page page1 = PageHelper.startPage(page, pageSize);
+        List<PatientAppVO> dealingDiagnoseList = doctorRequestpatientMapper.getDealingDiagnoseList(deptId);
+        PageInfo<PatientAppVO> pageInfo = new PageInfo<>(dealingDiagnoseList);
+        return pageInfo.getList();
+
+    }
+
+    @Override
+    public List<PatientAppVO> getRefusedDiagnoseList(long deptId,Integer page,Integer pageSize) {
+        if (null == page || page==0){
+            page= Constants.PAGEINDEX;
+        }
+        if (null == pageSize || pageSize==0){
+            pageSize=Constants.PAGESIZE;
+        }
+        Page page1 = PageHelper.startPage(page, pageSize);
+        List<PatientAppVO> refusedDiagnoseList = doctorRequestpatientMapper.getRefusedDiagnoseList(deptId);
+        PageInfo<PatientAppVO> pageInfo = new PageInfo<>(refusedDiagnoseList);
+        return pageInfo.getList();
+    }
+
+    @Override
+    @Transactional
+    public AppResult addDiagnoseRecords(PatientDiagnoseRecords patientDiagnoseRecords, long deptId, long patientId) {
+        AppResult result = new AppResult();
+        patientDiagnoseRecords.setUpdateTime(new Date());
+        patientDiagnoseRecords.setCreateTime(new Date());
+        Dialog dialog = dialogMapper.queryBydeptIdAndpatientId(deptId,patientId);
+        if (dialog != null) {
+            patientDiagnoseRecords.setDialogId(dialog.getId());
+        }else{
+            result.setResultCode(ResultCode.BLACK_PATIENT_NO_EXIST);
+            return result;
+        }
+        int i = patientDiagnoseRecordsMapper.insertSelective(patientDiagnoseRecords);
+        if (i > 0) {
+            result.setResultCode(ResultCode.SUCCESS);
+            return result;
+        }
+        result.setResultCode(ResultCode.SYS_ERROR);
+        return result;
+    }
+
+    @Override
+    @Transactional
+    public AppResult logout(String token, Device device, Long userId) {
+        AppResult appResult = new AppResult();
+        Doctor doctor = null;
+        if (null == userId) {
+            doctor = (Doctor) redisService.get(doctorConstant.getRedis().get("global"), token);
+        } else {
+            doctor = doctorMapper.selectByPrimaryKey(userId);
+        }
+        if (null == doctor) {
+            appResult.setResultCode(ResultCode.SUCCESS);
+            return appResult;
+        }
+        Doctor doctor1 = new Doctor();
+        doctor1.setId(doctor.getId());
+        doctor1.setIsOnline((byte) 1);
+        doctorMapper.updateByPrimaryKeySelective(doctor1);
+        try {
+            device.setUserId(doctor.getId());
+            device.setLastLogoutTime(new Date());
+            deviceMapper.logout(device);
+        } catch (Exception e) {
+            logger.error("修改设备在线状态失败", e);
+        }
+        logger.info("logout token : "+ token);
+//        redisService.remove(doctorConstant.getRedis().get("global"), token);
+        logger.info("logout token ok : "+ token);
+        appResult.setResultCode(ResultCode.SUCCESS);
+        return appResult;
+    }
+
+    @Override
+    public AppResult doctorCarePatient(String token, DoctorCare doctorCare) {
+
+        Doctor doctor = null;
+        if (null == doctorCare.getDoctorId() || null == doctorCare.getDepartmentId()) {
+            doctor = (Doctor) redisService.get(doctorConstant.getRedis().get("global"), token);
+            doctorCare.setDoctorId(doctor.getId());
+            doctorCare.setDepartmentId(doctor.getDepartmentId());
+        }
+        DoctorCare doctorCare1 = doctorCareMapper.queryDoctorCare(doctorCare.getDoctorId(), doctorCare.getPatientId(), doctorCare.getDepartmentId());
+        if (null == doctorCare1) {
+            doctorCare.setCreateTime(new Date());
+            doctorCareMapper.insert(doctorCare);
+        } else {
+            doctorCareMapper.deleteById(doctorCare1.getId());
+        }
+        AppResult appResult = new AppResult();
+        appResult.setResultCode(ResultCode.SUCCESS);
+        return appResult;
+    }
+
+    @Override
+    public String checkToken(String token) {
+        Doctor doctor = (Doctor) redisService.get(doctorConstant.getRedis().get("global"), token);
+        if (null == doctor) {
+            return "0";//此token不存在
+        }else{
+            return "1";//此token存在
+        }
+    }
+
+//    @Override
+//    public SysUpgrade isUpgrade(String appVersion, Byte clientType, String appType) {
+//        return sysUpgradeMapper.selectByAppVersion(appVersion,clientType,appType);
+//    }
+}

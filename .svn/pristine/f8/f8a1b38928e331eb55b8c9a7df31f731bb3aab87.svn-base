@@ -1,0 +1,45 @@
+package com.yhyt.health.controller;
+
+import com.github.pagehelper.PageInfo;
+import com.yhyt.health.model.ArticleDTO;
+import com.yhyt.health.model.ArticleLogDTO;
+import com.yhyt.health.model.query.ArticleQuery;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class ArticleController {
+
+    private static Logger logger  = LoggerFactory.getLogger(ArticleController.class);
+
+    @PostMapping("/article/add")
+    public int addArticle(@RequestBody ArticleDTO articleDTO){
+
+        return 0;
+    }
+
+    @PostMapping("/article/edit")
+    public int editArticle(@RequestBody ArticleDTO articleDTO){
+
+        return 0;
+    }
+
+    @PatchMapping("/article/state/update")
+    public int updateArticleState(@RequestBody ArticleLogDTO articleLogDTO){
+
+        return 0;
+    }
+
+    @GetMapping("/article/get/{id}")
+    public ArticleDTO getArticleInfo(@PathVariable("id")Long id){
+
+        return null;
+    }
+
+    @GetMapping("/article/list")
+    public PageInfo<ArticleDTO> queryArticleListPage(@RequestBody ArticleQuery articleQuery){
+
+        return null;
+    }
+}

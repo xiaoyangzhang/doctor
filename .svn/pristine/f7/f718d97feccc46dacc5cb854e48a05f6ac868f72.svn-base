@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yhyt.health.mapper.DialogMapper">
+    <resultMap id="BaseResultMap" type="com.yhyt.health.model.Dialog">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="patient_id" property="patientId" jdbcType="BIGINT"/>
+        <result column="hospital_id" property="hospitalId" jdbcType="BIGINT"/>
+        <result column="room_id" property="roomId" jdbcType="VARCHAR"/>
+        <result column="department_id" property="departmentId" jdbcType="BIGINT"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="patientName" property="patientname" jdbcType="VARCHAR"/>
+        <result column="departmentName" property="departmentname" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="DialogRecordVo" type="DialogRecordVo">
+        <result column="main_diagnose" jdbcType="VARCHAR" property="main_diagnose"/>
+        <result column="sub_diagnose" jdbcType="VARCHAR" property="sub_diagnose"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="create_time"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="realname" jdbcType="VARCHAR" property="realname"/>
+        <result column="hospitalname" jdbcType="VARCHAR" property="hospitalname"/>
+        <result column="deptname" jdbcType="VARCHAR" property="deptname"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+    id, patient_id, hospital_id, room_id, department_id, create_time, patientName, departmentName
+  </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        select
+        <include refid="Base_Column_List"/>
+        from dialog
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from dialog
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.yhyt.health.model.Dialog">
+    insert into dialog (id, patient_id, hospital_id, 
+      room_id, department_id, create_time, 
+      patientName, departmentName)
+    values (#{id,jdbcType=BIGINT}, #{patientId,jdbcType=BIGINT}, #{hospitalId,jdbcType=BIGINT}, 
+      #{roomId,jdbcType=VARCHAR}, #{departmentId,jdbcType=BIGINT}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{patientname,jdbcType=VARCHAR}, #{departmentname,jdbcType=VARCHAR})
+  </insert>
+    <insert id="insertSelective" parameterType="com.yhyt.health.model.Dialog">
+        insert into dialog
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="patientId != null">
+                patient_id,
+            </if>
+            <if test="hospitalId != null">
+                hospital_id,
+            </if>
+            <if test="roomId != null">
+                room_id,
+            </if>
+            <if test="departmentId != null">
+                department_id,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="patientname != null">
+                patientName,
+            </if>
+            <if test="departmentname != null">
+                departmentName,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="patientId != null">
+                #{patientId,jdbcType=BIGINT},
+            </if>
+            <if test="hospitalId != null">
+                #{hospitalId,jdbcType=BIGINT},
+            </if>
+            <if test="roomId != null">
+                #{roomId,jdbcType=VARCHAR},
+            </if>
+            <if test="departmentId != null">
+                #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="patientname != null">
+                #{patientname,jdbcType=VARCHAR},
+            </if>
+            <if test="departmentname != null">
+                #{departmentname,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yhyt.health.model.Dialog">
+        update dialog
+        <set>
+            <if test="patientId != null">
+                patient_id = #{patientId,jdbcType=BIGINT},
+            </if>
+            <if test="hospitalId != null">
+                hospital_id = #{hospitalId,jdbcType=BIGINT},
+            </if>
+            <if test="roomId != null">
+                room_id = #{roomId,jdbcType=VARCHAR},
+            </if>
+            <if test="departmentId != null">
+                department_id = #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="patientname != null">
+                patientName = #{patientname,jdbcType=VARCHAR},
+            </if>
+            <if test="departmentname != null">
+                departmentName = #{departmentname,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yhyt.health.model.Dialog">
+    update dialog
+    set patient_id = #{patientId,jdbcType=BIGINT},
+      hospital_id = #{hospitalId,jdbcType=BIGINT},
+      room_id = #{roomId,jdbcType=VARCHAR},
+      department_id = #{departmentId,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      patientName = #{patientname,jdbcType=VARCHAR},
+      departmentName = #{departmentname,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateRoom" parameterType="com.yhyt.health.model.Dialog" >
+    update dialog
+    set 
+      room_id = #{roomId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT} and room_id = ''
+  </update>
+    <select id="queryBydeptIdAndpatientId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from dialog
+        where patient_Id = #{1} and department_id = #{0}
+    </select>
+
+    <select id="querypatientRecords" parameterType="java.lang.Long" resultType="DialogRecordVo">
+        SELECT
+        m.main_diagnose,
+        m.sub_diagnose,
+        m.create_time,
+        n.title,
+        n.realname,
+        x.name AS deptname,
+        y.name AS hospitalname
+        FROM
+        patient_diagnose_records m
+        LEFT JOIN
+        doctor n ON m.doctor_id = n.id
+        LEFT JOIN
+        department x ON x.id = n.department_id
+        LEFT JOIN
+        hospital y ON x.hospital_id = y.id
+        WHERE 1=1
+        <if test="dialogId != null">
+            AND m.dialog_id = #{dialogId,jdbcType=BIGINT}
+        </if>
+        ORDER BY m.create_time DESC
+    </select>
+
+
+    <select id="findPersistableList" parameterType="java.util.Map" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from dialog t
+        <include refid="search_patientcomplaint"></include>
+        order by t.create_time DESC
+    </select>
+    <select id="selectByRoomId" parameterType="String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from dialog
+        where room_id = #{roomId,jdbcType=BIGINT}
+    </select>
+    <sql id="search_patientcomplaint">
+        <trim prefix="WHERE" prefixOverrides="AND|OR">
+            <if test="id!=null">and t.id = #{id,jdbcType=BIGINT}</if>
+            <if test="patientId!=null">and t.patient_id = #{patientId,jdbcType=BIGINT}</if>
+            <if test="hospitalId!=null">and t.hospital_id = #{hospitalId,jdbcType=BIGINT}</if>
+            <if test="departments!=null">and t.department_id in (${departments})</if>
+            <if test="departmentId!=null">and t.department_id = #{departmentId,jdbcType=BIGINT}</if>
+        </trim>
+    </sql>
+
+    <select id="findDialogByAppointFiel" parameterType="map" resultMap="BaseResultMap">
+        select * from dialog  where ${field} =#{val} order by create_time DESC limit 0,1
+    </select>
+
+    <select id="getUserListVoByRoomId" resultType="com.yhyt.health.model.vo.app.UserListVo">
+
+        select pt.id as userId,
+               pt.head_image,
+               "" as title,
+               "2" as type,
+               pt.realname,
+               "1" as isAdmin
+           from dialog dg
+            left join patient pt
+            on dg.patient_id = pt.id
+           where dg.room_id = #{roomId}
+
+    </select>
+</mapper>

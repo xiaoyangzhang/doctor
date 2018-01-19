@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhyt.health.mapper.DeptCooperationReviewMapper">
+    <resultMap id="BaseResultMap" type="com.yhyt.health.model.DeptCooperationReview">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="dept_cooperation_id" jdbcType="BIGINT" property="deptCooperationId"/>
+        <result column="hospital_id" jdbcType="BIGINT" property="hospitalId"/>
+        <result column="deparment_id" jdbcType="BIGINT" property="deparmentId"/>
+        <result column="type" jdbcType="TINYINT" property="type"/>
+        <result column="doctor_id_review" jdbcType="BIGINT" property="doctorIdReview"/>
+        <result column="message" jdbcType="VARCHAR" property="message"/>
+        <result column="state" jdbcType="TINYINT" property="state"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="review_time" jdbcType="TIMESTAMP" property="reviewTime"/>
+    </resultMap>
+    <resultMap id="BaseResultAppMap" type="DeptCooperationReviewAppVo">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="dept_cooperation_id" jdbcType="BIGINT" property="deptCooperationId"/>
+        <result column="hospital_id" jdbcType="BIGINT" property="hospitalId"/>
+        <result column="deparment_id" jdbcType="BIGINT" property="deparmentId"/>
+        <result column="type" jdbcType="TINYINT" property="type"/>
+        <result column="doctor_id_review" jdbcType="BIGINT" property="doctorIdReview"/>
+        <result column="message" jdbcType="VARCHAR" property="message"/>
+        <result column="state" jdbcType="TINYINT" property="state"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="hospital_name" jdbcType="VARCHAR" property="hospitalName"/>
+        <result column="deparment_name" jdbcType="VARCHAR" property="deparmentName"/>
+
+    </resultMap>
+
+    <sql id="Base_Column_List">
+    id, dept_cooperation_id, hospital_id, deparment_id, type, doctor_id_review, message, 
+    state, create_time,review_time
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from dept_cooperation_review
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from dept_cooperation_review
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.yhyt.health.model.DeptCooperationReview">
+    insert into dept_cooperation_review (id, dept_cooperation_id, hospital_id, 
+      deparment_id, type, doctor_id_review, 
+      message, state, create_time
+      )
+    values (#{id,jdbcType=BIGINT}, #{deptCooperationId,jdbcType=BIGINT}, #{hospitalId,jdbcType=BIGINT}, 
+      #{deparmentId,jdbcType=BIGINT}, #{type,jdbcType=TINYINT}, #{doctorIdReview,jdbcType=BIGINT}, 
+      #{message,jdbcType=VARCHAR}, #{state,jdbcType=TINYINT}, #{createTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+    <insert id="insertSelective" parameterType="com.yhyt.health.model.DeptCooperationReview">
+        insert into dept_cooperation_review
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="deptCooperationId != null">
+                dept_cooperation_id,
+            </if>
+            <if test="hospitalId != null">
+                hospital_id,
+            </if>
+            <if test="deparmentId != null">
+                deparment_id,
+            </if>
+            <if test="type != null">
+                type,
+            </if>
+            <if test="doctorIdReview != null">
+                doctor_id_review,
+            </if>
+            <if test="message != null">
+                message,
+            </if>
+            <if test="state != null">
+                state,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="reviewTime != null">
+                review_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="deptCooperationId != null">
+                #{deptCooperationId,jdbcType=BIGINT},
+            </if>
+            <if test="hospitalId != null">
+                #{hospitalId,jdbcType=BIGINT},
+            </if>
+            <if test="deparmentId != null">
+                #{deparmentId,jdbcType=BIGINT},
+            </if>
+            <if test="type != null">
+                #{type,jdbcType=TINYINT},
+            </if>
+            <if test="doctorIdReview != null">
+                #{doctorIdReview,jdbcType=BIGINT},
+            </if>
+            <if test="message != null">
+                #{message,jdbcType=VARCHAR},
+            </if>
+            <if test="state != null">
+                #{state,jdbcType=TINYINT},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="reviewTime != null">
+                #{reviewTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yhyt.health.model.DeptCooperationReview">
+        update dept_cooperation_review
+        <set>
+            <if test="deptCooperationId != null">
+                dept_cooperation_id = #{deptCooperationId,jdbcType=BIGINT},
+            </if>
+            <if test="hospitalId != null">
+                hospital_id = #{hospitalId,jdbcType=BIGINT},
+            </if>
+            <if test="deparmentId != null">
+                deparment_id = #{deparmentId,jdbcType=BIGINT},
+            </if>
+            <if test="type != null">
+                type = #{type,jdbcType=TINYINT},
+            </if>
+            <if test="doctorIdReview != null">
+                doctor_id_review = #{doctorIdReview,jdbcType=BIGINT},
+            </if>
+            <if test="message != null">
+                message = #{message,jdbcType=VARCHAR},
+            </if>
+            <if test="state != null">
+                state = #{state,jdbcType=TINYINT},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="reviewTime != null">
+                review_time = #{reviewTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yhyt.health.model.DeptCooperationReview">
+    update dept_cooperation_review
+    set dept_cooperation_id = #{deptCooperationId,jdbcType=BIGINT},
+      hospital_id = #{hospitalId,jdbcType=BIGINT},
+      deparment_id = #{deparmentId,jdbcType=BIGINT},
+      type = #{type,jdbcType=TINYINT},
+      doctor_id_review = #{doctorIdReview,jdbcType=BIGINT},
+      message = #{message,jdbcType=VARCHAR},
+      state = #{state,jdbcType=TINYINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <select id="getDepartCoopsByDepartId" parameterType="com.yhyt.health.model.query.DepartCoopQuery"
+            resultType="com.yhyt.health.model.dto.DeptCooperationReviewDTO">
+    select * from
+    (select h.name initiatorHospital,dep.name initiatorDepartment,doc.realname initiatorDoctor,dc.create_time initiatorTime ,deparment_id_cooperation
+    from dept_cooperation dc
+    join (select dept_cooperation_id from  dept_cooperation_review where type=1 and deparment_id = #{departId}) dcr on dc.id = dcr.dept_cooperation_id
+
+    join doctor doc on doc.id = dc.doctor_id_originator
+    join department dep on dep.id = dc.deparment_id_originator
+    join hospital h on h.id = dc.hospital_id_originator
+     ) init1
+  left join
+  (select doc.realname localReviewDoctor,dcr.review_time localReviewTime,deparment_id_cooperation,dcr.state
+    from dept_cooperation dc
+    join dept_cooperation_review dcr on dc.id = dcr.dept_cooperation_id
+    left join doctor doc on doc.id = dcr.doctor_id_review
+    where dcr.type=#{local}
+    and deparment_id_cooperation = #{departId}) loc on init1.deparment_id_cooperation=loc.deparment_id_cooperation
+  left join
+  (select  doc.realname initiatorReviewDoctor,dcr.review_time initiatorReviewTime,deparment_id_cooperation
+    from dept_cooperation dc
+    join dept_cooperation_review dcr on dc.id = dcr.dept_cooperation_id
+   left  join doctor doc on doc.id = dcr.doctor_id_review
+    where dcr.type=#{initiator}
+    and deparment_id_cooperation = #{departId}
+    ) init2 ON loc.deparment_id_cooperation=init2.deparment_id_cooperation
+  </select>
+    <select id="getDepartCoopsOriByDepartId" parameterType="com.yhyt.health.model.query.DepartCoopQuery"
+            resultType="com.yhyt.health.model.dto.DeptCooperationReviewDTO">
+    SELECT
+	*
+FROM
+	(
+	SELECT
+
+		doc.realname initiatorDoctor,
+		dc.create_time initiatorTime,
+		deparment_id_cooperation,dcr.state
+	FROM
+		dept_cooperation dc
+		JOIN ( SELECT dept_cooperation_id,state FROM dept_cooperation_review WHERE type = 2 AND deparment_id = #{departId} ) dcr ON dc.id = dcr.dept_cooperation_id
+		JOIN doctor doc ON doc.id = dc.doctor_id_originator
+	) init1 -- 发起科室
+	LEFT JOIN (
+	SELECT
+		h.name localReviewHospital,
+		dep.name localReviewDept,
+		doc.realname localReviewDoctor,
+		dcr.review_time localReviewTime,
+		deparment_id_cooperation
+	FROM
+		dept_cooperation dc join dept_cooperation_review dcr on dc.id = dcr.dept_cooperation_id and type=1
+		 left JOIN doctor doc ON doc.id = dcr.doctor_id_review
+		JOIN department dep ON dep.id = dc.deparment_id_cooperation
+		JOIN hospital h ON h.id = dc.hospital_id_cooperation
+
+	where dc.deparment_id_originator=#{departId}
+	) loc ON init1.deparment_id_cooperation = loc.deparment_id_cooperation -- 合作科室
+	LEFT JOIN (
+	SELECT
+		doc.realname initiatorReviewDoctor,
+		dcr.review_time initiatorReviewTime,
+		deparment_id_cooperation
+	FROM
+		dept_cooperation dc
+		JOIN dept_cooperation_review dcr ON dc.id = dcr.dept_cooperation_id
+		LEFT JOIN doctor doc ON doc.id = dcr.doctor_id_review
+	WHERE
+		dcr.type = 2
+	AND deparment_id_originator = #{departId}
+	) init2 ON loc.deparment_id_cooperation = init2.deparment_id_cooperation
+  </select>
+    <update id="auditDeptCooperationReview" parameterType="map">
+        update dept_cooperation_review
+        <set>
+            <if test="id != null">
+                state = #{state,jdbcType=TINYINT} ,
+            </if>
+            <if test="doctorIdReview != null">
+                doctor_id_review = #{doctorIdReview,jdbcType=BIGINT},
+            </if>
+            <if test="reviewTime != null">
+                review_time = #{reviewTime},
+            </if>
+        </set>
+        where 1=1
+        <if test="id != null">
+            and id = #{id,jdbcType=BIGINT}
+        </if>
+        <if test="deptCooperationId != null">
+            and dept_cooperation_id=#{deptCooperationId,jdbcType=BIGINT}
+        </if>
+    </update>
+    <select id="selectDeptCooperationReiew" parameterType="map" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from dept_cooperation_review where 1=1
+        <if test="deptCooperationId != null">
+            and dept_cooperation_id = #{deptCooperationId,jdbcType=BIGINT}
+        </if>
+        <if test="state != null">
+            and state = #{state,jdbcType=TINYINT}
+        </if>
+    </select>
+    <select id="selectDeptCooperationReiewForApp" parameterType="map" resultMap="BaseResultAppMap">
+        SELECT
+        dpr.*,dp.name deparment_name,hs.name hospital_name
+        FROM
+        dept_cooperation_review dpr
+        LEFT JOIN department dp ON dpr.deparment_id = dp.id
+        LEFT JOIN hospital hs ON dpr.hospital_id = hs.id
+        where 1=1
+        <if test="deptCooperationId != null">
+            and dept_cooperation_id = #{deptCooperationId,jdbcType=BIGINT}
+        </if>
+    </select>
+</mapper>

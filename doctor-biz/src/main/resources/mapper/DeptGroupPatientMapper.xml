@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhyt.health.mapper.DeptGroupPatientMapper">
+    <resultMap id="BaseResultMap" type="com.yhyt.health.model.DeptGroupPatient">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="dept_group_id" jdbcType="BIGINT" property="deptGroupId"/>
+        <result column="patient_id" jdbcType="BIGINT" property="patientId"/>
+        <result column="flag" jdbcType="TINYINT" property="flag"/>
+        <result column="remark" jdbcType="VARCHAR" property="remark"/>
+        <result column="is_blacklist" jdbcType="TINYINT" property="isBlacklist"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+
+    <resultMap id="DeptGroupPatinentsMap" type="com.yhyt.health.model.vo.DeptGroupPatinentsVo">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="age" jdbcType="TINYINT" property="age"/>
+        <result column="realname" jdbcType="VARCHAR" property="realName"/>
+        <result column="head_image" jdbcType="VARCHAR" property="headImage"/>
+        <result column="sex" jdbcType="TINYINT" property="sex"/>
+        <result column="remark" jdbcType="VARCHAR" property="remark"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="room_id" jdbcType="VARCHAR" property="roomId"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+    id, dept_group_id, patient_id, flag, remark, is_blacklist, create_time
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from dept_group_patient
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from dept_group_patient
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.yhyt.health.model.DeptGroupPatient">
+    insert into dept_group_patient (id, dept_group_id, patient_id, 
+      flag, remark, is_blacklist, 
+      create_time)
+    values (#{id,jdbcType=BIGINT}, #{deptGroupId,jdbcType=BIGINT}, #{patientId,jdbcType=BIGINT}, 
+      #{flag,jdbcType=TINYINT}, #{remark,jdbcType=VARCHAR}, #{isBlacklist,jdbcType=TINYINT}, 
+      #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+    <insert id="insertSelective" parameterType="com.yhyt.health.model.DeptGroupPatient">
+        insert into dept_group_patient
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="deptGroupId != null">
+                dept_group_id,
+            </if>
+            <if test="patientId != null">
+                patient_id,
+            </if>
+            <if test="flag != null">
+                flag,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+            <if test="isBlacklist != null">
+                is_blacklist,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="deptGroupId != null">
+                #{deptGroupId,jdbcType=BIGINT},
+            </if>
+            <if test="patientId != null">
+                #{patientId,jdbcType=BIGINT},
+            </if>
+            <if test="flag != null">
+                #{flag,jdbcType=TINYINT},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="isBlacklist != null">
+                #{isBlacklist,jdbcType=TINYINT},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yhyt.health.model.DeptGroupPatient">
+        update dept_group_patient
+        <set>
+            <if test="deptGroupId != null">
+                dept_group_id = #{deptGroupId,jdbcType=BIGINT},
+            </if>
+            <if test="patientId != null">
+                patient_id = #{patientId,jdbcType=BIGINT},
+            </if>
+            <if test="flag != null">
+                flag = #{flag,jdbcType=TINYINT},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="isBlacklist != null">
+                is_blacklist = #{isBlacklist,jdbcType=TINYINT},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yhyt.health.model.DeptGroupPatient">
+    update dept_group_patient
+    set dept_group_id = #{deptGroupId,jdbcType=BIGINT},
+      patient_id = #{patientId,jdbcType=BIGINT},
+      flag = #{flag,jdbcType=TINYINT},
+      remark = #{remark,jdbcType=VARCHAR},
+      is_blacklist = #{isBlacklist,jdbcType=TINYINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <select id="queryGroupPatients" parameterType="long" resultMap="BaseResultMap">
+    select * from dept_group_patient where dept_group_id = #{deptGroupId}
+  </select>
+    <select id="getDeptGroupPatinent" parameterType="map" resultMap="BaseResultMap">
+        SELECT
+        dgp.*
+        FROM
+        dept_group_patient dgp
+        LEFT JOIN dept_group dg ON dg.id = dgp.dept_group_id
+        WHERE 1=1
+        <if test="deptGroupId != null">
+            AND dgp.dept_group_id = #{deptGroupId,jdbcType=BIGINT}
+        </if>
+        <if test="departmentId != null">
+            AND dg.department_id = #{departmentId,jdbcType=BIGINT}
+        </if>
+        <if test="patientId != null">
+            AND dgp.patient_id = #{patientId,jdbcType=BIGINT}
+        </if>
+    </select>
+
+    <select id="getDeptGroupPatinents" parameterType="Long" resultMap="DeptGroupPatinentsMap">
+      SELECT
+  p.id,
+  p.age,
+  p.realname,
+  p.head_image,
+  p.sex,
+  dp.remark,
+  dp.create_time,
+  d.room_id
+FROM
+  dept_group_patient dp
+  LEFT JOIN patient p
+    ON dp.patient_id = p.id
+    LEFT JOIN dept_group dg
+    ON dp.dept_group_id = dg.id
+  LEFT JOIN dialog d ON d.department_id = dg.department_id
+                        AND d.patient_id = dp.patient_id
+WHERE
+  dg.id = #{deptGroupId}
+ORDER BY create_time ASC
+    </select>
+
+    <update id="updateDeptGroupId">
+        update dept_group_patient
+        set dept_group_id = #{0}
+        where dept_group_id = #{1}
+    </update>
+
+</mapper>

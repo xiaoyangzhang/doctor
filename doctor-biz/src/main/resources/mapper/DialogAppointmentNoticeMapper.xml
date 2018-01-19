@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhyt.health.mapper.DialogAppointmentNoticeMapper">
+    <resultMap id="BaseResultMap" type="com.yhyt.health.model.DialogAppointmentNotice">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="doctor_id" jdbcType="BIGINT" property="doctorId"/>
+        <result column="patient_id" jdbcType="BIGINT" property="patientId"/>
+        <result column="dialog_appointment_id" jdbcType="BIGINT" property="dialogAppointmentId"/>
+        <result column="state" jdbcType="TINYINT" property="state"/>
+        <result column="message" jdbcType="VARCHAR" property="message"/>
+        <result column="is_doctor_show" jdbcType="VARCHAR" property="isDoctorShow"/>
+        <result column="is_patient_show" jdbcType="VARCHAR" property="isPatientShow"/>
+        <result column="type" jdbcType="TINYINT" property="type"/>
+        <result column="department_id" jdbcType="BIGINT" property="departmentId"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, doctor_id, patient_id, dialog_appointment_id, state, message,is_doctor_show,is_patient_show
+    type, create_time
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from dialog_notice
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from dialog_notice
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.yhyt.health.model.DialogAppointmentNotice">
+    insert into dialog_notice (id, doctor_id, patient_id, 
+       dialog_appointment_id, state,
+      message,is_doctor_show, is_patient_show,type,department_id,create_time)
+    values (#{id,jdbcType=BIGINT}, #{doctorId,jdbcType=BIGINT}, #{patientId,jdbcType=BIGINT}, 
+      #{dialogAppointmentId,jdbcType=BIGINT}, #{state,jdbcType=TINYINT},
+      #{message,jdbcType=VARCHAR},#{isDoctorShow,jdbcType=VARCHAR},#{isPatientShow,jdbcType=VARCHAR}, #{type,jdbcType=TINYINT}
+      ,#{departmentId}, #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+    <insert id="insertSelective" parameterType="com.yhyt.health.model.DialogAppointmentNotice">
+        insert into dialog_notice
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="doctorId != null">
+                doctor_id,
+            </if>
+            <if test="patientId != null">
+                patient_id,
+            </if>
+            <if test="dialogAppointmentId != null">
+                dialog_appointment_id,
+            </if>
+            <if test="state != null">
+                state,
+            </if>
+            <if test="message != null">
+                message,
+            </if>
+            <if test="isDoctorShow != null">
+                is_doctor_show ,
+            </if>
+            <if test="isPatientShow != null">
+                is_patient_show,
+            </if>
+            <if test="type != null">
+                type,
+            </if>
+            <if test="departmentId != null">
+                department_id,
+            </if>
+            <if test="createTime != null">
+                create_time
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="doctorId != null">
+                #{doctorId,jdbcType=BIGINT},
+            </if>
+            <if test="patientId != null">
+                #{patientId,jdbcType=BIGINT},
+            </if>
+            <if test="dialogAppointmentId != null">
+                #{dialogAppointmentId,jdbcType=BIGINT},
+            </if>
+            <if test="state != null">
+                #{state,jdbcType=TINYINT},
+            </if>
+            <if test="message != null">
+                #{message,jdbcType=VARCHAR},
+            </if>
+            <if test="isDoctorShow != null">
+                #{isDoctorShow,jdbcType=VARCHAR},
+            </if>
+            <if test="isPatientShow != null">
+                #{isPatientShow,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                #{type,jdbcType=TINYINT},
+            </if>
+            <if test="departmentId != null">
+                #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP}
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yhyt.health.model.DialogAppointmentNotice">
+        update dialog_notice
+        <set>
+            <if test="doctorId != null">
+                doctor_id = #{doctorId,jdbcType=BIGINT},
+            </if>
+            <if test="patientId != null">
+                patient_id = #{patientId,jdbcType=BIGINT},
+            </if>
+            <if test="dialogAppointmentId != null">
+                dialog_appointment_id = #{dialogAppointmentId,jdbcType=BIGINT},
+            </if>
+            <if test="state != null">
+                state = #{state,jdbcType=TINYINT},
+            </if>
+            <if test="message != null">
+                message = #{message,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                type = #{type,jdbcType=TINYINT},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="isDoctorShow != null">
+                is_doctor_show=#{isDoctorShow,jdbcType=TINYINT},
+            </if>
+            <if test="isPatientShow != null">
+                is_patient_show=#{isPatientShow,jdbcType=TINYINT},
+            </if>
+            <if test="departmentId != null">
+                department_id =#{departmentId,jdbcType=BIGINT},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yhyt.health.model.DialogAppointmentNotice">
+    update dialog_notice
+    set doctor_id = #{doctorId,jdbcType=BIGINT},
+      patient_id = #{patientId,jdbcType=BIGINT},
+      dialog_appointment_id = #{dialogAppointmentId,jdbcType=BIGINT},
+      state = #{state,jdbcType=TINYINT},
+      message = #{message,jdbcType=VARCHAR},
+      type = #{type,jdbcType=TINYINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <select id="selectDialogAppointmentNotice" parameterType="map" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from dialog_notice
+        where 1=1
+        <if test="id != null">
+            and id = #{id,jdbcType=BIGINT}
+        </if>
+        <if test="dialogAppointmentId != null">
+            and dialog_appointment_id = #{dialogAppointmentId,jdbcType=BIGINT}
+        </if>
+        <if test="type">
+            and type = #{type,jdbcType=TINYINT}
+        </if>
+    </select>
+    <update id="updateDialogAppointmentNoticeState" parameterType="map">
+        update dialog_notice
+        set state=#{state,jdbcType=TINYINT}
+        where 1=1
+        <if test="id != null">
+            and id = #{id,jdbcType=BIGINT}
+        </if>
+        <if test="dialogAppointmentId != null">
+            and dialog_appointment_id = #{dialogAppointmentId,jdbcType=BIGINT}
+        </if>
+        <if test="type">
+            and type = #{type,jdbcType=TINYINT}
+        </if>
+    </update>
+    <select id="selectByUserIdForDoctor" parameterType="map" resultMap="BaseResultMap">
+        select dn.id, dn.state, message, dn.type from  dialog_notice dn join dialog d on dn.patient_id=d.patient_id  AND d.department_id = dn.department_id where 1=1
+        <if test="roomId!=null">
+
+        and room_id = #{roomId,jdbcType=BIGINT}
+        </if>
+        <if test="doctorId!=null">
+            and dn.doctor_id = #{doctorId,jdbcType=BIGINT}
+            AND dn.is_doctor_show = '1'
+        </if>
+         order by  dn.create_time DESC
+        limit #{rows}
+    </select>
+    <select id="selectByUserIdForPatient" parameterType="map" resultMap="BaseResultMap">
+        SELECT
+        dn.id,
+        dn.state,
+        message,
+        dn.type
+        FROM
+        dialog_notice dn
+        JOIN dialog d ON dn.patient_id = d.patient_id AND d.department_id = dn.department_id
+        WHERE 1=1
+        <if test="roomId!=null">
+            and room_id = #{roomId,jdbcType=BIGINT}
+            AND dn.is_patient_show = '1'
+        </if>
+         order by  dn.create_time DESC
+        limit #{rows}
+    </select>
+</mapper>

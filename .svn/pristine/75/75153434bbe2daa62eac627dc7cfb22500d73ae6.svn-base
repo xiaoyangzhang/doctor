@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhyt.health.mapper.DeptCooperationMapper">
+    <resultMap id="BaseResultMap" type="com.yhyt.health.model.DeptCooperation">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="doctor_id_originator" jdbcType="BIGINT" property="doctorIdOriginator"/>
+        <result column="hospital_id_originator" jdbcType="BIGINT" property="hospitalIdOriginator"/>
+        <result column="deparment_id_originator" jdbcType="BIGINT" property="deparmentIdOriginator"/>
+        <result column="hospital_id_cooperation" jdbcType="BIGINT" property="hospitalIdCooperation"/>
+        <result column="deparment_id_cooperation" jdbcType="BIGINT" property="deparmentIdCooperation"/>
+        <result column="state" jdbcType="TINYINT" property="state"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+    <resultMap id="BaseResultDepartmentCooperationMap" type="com.yhyt.health.model.vo.DepartmentCooperationVo">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="doctor_id_originator" jdbcType="BIGINT" property="doctorIdOriginator"/>
+        <result column="hospital_id_originator" jdbcType="BIGINT" property="hospitalIdOriginator"/>
+        <result column="deparment_id_originator" jdbcType="BIGINT" property="deparmentIdOriginator"/>
+        <result column="doctor_id_cooperation" jdbcType="BIGINT" property="doctorIdCooperation"/>
+        <result column="hospital_id_cooperation" jdbcType="BIGINT" property="hospitalIdCooperation"/>
+        <result column="deparment_id_cooperation" jdbcType="BIGINT" property="deparmentIdCooperation"/>
+
+        <result column="doctor_id_originator_name" jdbcType="VARCHAR" property="doctorIdOriginatorName"/>
+        <result column="hospital_id_originator_name" jdbcType="VARCHAR" property="hospitalIdOriginatorName"/>
+        <result column="deparment_id_originator_name" jdbcType="VARCHAR" property="deparmentIdOriginatorName"/>
+        <result column="doctor_id_cooperation_name" jdbcType="VARCHAR" property="doctorIdCooperationName"/>
+        <result column="hospital_id_cooperation_name" jdbcType="VARCHAR" property="hospitalIdCooperationName"/>
+        <result column="deparment_id_cooperation_name" jdbcType="VARCHAR" property="deparmentIdCooperationName"/>
+
+        <result column="hospital_originator_logo" jdbcType="VARCHAR" property="hospitalOriginatorLogo"/>
+        <result column="hospital_cooperation_logo" jdbcType="VARCHAR" property="hospitalCooperationLogo"/>
+
+        <result column="deparment_originator_logo" jdbcType="VARCHAR" property="deparmentOriginatorLogo"/>
+        <result column="deparment_cooperation_logo" jdbcType="VARCHAR" property="deparmentCooperationLogo"/>
+
+        <result column="type" jdbcType="VARCHAR" property="type"/>
+        <result column="state" jdbcType="TINYINT" property="state"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+
+    <resultMap id="CooperationsMessageMap" type="com.yhyt.health.model.vo.CooperationsMessage">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="state" jdbcType="BIGINT" property="state"/>
+        <result column="fromLogo" jdbcType="VARCHAR" property="fromLogo"/>
+        <result column="fromHospitaName" jdbcType="VARCHAR" property="fromHospitaName"/>
+        <result column="fromDepartmentName" jdbcType="VARCHAR" property="fromDepartmentName"/>
+        <result column="toLogo" jdbcType="VARCHAR" property="toLogo"/>
+        <result column="toHospitaName" jdbcType="VARCHAR" property="toHospitaName"/>
+        <result column="toDepartmentName" jdbcType="VARCHAR" property="toDepartmentName"/>
+        <result column="type" jdbcType="VARCHAR" property="type"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+
+
+    <sql id="Base_Column_List">
+    id, doctor_id_originator, hospital_id_originator, deparment_id_originator, hospital_id_cooperation, 
+    deparment_id_cooperation, state, create_time
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from dept_cooperation
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from dept_cooperation
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.yhyt.health.model.DeptCooperation">
+    insert into dept_cooperation (id, doctor_id_originator, hospital_id_originator, 
+      deparment_id_originator, hospital_id_cooperation, 
+      deparment_id_cooperation, state, create_time
+      )
+    values (#{id,jdbcType=BIGINT}, #{doctorIdOriginator,jdbcType=BIGINT}, #{hospitalIdOriginator,jdbcType=BIGINT}, 
+      #{deparmentIdOriginator,jdbcType=BIGINT}, #{hospitalIdCooperation,jdbcType=BIGINT}, 
+      #{deparmentIdCooperation,jdbcType=BIGINT}, #{state,jdbcType=TINYINT}, #{createTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+    <insert id="insertSelective" parameterType="com.yhyt.health.model.DeptCooperation">
+        insert into dept_cooperation
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="doctorIdOriginator != null">
+                doctor_id_originator,
+            </if>
+            <if test="hospitalIdOriginator != null">
+                hospital_id_originator,
+            </if>
+            <if test="deparmentIdOriginator != null">
+                deparment_id_originator,
+            </if>
+            <if test="hospitalIdCooperation != null">
+                hospital_id_cooperation,
+            </if>
+            <if test="deparmentIdCooperation != null">
+                deparment_id_cooperation,
+            </if>
+            <if test="state != null">
+                state,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="doctorIdOriginator != null">
+                #{doctorIdOriginator,jdbcType=BIGINT},
+            </if>
+            <if test="hospitalIdOriginator != null">
+                #{hospitalIdOriginator,jdbcType=BIGINT},
+            </if>
+            <if test="deparmentIdOriginator != null">
+                #{deparmentIdOriginator,jdbcType=BIGINT},
+            </if>
+            <if test="hospitalIdCooperation != null">
+                #{hospitalIdCooperation,jdbcType=BIGINT},
+            </if>
+            <if test="deparmentIdCooperation != null">
+                #{deparmentIdCooperation,jdbcType=BIGINT},
+            </if>
+            <if test="state != null">
+                #{state,jdbcType=TINYINT},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yhyt.health.model.DeptCooperation">
+        update dept_cooperation
+        <set>
+            <if test="doctorIdOriginator != null">
+                doctor_id_originator = #{doctorIdOriginator,jdbcType=BIGINT},
+            </if>
+            <if test="hospitalIdOriginator != null">
+                hospital_id_originator = #{hospitalIdOriginator,jdbcType=BIGINT},
+            </if>
+            <if test="deparmentIdOriginator != null">
+                deparment_id_originator = #{deparmentIdOriginator,jdbcType=BIGINT},
+            </if>
+            <if test="hospitalIdCooperation != null">
+                hospital_id_cooperation = #{hospitalIdCooperation,jdbcType=BIGINT},
+            </if>
+            <if test="deparmentIdCooperation != null">
+                deparment_id_cooperation = #{deparmentIdCooperation,jdbcType=BIGINT},
+            </if>
+            <if test="state != null">
+                state = #{state,jdbcType=TINYINT},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yhyt.health.model.DeptCooperation">
+    update dept_cooperation
+    set doctor_id_originator = #{doctorIdOriginator,jdbcType=BIGINT},
+      hospital_id_originator = #{hospitalIdOriginator,jdbcType=BIGINT},
+      deparment_id_originator = #{deparmentIdOriginator,jdbcType=BIGINT},
+      hospital_id_cooperation = #{hospitalIdCooperation,jdbcType=BIGINT},
+      deparment_id_cooperation = #{deparmentIdCooperation,jdbcType=BIGINT},
+      state = #{state,jdbcType=TINYINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <select id="getDeptCooperations" parameterType="map" resultMap="BaseResultDepartmentCooperationMap">
+        select
+        dc.*,
+        dr.realname doctor_id_originator_name
+        ,dp.name deparment_id_originator_name
+        ,hs.name hospital_id_originator_name
+        ,dpCooper.name deparment_id_cooperation_name
+        ,hsCooper.name hospital_id_cooperation_name
+        ,hs.logo hospital_originator_logo
+        ,hsCooper.logo hospital_cooperation_logo
+        ,dp.logo deparment_originator_logo
+        ,dpCooper.logo deparment_cooperation_logo
+        from dept_cooperation dc LEFT JOIN doctor dr ON dc.doctor_id_originator = dr.id
+        left join department dp ON dc.deparment_id_originator=dp.id
+        left join department dpCooper ON dc.deparment_id_cooperation=dpCooper.id
+        LEFT JOIN hospital hs ON dc.hospital_id_originator = hs.id
+        LEFT JOIN hospital hsCooper ON dc.hospital_id_cooperation = hsCooper.id
+        WHERE 1=1
+        <if test="departmentId != null">
+            AND (dc.deparment_id_cooperation =#{departmentId,jdbcType=BIGINT}
+            OR dc.deparment_id_originator = #{departmentId,jdbcType=BIGINT})
+        </if>
+        <if test="states != null ">
+            and dc.state IN
+            <foreach collection="states" item="state" index="index" open="(" separator="," close=")">
+                #{state,jdbcType=TINYINT}
+            </foreach>
+        </if>
+        <if test="notHospitalId != null">
+            and (hs.id !=#{notHospitalId,jdbcType=BIGINT} OR hsCooper.id !=#{notHospitalId,jdbcType=BIGINT})
+        </if>
+
+    </select>
+
+    <select id="getCooperationsMessages" parameterType="map" resultMap="CooperationsMessageMap">
+        SELECT
+            n.id,
+            n.state,
+            h.logo fromLogo,
+            d.id deparment,
+            h.NAME fromhospitaname,
+            d.NAME fromdepartmentname,
+            h1.logo toLogo,
+            h1.NAME tohospitalname,
+            d1.NAME todepartmentname,
+            n.type,
+            n.create_time
+        FROM
+         dept_cooperation_review n
+        INNER JOIN dept_cooperation de on n.dept_cooperation_id = de.id
+        INNER JOIN hospital h ON h.id = de.hospital_id_originator
+        INNER JOIN department d ON d.id = de.deparment_id_originator
+        INNER JOIN hospital h1 ON h1.id = de.hospital_id_cooperation
+        INNER JOIN department d1 ON d1.id = de.deparment_id_cooperation
+        WHERE (de.deparment_id_originator = #{departmentId} OR de.deparment_id_cooperation =#{departmentId})
+        AND n.deparment_id = #{departmentId}
+    </select>
+
+
+    <select id="getDeptCooperationInfo" parameterType="map" resultMap="BaseResultDepartmentCooperationMap">
+        select
+        dc.*,
+        dr.realname doctor_id_originator_name
+        ,dp.name deparment_id_originator_name
+        ,hs.name hospital_id_originator_name
+        ,dpCooper.name deparment_id_cooperation_name
+        ,hsCooper.name hospital_id_cooperation_name
+        ,drCooper.realname doctor_id_cooperation_name
+        from dept_cooperation dc LEFT JOIN doctor dr ON dc.doctor_id_originator = dr.id
+        left join department dp ON dc.deparment_id_originator=dp.id
+        left join department dpCooper ON dc.deparment_id_cooperation=dpCooper.id
+        LEFT JOIN hospital hs ON dc.hospital_id_originator = hs.id
+        LEFT JOIN hospital hsCooper ON dc.hospital_id_cooperation = hsCooper.id
+        LEFT JOIN doctor drCooper ON dc.doctor_id_cooperation = drCooper.id
+        where 1=1
+        <if test="id != null">
+            and dc.id=#{id}
+        </if>
+    </select>
+    <select id="selectByDeptAndDeptCooper" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from dept_cooperation
+        where state = '3' AND
+        (deparment_id_originator = #{0}  AND deparment_id_cooperation = #{1})
+        OR (deparment_id_originator = #{1}  AND deparment_id_cooperation = #{0})
+    </select>
+</mapper>

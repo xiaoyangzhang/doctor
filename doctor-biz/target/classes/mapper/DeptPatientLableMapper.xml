@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhyt.health.mapper.DeptPatientLableMapper">
+    <resultMap id="BaseResultMap" type="com.yhyt.health.model.DeptPatientLable">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="department_id" jdbcType="BIGINT" property="departmentId"/>
+        <result column="patient_id" jdbcType="BIGINT" property="patientId"/>
+        <result column="dept_label_id" jdbcType="BIGINT" property="deptLabelId"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+    <resultMap type="DeptPatientLableVo" id="deptPatientLableVo">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="department_id" jdbcType="BIGINT" property="departmentId"/>
+        <result column="department_name" jdbcType="VARCHAR" property="departmentName"/>
+        <result column="patient_id" jdbcType="BIGINT" property="patientId"/>
+        <result column="patient_name" jdbcType="VARCHAR" property="patientName"/>
+        <result column="dept_label_id" jdbcType="BIGINT" property="deptLabelId"/>
+        <result column="dept_label_name" jdbcType="BIGINT" property="deptLabelName"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, department_id, patient_id, dept_label_id, create_time
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from dept_patient_label
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from dept_patient_label
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.yhyt.health.model.DeptPatientLable">
+    insert into dept_patient_label (id, department_id, patient_id, 
+      dept_label_id, create_time)
+    values (#{id,jdbcType=BIGINT}, #{departmentId,jdbcType=BIGINT}, #{patientId,jdbcType=BIGINT}, 
+      #{deptLabelId,jdbcType=BIGINT}, #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+    <insert id="insertSelective" parameterType="com.yhyt.health.model.DeptPatientLable">
+        insert into dept_patient_label
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="departmentId != null">
+                department_id,
+            </if>
+            <if test="patientId != null">
+                patient_id,
+            </if>
+            <if test="deptLabelId != null">
+                dept_label_id,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="departmentId != null">
+                #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="patientId != null">
+                #{patientId,jdbcType=BIGINT},
+            </if>
+            <if test="deptLabelId != null">
+                #{deptLabelId,jdbcType=BIGINT},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yhyt.health.model.DeptPatientLable">
+        update dept_patient_label
+        <set>
+            <if test="departmentId != null">
+                department_id = #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="patientId != null">
+                patient_id = #{patientId,jdbcType=BIGINT},
+            </if>
+            <if test="deptLabelId != null">
+                dept_label_id = #{deptLabelId,jdbcType=BIGINT},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yhyt.health.model.DeptPatientLable">
+    update dept_patient_label
+    set department_id = #{departmentId,jdbcType=BIGINT},
+      patient_id = #{patientId,jdbcType=BIGINT},
+      dept_label_id = #{deptLabelId,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <select id="queryDeptPatientLabels" parameterType="DeptPatientLable" resultMap="deptPatientLableVo">
+        SELECT
+        dpl.*,dp.name department_name,p.realname patient_name,dl.name dept_label_name
+        FROM
+        dept_patient_label dpl
+        LEFT JOIN department dp ON dpl.department_id = dp.id
+        LEFT JOIN patient p ON dpl.patient_id = p.id
+        LEFT JOIN dept_label dl ON dpl.dept_label_id = dl.id
+        where 1=1
+        <if test="id != null">
+            and dpl.id = #{id,jdbcType=BIGINT}
+        </if>
+        <if test="patientId != null">
+            and dpl.patient_id= #{patientId,jdbcType=BIGINT}
+        </if>
+        <if test="departmentId">
+            and dpl.department_id = #{departmentId,jdbcType=BIGINT}
+        </if>
+    </select>
+    <delete id="deleteDeptPatientByDepartmentId">
+    delete from dept_patient_label
+    where department_id = #{departmentId,jdbcType=BIGINT}
+  </delete>
+    <insert id="insertDeptPatientLableBatch" parameterType="java.util.List">
+        insert into dept_patient_label
+        (department_id, patient_id, dept_label_id, create_time)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.departmentId,jdbcType=BIGINT},
+            #{item.patientId,jdbcType=BIGINT},#{item.deptLabelId,jdbcType=BIGINT},#{item.createTime,jdbcType=TIMESTAMP}
+            )
+        </foreach>
+    </insert>
+</mapper>

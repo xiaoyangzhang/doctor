@@ -1,0 +1,402 @@
+package com.yhyt.health.app.controller;
+
+import com.yhyt.health.mapper.DepartmentMapper;
+import com.yhyt.health.mapper.DialogAppointmentTransferMapper;
+import com.yhyt.health.mapper.HospitalMapper;
+import com.yhyt.health.model.*;
+import com.yhyt.health.result.AppResult;
+import com.yhyt.health.service.DialogService;
+import com.yhyt.health.service.DoctorService;
+import com.yhyt.health.service.MessageService;
+import com.yhyt.health.service.RedisService;
+import com.yhyt.health.util.DateUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
+
+import java.util.*;
+
+/**
+ * 作者:
+ *
+ * @version 创建时间：2017年8月17日 下午4:12:35
+ * 类说明
+ */
+@RestController
+@Api(value = "", description = "预约、转诊相关接口")
+public class DialogAppController {
+
+    static Logger logger = LoggerFactory.getLogger(DialogAppController.class);
+
+    @Autowired
+    private DialogService dialogService;
+    @Autowired
+    private DoctorService doctorService;
+
+    @ApiOperation(value = "发起预约", notes = "发起预约")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "token", paramType = "header", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "roomId", value = "预约发起对话roomId", paramType = "query", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "doctorIdLaunch", value = "发起预约医生id", paramType = "query", required = false, dataType = "Long"),
+            @ApiImplicitParam(name = "doctorIdAppointment", value = "预约医生id", paramType = "query", required = false, dataType = "Long"),
+            @ApiImplicitParam(name = "hospitalId", value = "预约医院id", paramType = "query", required = false, dataType = "Long"),
+            @ApiImplicitParam(name = "appointmentTime", value = "预约时间", paramType = "query", required = true, dataType = "long"),
+            @ApiImplicitParam(name = "ampm", value = "预约时段1上午2下午", paramType = "query", required = true, dataType = "long"),
+            @ApiImplicitParam(name = "demand", value = "预约须知", paramType = "query", required = false, dataType = "String")
+    })
+    @PostMapping("/dialogAppointments")
+    public AppResult addDialogAppointments(@RequestHeader("token") String token
+            , @RequestParam String roomId
+            , @RequestParam(required = false) Long doctorIdLaunch
+            , @RequestParam(required = false) Long doctorIdAppointment
+            , @RequestParam(required = false) Long hospitalId
+            , @RequestParam long appointmentTime
+            , @RequestParam long ampm
+            , @RequestParam(required = false) String demand
+    ) {
+        DialogAppointment appointment = new DialogAppointment();
+//		 appointment.setDoctorIdLaunch(doctorIdLaunch);
+        appointment.setDoctorIdAppointment(doctorIdAppointment);
+        appointment.setHospitalId(hospitalId);
+        appointment.setAppointmentTime(DateUtil.setStartDay(DateUtil.timestampToDate(appointmentTime)));//把时间戳转成时间
+        appointment.setState((byte) 1);//未签到
+        appointment.setAmpm((byte) ampm);
+        appointment.setDemand(demand);
+        return dialogService.addDialogAppointments(token, appointment,roomId);
+    }
+
+
+    @ApiOperation(value = "获取预约信息详情", notes = "获取预约信息详情")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "token", paramType = "header", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "id", value = "预约id", paramType = "path", required = true, dataType = "Long")
+    })
+    @GetMapping("/dialogAppointments/id/{id}")
+    public AppResult getDialogAppointments(
+            @RequestHeader("token") String token
+            , @PathVariable Long id) {
+        return dialogService.getDialogAppointment(token, id);
+    }
+
+    @ApiOperation(value = "预约确认 医生／患者", notes = "预约确认 医生／患者")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "token", paramType = "header", required = true, dataType = "String")
+            , @ApiImplicitParam(name = "id", value = "预约id", paramType = "path", required = true, dataType = "long")
+            , @ApiImplicitParam(name = "state", value = "状态1-待确认 2已确认 3-拒绝 4-患者取消 5-医生取消", paramType = "query", required = true, dataType = "String")
+    })
+    @PatchMapping("/dialogAppointments/id/{id}")
+    public AppResult confirmDialogAppointments(@RequestHeader("token") String token
+            , @PathVariable long id
+            , @RequestParam String state) {
+        DialogAppointment appointment = new DialogAppointment();
+        appointment.setState(new Byte(state));
+        appointment.setId(id);
+        return dialogService.confirmDialogAppointments(token,appointment);
+    }
+
+    @ApiOperation(value = "发起转诊", notes = "发起转诊")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "token", paramType = "header", required = true, dataType = "String")
+            , @ApiImplicitParam(name = "roomId", value = "聊天室id", paramType = "query", required = true, dataType = "String")
+            , @ApiImplicitParam(name = "patientId", value = "患者id", paramType = "query", required = true, dataType = "long")
+            , @ApiImplicitParam(name = "launchDoctorId", value = "发起预约医生id", paramType = "query", required = true, dataType = "long")
+            , @ApiImplicitParam(name = "departmentId", value = "转诊科室id", paramType = "query", required = true, dataType = "long")
+    })
+    @PostMapping("/dialogAppointmentTransfers")
+    public AppResult addDialogAppointmentTransfers(
+            @RequestHeader("token") String token
+            , @RequestParam String roomId
+            , @RequestParam long patientId
+            , @RequestParam(required = false) long launchDoctorId
+            , @RequestParam long departmentId
+    ) {
+        DialogAppointmentTransfer dialogAppointmentTransfer = new DialogAppointmentTransfer();
+        /*dialogAppointmentTransfer.setDoctorId(doctorId);*/
+        dialogAppointmentTransfer.setPatientId(patientId);
+        dialogAppointmentTransfer.setLaunchDoctorId(launchDoctorId);
+        dialogAppointmentTransfer.setDepartmentId(departmentId);
+//        dialogAppointmentTransfer.setDialogDetailId(dialogId);
+        dialogAppointmentTransfer.setState((byte) 1);
+        dialogAppointmentTransfer.setSignState((byte) 1);
+        dialogAppointmentTransfer.setAppointmentTime(new Date());
+
+        AppResult appResult = dialogService.addDialogAppointmentTransfers(token, dialogAppointmentTransfer,roomId);
+
+        return appResult;
+    }
+
+    @ApiOperation(value = "获取转诊详情", notes = "获取转诊详情")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "token", paramType = "header", required = true, dataType = "String")
+            , @ApiImplicitParam(name = "id", value = "转诊id", paramType = "path", required = true, dataType = "long")
+    })
+    @GetMapping("/dialogAppointmentTransfers/id/{id}")
+    public AppResult getDialogAppointmentTransfers(
+            @RequestHeader("token") String token
+            , @PathVariable long id
+    ) {
+        DialogAppointmentTransfer appointmentTransfer = new DialogAppointmentTransfer();
+        appointmentTransfer.setId(id);
+        return dialogService.getDialogAppointmentTransfers(token, appointmentTransfer);
+    }
+
+
+    @ApiOperation(value = "转诊确认医生／患者", notes = "转诊确认医生／患者")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "token", paramType = "header", required = true, dataType = "String")
+            , @ApiImplicitParam(name = "id", value = "转诊id", paramType = "path", required = true, dataType = "long")
+            , @ApiImplicitParam(name = "state", value = "状态 1-待确认 2-患者同意 3-患者拒绝 4-医生同意 5-医生拒绝 6-处理中", paramType = "query", required = true, dataType = "String")
+    })
+    @PatchMapping("/dialogAppointmentTransfers/id/{id}")
+    public AppResult confirmDialogAppointmentTransfers(
+            @RequestHeader HttpHeaders httpHeaders
+            , @PathVariable long id
+            , @RequestParam String state
+    ) {
+        String token = httpHeaders.getFirst("token");
+        //组装转诊表
+        DialogAppointmentTransfer dialogAppointmentTransfer = new DialogAppointmentTransfer();
+        dialogAppointmentTransfer.setId(id);
+        dialogAppointmentTransfer.setState(new Byte(state));
+        AppResult appResult = dialogService.confirmDialogAppointmentTransfers(token, dialogAppointmentTransfer);
+
+        return appResult;
+    }
+
+    @ApiOperation(value = "预约/诊后签到", notes = "预约/诊后签到")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "token", paramType = "header", required = true, dataType = "String")
+            , @ApiImplicitParam(name = "patientId", value = "患者id", paramType = "query", required = true, dataType = "long")
+            , @ApiImplicitParam(name = "hospitalId", value = "医院id", paramType = "query", required = false, dataType = "Long")
+            , @ApiImplicitParam(name = "departmentId", value = "科室id", paramType = "query", required = false, dataType = "Long")
+            , @ApiImplicitParam(name = "appointmentId", value = "预约id", paramType = "query", required = true, dataType = "long")
+            , @ApiImplicitParam(name = "mainDoctor", value = "主诊医师", paramType = "query", required = false, dataType = "String")
+            , @ApiImplicitParam(name = "source", value = "1医生签到2患者补签3医生扫码4患者扫码", paramType = "query", required = true, dataType = "String")
+    })
+    @PostMapping("/dialogSigns")
+    public AppResult dialogSigns(
+            @RequestHeader HttpHeaders headers
+            , @RequestParam long patientId
+            , @RequestParam(required = false) Long hospitalId
+            , @RequestParam(required = false) Long departmentId
+            , @RequestParam String source
+            , @RequestParam(required = false) String mainDoctor
+            , @RequestParam long appointmentId
+    ) {
+        //诊后签到保存
+        DeptPatientSign deptPatientSign = new DeptPatientSign();
+        deptPatientSign.setPatientId(patientId);
+        deptPatientSign.setMainDoctor(mainDoctor);
+        deptPatientSign.setSource(Byte.parseByte(source));
+        deptPatientSign.setDepartmentId(departmentId);
+        return dialogService.addDialogSign(headers.getFirst("token"), deptPatientSign, appointmentId);
+    }
+
+    @ApiOperation(value = "获取预约的医生", notes = "获取预约的医生")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "token", paramType = "header", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "appointmentTime", value = "预约时间", paramType = "query", required = true, dataType = "Long"),
+    })
+    @GetMapping("/getDoctorAppointments")
+    public AppResult getDoctorAppointments(@RequestHeader HttpHeaders httpHeaders
+            , @RequestParam Long appointmentTime
+    ) {
+        String token = httpHeaders.getFirst("token");
+        return dialogService.getDoctorAppointments(token, appointmentTime);
+    }
+
+    @ApiOperation(value = "获取转诊的科室", notes = "获取转诊的科室")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "token", paramType = "header", required = true, dataType = "String")
+    })
+    @GetMapping("/getDepartmentTransfers")
+    public AppResult getDepartmentTransfers(
+            @RequestHeader HttpHeaders httpHeaders
+    ) {
+        String token = httpHeaders.getFirst("token");
+        return dialogService.getDepartmentTransfers(token);
+    }
+
+    @ApiOperation(value = "今日待诊", notes = "今日待诊")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "登陆token", paramType = "header", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "departmentId", value = "科室id", paramType = "query", required = false, dataType = "Long"),
+            @ApiImplicitParam(name = "startTime", value = "预约时间", paramType = "query", required = false, dataType = "Long"),
+            @ApiImplicitParam(name = "ampm", value = "时段1 上午2下午,多个以都逗号分开", paramType = "query", required = false, dataType = "String"),
+            @ApiImplicitParam(name = "pageIndex", value = "页码", paramType = "query", required = false, dataType = "Integer"),
+            @ApiImplicitParam(name = "pageSize", value = "页容量", paramType = "query", required = false, dataType = "Integer")
+    })
+    @GetMapping("/dialogAppointments")
+    public AppResult queryUndiagnoseList(@RequestHeader("token") String token
+            , @RequestParam(required = false) Long departmentId
+            , @RequestParam(required = false) Long startTime
+            , @RequestParam(required = false) String ampm
+            , @RequestParam(required = false) Integer pageIndex
+            , @RequestParam(required = false)  Integer pageSize
+            ) {
+        DialogAppointment dialogAppointment = new DialogAppointment();
+        dialogAppointment.setDepartmentId(departmentId);
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("departmentId", departmentId);
+        map.put("appointmentTime", startTime);
+        //组装状态
+        if (null != ampm && !"".equals(ampm)) {
+            String[] ampmStr = ampm.split(",");
+            List<Byte> ampms = new ArrayList<Byte>();
+            for (int i = 0; i < ampmStr.length; i++) {
+                ampms.add(Byte.valueOf(ampmStr[i]));
+            }
+            map.put("ampms", ampms);
+        }
+        return dialogService.queryUndiagnoseList(token, map,pageIndex,pageSize);
+    }
+
+    @ApiOperation(value = "过期预约列表", notes = "过期预约列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "登陆token", paramType = "header", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "departmentId", value = "科室id", paramType = "query", required = false, dataType = "Long"),
+            @ApiImplicitParam(name = "pageIndex", value = "页码", paramType = "query", required = false, dataType = "Integer"),
+            @ApiImplicitParam(name = "pageSize", value = "页容量", paramType = "query", required = false, dataType = "Integer")
+    })
+    @GetMapping("/queryOverdueUndiagnoseList")
+    public AppResult queryOverdueUndiagnoseList(@RequestHeader("token") String token
+            , @RequestParam(required = false) Long departmentId
+            , @RequestParam(required = false) Integer pageIndex
+            , @RequestParam(required = false)  Integer pageSize) {
+        DialogAppointment dialogAppointment = new DialogAppointment();
+        dialogAppointment.setDepartmentId(departmentId);
+
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("departmentId", departmentId);
+
+        return dialogService.queryOverdueUndiagnoseList(token, map,pageIndex,pageSize);
+    }
+
+    @ApiOperation(value = "根据医生取待诊患者", notes = "根据医生取待诊患者")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "登陆token", paramType = "header", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "departmentId", value = "科室id", paramType = "query", required = false, dataType = "Long"),
+            @ApiImplicitParam(name = "doctorIdAppointment", value = "医生id（不传为待分诊查询）", paramType = "query", required = false, dataType = "Long"),
+            @ApiImplicitParam(name = "ampm", value = "1上午2下午", paramType = "query", required = false, dataType = "String"),
+            @ApiImplicitParam(name = "appointmentTime", value = "预约日期", paramType = "query", required = false, dataType = "String"),
+            @ApiImplicitParam(name = "keys", value = "关键字", paramType = "query", required = false, dataType = "String"),
+            @ApiImplicitParam(name = "pageIndex", value = "页码", paramType = "query", required = false, dataType = "Integer"),
+            @ApiImplicitParam(name = "pageSize", value = "页容量", paramType = "query", required = false, dataType = "Integer")
+    })
+    @GetMapping("/dialogAppointmentsDoctor")
+    public AppResult queryUndiagnoseListDcotor(@RequestHeader("token") String token
+            , @RequestParam(required = false) Long departmentId
+            , @RequestParam(required = false) Long doctorIdAppointment
+            , @RequestParam(required = false) String ampm
+            , @RequestParam(required = false) String keys
+            , @RequestParam(required = false) Long appointmentTime
+            , @RequestParam(required = false) Integer pageIndex
+            , @RequestParam(required = false)  Integer pageSize) {
+
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("doctorIdAppointment", doctorIdAppointment);
+        map.put("departmentId", departmentId);
+        if (null != ampm && !"".equals(ampm))
+            map.put("ampm", Byte.valueOf(ampm));
+        map.put("keys", keys);
+        map.put("appointmentTime", appointmentTime);
+        return dialogService.queryUndiagnoseListDoctor(token, map,pageIndex,pageSize);
+    }
+
+    @ApiOperation(value = "患者搜索", notes = "9.患者搜索")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "token", paramType = "header", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "key", value = "关键字", paramType = "query", required = false, dataType = "String"),
+            @ApiImplicitParam(name = "departmentId", value = "科室id(不传为当前)", paramType = "query", required = false, dataType = "Long")
+    })
+    @GetMapping("/searchpatient")
+    public AppResult searchpatient(
+            @RequestHeader("token") String token,
+            @RequestParam(required = false) String key
+            ,@RequestParam(required = false) Long departmentId) {
+        return dialogService.searchyUndiagnoseAllpatient(token, key,departmentId);
+    }
+
+    @ApiOperation(value = "根据起始时间获取待诊,未分诊数量", notes = "根据起始时间获取待诊,未分诊数量")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "token", paramType = "header", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "beginTime", value = "起始时间", paramType = "query", required = true, dataType = "Long"),
+            @ApiImplicitParam(name = "endTime", value = "结束时间", paramType = "query", required = true, dataType = "Long"),
+            @ApiImplicitParam(name = "doctorId", value = "待诊(传列表医生 id),未分诊传空)", paramType = "query", required = false, dataType = "Long"),
+            @ApiImplicitParam(name = "departmentId", value = "当前科室,当'未分诊'时,传当前科室,当'待诊'时不传", paramType = "query", required = false, dataType = "Long")
+    })
+    @GetMapping("/queryAppointsCountByDate")
+    public AppResult queryUndiagnoseListDcotor(
+            @RequestHeader HttpHeaders httpHeaders,
+            @RequestParam(required = true) Long beginTime
+            , @RequestParam(required = true) Long endTime
+            , @RequestParam(required = false) Long doctorId
+            , @RequestParam(required = false) Long departmentId) {
+//        if ((doctorId != null && doctorId != 0) && departmentId == null) {
+//            departmentId = doctorService.getDoctorById(doctorId).getDepartmentId();
+//        }
+        String token = httpHeaders.getFirst("token");
+        return dialogService.queryAppointsCountByDate(token,departmentId, DateUtil.timestampToDate(beginTime), DateUtil.timestampToDate(endTime), doctorId);
+    }
+
+    @ApiOperation(value = "我的预约（患者端）", notes = "我的预约（患者端）")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "token", paramType = "header", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "patientId", value = "患者Id", paramType = "query", required = true, dataType = "Long"),
+            @ApiImplicitParam(name = "type", value = "类型不传为全部，1.待确认，2.待就诊，3.待签到，4.已完成" +
+                    ",5.已取消", paramType = "query", required = false, dataType = "String"),
+            @ApiImplicitParam(name = "pageIndex", value = "页码", paramType = "query", required = false, dataType = "Integer"),
+            @ApiImplicitParam(name = "pageSize", value = "页容量", paramType = "query", required = false, dataType = "Integer")
+    })
+    @GetMapping("/getMyPatientDialog")
+    public AppResult getMyPatientDialog(
+            @RequestHeader HttpHeaders httpHeaders,
+            @RequestParam Long patientId,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) Integer pageIndex,
+            @RequestParam(required = false)  Integer pageSize
+            ) {
+        String token = httpHeaders.getFirst("token");
+        return dialogService.getMyPatientDialog(token,patientId,type,pageIndex,pageSize);
+    }
+
+    @ApiOperation(value = "我的转诊（患者端）", notes = "我的转诊（患者端）")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "token", paramType = "header", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "patientId", value = "患者Id", paramType = "query", required = true, dataType = "Long"),
+            @ApiImplicitParam(name = "type", value = "不传为全部，1转诊中 2 转诊成功 3转诊失败", paramType = "query", required = false, dataType = "String"),
+            @ApiImplicitParam(name = "pageIndex", value = "页码", paramType = "query", required = false, dataType = "Integer"),
+            @ApiImplicitParam(name = "pageSize", value = "页容量", paramType = "query", required = false, dataType = "Integer")
+    })
+    @GetMapping("/getMyPatientTransfer")
+    public AppResult getMyPatientTransfer(
+            @RequestHeader HttpHeaders httpHeaders,
+            @RequestParam Long patientId,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) Integer pageIndex,
+            @RequestParam(required = false)  Integer pageSize
+    ) {
+        String token = httpHeaders.getFirst("token");
+        return dialogService.getMyPatientTransfer(token,patientId,type,pageIndex,pageSize);
+    }
+
+    /**
+     * 过期预约调用方法
+     * @return
+     */
+    @ApiIgnore
+    @GetMapping("/overdueUndiagnose")
+    public AppResult overdueUndiagnose() {
+        return dialogService.overdueUndiagnose();
+    }
+
+
+
+}

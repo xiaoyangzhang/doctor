@@ -1,0 +1,123 @@
+package com.yhyt.health.model.vo.app;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.util.Date;
+
+/**
+ * @author gsh
+ * @create 2017-12-08 11:05
+ **/
+public class PatientObstetricInfoVo {
+
+    private Long obstericsId;
+    private String husbandName;
+    private String husbandMobile;
+    private String birthPlace;
+    private String resideAdress;
+    private Date expectBirthDate;
+    private String pregnantWeek;
+    private String pregnantTime;
+    private String produceTime;
+    private String departmentObstetricsIds;
+    private String departmentObstetricsNames;
+    private String remark;
+
+
+    public String getHusbandName() {
+        return husbandName;
+    }
+
+    public void setHusbandName(String husbandName) {
+        this.husbandName = husbandName;
+    }
+
+    public String getHusbandMobile() {
+        return husbandMobile;
+    }
+
+    public void setHusbandMobile(String husbandMobile) {
+        this.husbandMobile = husbandMobile;
+    }
+
+    public String getBirthPlace() {
+        return birthPlace;
+    }
+
+    public void setBirthPlace(String birthPlace) {
+        this.birthPlace = birthPlace;
+    }
+
+    public String getResideAdress() {
+        return resideAdress;
+    }
+
+    public void setResideAdress(String resideAdress) {
+        this.resideAdress = resideAdress;
+    }
+
+    @JsonFormat(pattern = "yyyy年MM月dd日",timezone = "GMT+8")
+    public Date getExpectBirthDate() {
+        return expectBirthDate;
+    }
+
+    public void setExpectBirthDate(Date expectBirthDate) {
+        this.expectBirthDate = expectBirthDate;
+    }
+
+    public String getPregnantWeek() {
+        return pregnantWeek;
+    }
+
+    public void setPregnantWeek(String pregnantWeek) {
+        this.pregnantWeek = pregnantWeek;
+    }
+
+    public String getPregnantTime() {
+        return pregnantTime;
+    }
+
+    public void setPregnantTime(String pregnantTime) {
+        this.pregnantTime = pregnantTime;
+    }
+
+    public String getProduceTime() {
+        return produceTime;
+    }
+
+    public void setProduceTime(String produceTime) {
+        this.produceTime = produceTime;
+    }
+
+    public String getDepartmentObstetricsIds() {
+        return departmentObstetricsIds;
+    }
+
+    public void setDepartmentObstetricsIds(String departmentObstetricsIds) {
+        this.departmentObstetricsIds = departmentObstetricsIds;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
+
+    public Long getObstericsId() {
+        return obstericsId;
+    }
+
+    public void setObstericsId(Long obstericsId) {
+        this.obstericsId = obstericsId;
+    }
+
+    public String getDepartmentObstetricsNames() {
+        return departmentObstetricsNames;
+    }
+
+    public void setDepartmentObstetricsNames(String departmentObstetricsNames) {
+        this.departmentObstetricsNames = departmentObstetricsNames;
+    }
+}

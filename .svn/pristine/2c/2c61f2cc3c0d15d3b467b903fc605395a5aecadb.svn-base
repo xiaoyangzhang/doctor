@@ -1,0 +1,262 @@
+package com.yhyt.health.service.api;
+
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.netflix.discovery.converters.Auto;
+import com.yhyt.health.config.PathConfiguration;
+import com.yhyt.health.constant.DoctorConstant;
+import com.yhyt.health.constant.ResultCode;
+import com.yhyt.health.mapper.DialogMapper;
+import com.yhyt.health.mapper.DoctorMapper;
+import com.yhyt.health.mapper.PatientMapper;
+import com.yhyt.health.model.Dialog;
+import com.yhyt.health.model.Doctor;
+import com.yhyt.health.model.Patientl;
+import com.yhyt.health.model.Questionnaire;
+import com.yhyt.health.model.dto.QuestionnaireItemAnswer;
+import com.yhyt.health.model.vo.ImMessageVo;
+import com.yhyt.health.result.AppResult;
+import com.yhyt.health.service.ImService;
+import com.yhyt.health.service.RedisService;
+import com.yhyt.health.util.BusinessException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
+
+import javax.annotation.Resource;
+import javax.print.Doc;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @author gsh
+ * @create 2017-11-16 15:22
+ **/
+@Service
+public class QuestionnaireApiImpl implements QuestionnaireApi {
+
+    static Logger logger = LoggerFactory.getLogger(QuestionnaireApiImpl.class);
+
+    @Autowired
+    private RedisService redisService;
+
+    @Autowired
+    private DoctorConstant doctorConstant;
+
+    @Autowired
+    private DoctorMapper doctorMapper;
+
+    @Autowired
+    private DialogMapper dialogMapper;
+
+    @Autowired
+    @Qualifier("loadBalanced")
+    private RestTemplate restTemplate;
+
+    @Autowired
+    private PathConfiguration pathConfiguration;
+
+    @Autowired
+    private ImService imService;
+
+    @Autowired
+    private PatientMapper patientMapper;
+
+    @Override
+    public com.yhyt.health.result.AppResult getQuestionnaireRepertory(String token, Long userId, String type, String moreFlag) {
+        AppResult appResult = new AppResult();
+        Doctor doctor = (Doctor) redisService.get(doctorConstant.getRedis().get("global"), token);
+        if (null == userId) {
+            userId = doctor.getId();
+        }
+        Map<String, Object> mapPara = new HashMap<String, Object>();
+        mapPara.put("userId", userId);
+        mapPara.put("type", type);
+        mapPara.put("moreFlag", moreFlag);
+        com.yhyt.health.spring.AppResult result
+                =restTemplate.getForObject(pathConfiguration.getSystemUrl()+"/questionnaire/questionnaireRepertory/{type}?userId={userId}&moreFlag={moreFlag}", com.yhyt.health.spring.AppResult.class, mapPara);
+        if (null != result && "200".equals(result.getStatus().getCode())) {
+            appResult.setResultCode(ResultCode.SUCCESS);
+            appResult.getBody().put("questionnaires", result.getBody());
+        } else {
+            throw new BusinessException(ResultCode.EXCEPTION.val(), "调用问卷库接口失败");
+        }
+        return appResult;
+    }
+
+    @Override
+    @Transactional
+    public com.yhyt.health.result.AppResult sendQuestionnaireDoctor(String token, String roomIds, Long questionnaireId) {
+        AppResult appResult = new AppResult();
+        //得到当前用户
+        Doctor doctor = (Doctor) redisService.get(doctorConstant.getRedis().get("global"), token);
+        JSONArray roomIdss = JSONArray.parseArray(roomIds);
+        for (int i = 0; i < roomIdss.size(); i++) {
+            //得到聊天室信息
+            Dialog dialog = dialogMapper.selectByRoomId(roomIdss.getString(i));
+            Map<String, Object> mapPara = new HashMap<String, Object>();
+            mapPara.put("userId", doctor.getId());
+            mapPara.put("departmentId", dialog.getDepartmentId());
+            mapPara.put("patientId", dialog.getPatientId());
+            mapPara.put("questionnaireId", questionnaireId);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+            HttpEntity<String> httpEntity = new HttpEntity<String>(headers);
+            com.yhyt.health.spring.AppResult result
+                    =restTemplate.postForObject(pathConfiguration.getSystemUrl()+"/questionnaire/questionnaireDoctor?userId={userId}&departmentId={departmentId}" +
+                    "&patientId={patientId}&questionnaireId={questionnaireId}", httpEntity, com.yhyt.health.spring.AppResult.class, mapPara);
+            if (null != result && "200".equals(result.getStatus().getCode())) {
+                appResult.setResultCode(ResultCode.SUCCESS);
+                Map<String,Object> map = (Map<String, Object>) result.getBody();
+                appResult.getBody().put("questionnaireDoctorPatientId",map.get("questionnaireDoctorPatientId"));
+                //群发消息卡片
+                ImMessageVo imMessageVo= new ImMessageVo();
+                imMessageVo.setType("4");
+                imMessageVo.setFromUserId(doctor.getId());
+                imMessageVo.setFromUserName(doctor.getRealname());
+                imMessageVo.setFromUserLogo(doctor.getHeadImage());
+                imMessageVo.setContent("10"+result.getBody()+map.get("title"));
+                imService.sendGroupMessage(doctor.getId(),dialog.getPatientId(),"1", JSONObject.toJSON(imMessageVo).toString());
+            } else {
+                throw new BusinessException(ResultCode.EXCEPTION.val(), "调用发送问卷库接口失败");
+            }
+        }
+        return appResult;
+    }
+
+    @Override
+    public com.yhyt.health.result.AppResult getSendQuestionnaireDoctor(Long questionnaireDoctorPatientId, Long questionnaireId) {
+        AppResult appResult = new AppResult();
+        Map<String, Object> mapPara = new HashMap<String, Object>();
+        mapPara.put("questionnaireDoctorPatientId", questionnaireDoctorPatientId);
+        mapPara.put("questionnaireId", questionnaireId);
+        com.yhyt.health.spring.AppResult result
+                =restTemplate.getForObject(pathConfiguration.getSystemUrl()+"/questionnaire/questionnaireDoctor?questionnaireDoctorPatientId={questionnaireDoctorPatientId}" +
+                "&questionnaireId={questionnaireId}", com.yhyt.health.spring.AppResult.class, mapPara);
+        if (null != result && "200".equals(result.getStatus().getCode())) {
+            appResult.setResultCode(ResultCode.SUCCESS);
+            appResult.getBody().put("questionnaire",result.getBody());
+        } else {
+            throw new BusinessException(ResultCode.EXCEPTION.val(), "调用查看发送问卷库接口失败");
+        }
+        return appResult;
+    }
+
+    @Override
+    public com.yhyt.health.result.AppResult submitQuestionnairePatient(Long questionnaireDoctorPatientId, Long questionnaireId, String questionnaireItemAnswerListJson) {
+        AppResult appResult = new AppResult();
+        Map<String, Object> mapPara = new HashMap<String, Object>();
+        mapPara.put("questionnaireDoctorPatientId", questionnaireDoctorPatientId);
+        mapPara.put("questionnaireId", questionnaireId);
+//        JSONArray answerns = JSONArray.parseArray(questionnaireItemAnswerListJson);
+//        List<QuestionnaireItemAnswer> questionnaireItemAnswerList = new ArrayList<QuestionnaireItemAnswer>();
+//        for (int i = 0; i <answerns.size() ; i++) {
+//            QuestionnaireItemAnswer questionnaireItemAnswer = new QuestionnaireItemAnswer();
+//            questionnaireItemAnswer.setId(Long.valueOf(answerns.getJSONObject(i).get("id").toString()));
+//            questionnaireItemAnswer.setType(answerns.getJSONObject(i).get("type").toString());
+//            questionnaireItemAnswer.setAnswer(answerns.getJSONObject(i).getString("answern").toString());
+//            questionnaireItemAnswer.setIsNecessary(answerns.getJSONObject(i).getString("isNecessary"));
+//            questionnaireItemAnswerList.add(questionnaireItemAnswer);
+//        }
+        mapPara.put("questionnaireItems", questionnaireItemAnswerListJson);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+        HttpEntity<String> httpEntity = new HttpEntity<String>(headers);
+        com.yhyt.health.spring.AppResult result
+                =restTemplate.postForObject(pathConfiguration.getSystemUrl()+"/questionnaire/questionnairePatient?questionnaireDoctorPatientId={questionnaireDoctorPatientId}" +
+                "&questionnaireId={questionnaireId}" +
+                "&questionnaireItems={questionnaireItems}", httpEntity, com.yhyt.health.spring.AppResult.class, mapPara);
+        if (null != result && "200".equals(result.getStatus().getCode())) {
+            appResult.setResultCode(ResultCode.SUCCESS);
+            Map<String,Object> map = (Map<String, Object>) result.getBody();
+            appResult.getBody().put("questionnaireDoctorPatientId",map.get("questionnaireDoctorPatientId"));
+            //群发消息卡片
+            Patientl patientl = patientMapper.selectPatientlById(Long.valueOf(map.get("patientId").toString()));
+            ImMessageVo imMessageVo= new ImMessageVo();
+            imMessageVo.setType("4");
+            imMessageVo.setFromUserId(patientl.getId());
+            imMessageVo.setFromUserName(patientl.getRealname());
+            imMessageVo.setFromUserLogo(patientl.getHeadImage());
+            imMessageVo.setContent("10"+result.getBody()+map.get("title"));
+            imService.sendGroupMessage(Long.valueOf(map.get("doctorId").toString()),patientl.getId(),"2", JSONObject.toJSON(imMessageVo).toString());
+        } else {
+            throw new BusinessException(ResultCode.EXCEPTION.val(), "调用提交问卷库接口失败");
+        }
+        return appResult;
+    }
+
+    @Override
+    public com.yhyt.health.result.AppResult getQuestionnairePatient(Long questionnaireDoctorPatientId) {
+        AppResult appResult = new AppResult();
+        Map<String, Object> mapPara = new HashMap<String, Object>();
+        mapPara.put("questionnaireDoctorPatientId", questionnaireDoctorPatientId);
+        com.yhyt.health.spring.AppResult result
+                =restTemplate.getForObject(pathConfiguration.getSystemUrl()+"/questionnaire/questionnairePatient?questionnaireDoctorPatientId={questionnaireDoctorPatientId}"
+                , com.yhyt.health.spring.AppResult.class, mapPara);
+        if (null != result && "200".equals(result.getStatus().getCode())) {
+            appResult.setResultCode(ResultCode.SUCCESS);
+            appResult.getBody().put("questionnaire",result.getBody());
+        } else {
+            throw new BusinessException(ResultCode.EXCEPTION.val(), "调用查看问卷卡片(患者发送卡片)接口失败");
+        }
+        return appResult;
+    }
+
+    @Override
+    public com.yhyt.health.result.AppResult getMyQuestionnairePatient(String token, Long userId, String type) {
+        AppResult appResult = new AppResult();
+        //得到当前用户
+        Doctor doctor = (Doctor) redisService.get(doctorConstant.getRedis().get("global"), token);
+        if (userId == null) {
+            userId = doctor.getId();
+        }
+        Map<String, Object> mapPara = new HashMap<String, Object>();
+        mapPara.put("userId", userId);
+        mapPara.put("type", type);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+        HttpEntity<String> httpEntity = new HttpEntity<String>(headers);
+        com.yhyt.health.spring.AppResult result
+                =restTemplate.postForObject(pathConfiguration.getSystemUrl()+"/questionnaire/myQuestionnairePatient/{type}?userId={userId}"
+                , httpEntity, com.yhyt.health.spring.AppResult.class, mapPara);
+        if (null != result && "200".equals(result.getStatus().getCode())) {
+            appResult.setResultCode(ResultCode.SUCCESS);
+            appResult.getBody().put("questionnaires",result.getBody());
+        } else {
+            throw new BusinessException(ResultCode.EXCEPTION.val(), "调用我的问卷接口失败");
+        }
+        return appResult;
+    }
+
+    @Override
+    public com.yhyt.health.result.AppResult searchQuestionnaire(String token, String keyWord, Long userId) {
+        AppResult appResult = new AppResult();
+        //得到当前用户
+        Doctor doctor = (Doctor) redisService.get(doctorConstant.getRedis().get("global"), token);
+        if (userId == null) {
+            userId = doctor.getId();
+        }
+        Map<String, Object> mapPara = new HashMap<String, Object>();
+        mapPara.put("userId", userId);
+        mapPara.put("keyWord", keyWord);
+        com.yhyt.health.spring.AppResult result
+                =restTemplate.getForObject(pathConfiguration.getSystemUrl()+"/questionnaire/searchQuestionnaire?userId={userId}&keyWord={keyWord}"
+                , com.yhyt.health.spring.AppResult.class, mapPara);
+        if (null != result && "200".equals(result.getStatus().getCode())) {
+            appResult.setResultCode(ResultCode.SUCCESS);
+            appResult.getBody().put("questionnaires",result.getBody());
+        } else {
+            throw new BusinessException(ResultCode.EXCEPTION.val(), "调用查看问卷搜索接口失败");
+        }
+        return appResult;
+    }
+}

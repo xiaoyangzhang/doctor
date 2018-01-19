@@ -1,0 +1,231 @@
+package com.yhyt.health.service;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.yhyt.health.mapper.ArticleAreaMapper;
+import com.yhyt.health.mapper.ArticleDepartmentMapper;
+import com.yhyt.health.mapper.ArticleLogMapper;
+import com.yhyt.health.mapper.ArticleMapper;
+import com.yhyt.health.model.*;
+import com.yhyt.health.model.dto.ArticleAreaDTO;
+import com.yhyt.health.model.dto.ArticleDepartmentDTO;
+import com.yhyt.health.model.query.ArticleQuery;
+import com.yhyt.health.model.vo.ArticleVO;
+import com.yhyt.health.util.BusinessException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+@Service
+public class ArticleServiceImpl implements ArticleService {
+
+    @Autowired
+    private ArticleMapper articleMapper;
+    @Autowired
+    private ArticleDepartmentMapper articleDepartmentMapper;
+
+    @Autowired
+    private ArticleAreaMapper articleAreaMapper;
+
+    @Autowired
+    private ArticleLogMapper articleLogMapper;
+    @Override
+    @Transactional
+    public int addArticle(ArticleDTO articleDTO) {
+        Article article = articleDTO.getArticle();
+        article.setCreateTime(new Date());
+        article.setUpdateTime(new Date());
+//        if (new Date().compareTo(article.getOnlineDay())>=0) article.setState((byte)4);
+        article.setState((byte)1);
+        articleMapper.insertSelective(article);
+        List<ArticleDepartment> articleDepartments = articleDTO.getArticleDepartments();
+        if (!CollectionUtils.isEmpty(articleDepartments)){
+            for (ArticleDepartment ad:articleDepartments){
+                ad.setArticleId(article.getId());
+                ad.setCreateTime(new Date());
+                articleDepartmentMapper.insertSelective(ad);
+            }
+        }
+        List<ArticleArea> articleAreas = articleDTO.getArticleAreas();
+        if (!CollectionUtils.isEmpty(articleAreas)){
+            for (ArticleArea aa:articleAreas){
+                aa.setArticleId(article.getId());
+                aa.setCreateTime(new Date());
+                articleAreaMapper.insertSelective(aa);
+            }
+        }
+        ArticleLog articleLog = new ArticleLog();
+        articleLog.setCreateTime(new Date());
+        articleLog.setCoentent("提交审核");
+        articleLog.setArticleId(article.getId());
+        articleLog.setOperator(articleDTO.getOperator());
+        articleLog.setType((byte)1);//1提交审核
+        articleLogMapper.insertSelective(articleLog);
+        return 0;
+    }
+
+    @Override
+    @Transactional
+    public int editArticle(ArticleDTO articleDTO) {
+        Article article1 = articleMapper.selectByPrimaryKey(articleDTO.getArticle().getId());
+        if (article1!=null){
+            if (article1.getState()==2) throw new BusinessException("501","当前内容处于审核中状态，不能操作");
+            else if ( article1.getState()==3) throw new BusinessException("501","当前内容处于待上架状态，不能操作");
+            else if ( article1.getState()==4 )throw new BusinessException("501","当前内容处于上架中状态，不能操作");
+            else if ( article1.getState()==6 )throw new BusinessException("501","当前内容处于已下架状态，不能操作");
+            else if ( article1.getState()==7 )throw new BusinessException("501","当前内容处于已过期状态，不能操作");
+        }
+        Article article = articleDTO.getArticle();
+        if (article1.getIsQuote()==2 && article.getIsQuote()==1) article.setQuoteUrl(null);//非引用
+        else if (article1.getIsQuote()==1 && article.getIsQuote()==2){
+            article.setSubtitle(null);
+            article.setTitlePic(null);
+            article.setBody(null);
+        }
+        articleMapper.updateByPrimaryKey(article);
+        if (article1.getIsAllDepartment()==2 && article.getIsAllDepartment()==1)  articleDepartmentMapper.deleteByArticleId(article.getId());
+        else if(article1.getIsAllDepartment()==1 && article.getIsAllDepartment()==2) {
+            List<ArticleDepartment> articleDepartments = articleDTO.getArticleDepartments();
+            if (!CollectionUtils.isEmpty(articleDepartments)) {
+                for (ArticleDepartment ad : articleDepartments) {
+                    ad.setCreateTime(new Date());
+                    articleDepartmentMapper.insertSelective(ad);
+                }
+            }
+        }
+        else if (article1.getIsAllDepartment()==2 && article.getIsAllDepartment()==2){
+            List<ArticleDepartment> articleDepartments = articleDTO.getArticleDepartments();
+            if (!CollectionUtils.isEmpty(articleDepartments)) {
+                articleDepartmentMapper.deleteByArticleId(article.getId());
+                for (ArticleDepartment ad : articleDepartments) {
+                    ad.setCreateTime(new Date());
+                    articleDepartmentMapper.insertSelective(ad);
+                }
+            }
+        }
+        if (article1.getIsAllArea()==2 && article.getIsAllArea()==1)  articleAreaMapper.deleteByArticleId(article.getId());
+        else if (article1.getIsAllArea()==1 && article.getIsAllArea()==2){
+            List<ArticleArea> articleAreas = articleDTO.getArticleAreas();
+            if (!CollectionUtils.isEmpty(articleAreas)) {
+                for (ArticleArea aa : articleAreas) {
+                    aa.setCreateTime(new Date());
+                    articleAreaMapper.insertSelective(aa);
+                }
+            }
+        }
+        else if (article1.getIsAllArea()==2 && article.getIsAllArea()==2){
+            List<ArticleArea> articleAreas = articleDTO.getArticleAreas();
+            if (!CollectionUtils.isEmpty(articleAreas)) {
+                articleAreaMapper.deleteByArticleId(article.getId());
+                for (ArticleArea aa : articleAreas) {
+                    aa.setCreateTime(new Date());
+                    articleAreaMapper.insertSelective(aa);
+                }
+            }
+        }
+        ArticleLog articleLog = new ArticleLog();
+        articleLog.setCreateTime(new Date());
+        articleLog.setCoentent("编辑了内容");
+        articleLog.setArticleId(article.getId());
+        articleLog.setOperator(articleDTO.getOperator());
+        articleLogMapper.insertSelective(articleLog);
+        return 0;
+    }
+
+    @Override
+    @Transactional
+    public int updateArticleState(ArticleLogDTO articleLogDTO) {
+        ArticleLog articleLog = new ArticleLog();
+        Article article = new Article();
+        Article article1 = articleMapper.selectByPrimaryKey(articleLogDTO.getArticleId());
+        Byte state = articleLogDTO.getState();
+        article.setState(state);
+        articleLog.setArticleId(articleLogDTO.getArticleId());
+        articleLog.setCreateTime(new Date());
+        articleLog.setOperator(articleLogDTO.getOperator());
+        if (article1!=null) {
+            if (4==state) {
+                if (article1.getState()==4) throw new BusinessException("501","当前内容处于上架状态，不能操作");
+//                else if ( article1.getState()==5) throw new BusinessException("501","当前内容处于已拒绝状态，不能操作");
+                else if ( article1.getState()==7 )throw new BusinessException("501","当前内容处于已过期状态，不能操作");
+                articleLog.setCoentent("上架:"+articleLogDTO.getReason());
+            }
+            else if (5==state){
+                if (article1.getState()==6) throw new BusinessException("501","当前内容处于下架状态，不能操作");
+                else if ( article1.getState()==5) throw new BusinessException("501","当前内容处于已拒绝状态，不能操作");
+                else if ( article1.getState()==7 )throw new BusinessException("501","当前内容处于已过期状态，不能操作");
+                articleLog.setCoentent("打回:"+articleLogDTO.getReason());
+                article.setReviewTime(new Date());
+
+            }
+            else if (6==state) {
+                if (article1.getState()==6) throw new BusinessException("501","当前内容处于下架状态，不能操作");
+                else if ( article1.getState()==7 )throw new BusinessException("501","当前内容处于已过期状态，不能操作");
+                articleLog.setCoentent("下架："+articleLogDTO.getReason());
+            }
+            else if (8==state) {//通过
+                if (article1.getState()==6) throw new BusinessException("501","当前内容处于下架状态，不能操作");
+                else if ( article1.getState()==5) throw new BusinessException("501","当前内容处于已拒绝状态，不能操作");
+                else if ( article1.getState()==7 )throw new BusinessException("501","当前内容处于已过期状态，不能操作");
+                if (new Date().compareTo(article1.getOnlineDay())>0) article.setState((byte)4);
+                else if (new Date().compareTo(article1.getOnlineDay())<0)article.setState((byte)3);
+                articleLog.setCoentent("审核通过");
+                article.setReviewTime(new Date());
+
+            }
+            articleLogMapper.insertSelective(articleLog);
+            article.setId(articleLogDTO.getArticleId());
+            articleMapper.updateByPrimaryKeySelective(article);
+        }
+        return 0;
+    }
+
+    @Override
+    public PageInfo<ArticleVO> queryArticleListPage(ArticleQuery articleQuery) {
+        Page page = PageHelper.startPage(articleQuery.getPageIndex(), articleQuery.getPageSize());
+        List<ArticleVO> listPage = articleMapper.queryArticleListPage(articleQuery);
+        PageInfo<ArticleVO> pageInfo = new PageInfo<>(listPage);
+        return pageInfo;
+    }
+
+    @Override
+    public ArticleDTO selectById(Long id,String action) {
+        ArticleDTO articleDTO = new ArticleDTO();
+        Article article=null;
+        if ("review".equals(action)) {
+            article=new Article();
+            article.setId(id);
+            article.setState((byte)2);
+            articleMapper.updateByPrimaryKeySelective(article);
+        }
+        article = articleMapper.selectByPrimaryKey(id);
+        if (article!=null){
+            articleDTO.setArticle(article);
+            List<ArticleLogDTO> articleLogDTOS = articleLogMapper.selectByArticleId(id);
+            if (!CollectionUtils.isEmpty(articleLogDTOS)) articleDTO.setArticleLogDTOS(articleLogDTOS);
+            List<ArticleAreaDTO> articleAreaDTOS = articleAreaMapper.selectByArticleId(id);
+            if (!CollectionUtils.isEmpty(articleAreaDTOS)) articleDTO.setArticleAreaDTOS(articleAreaDTOS);
+            List<ArticleDepartmentDTO> articleDepartmentDTOS = articleDepartmentMapper.selectByArticleId(id);
+            if (!CollectionUtils.isEmpty(articleDepartmentDTOS)) articleDTO.setArticleDepartmentDTOS(articleDepartmentDTOS);
+
+        }
+        return articleDTO;
+    }
+
+    @Override
+    @Transactional
+    public int updateStateForSchedule() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String now = sdf.format(new Date());
+        articleMapper.onForSchedule(now);
+        articleMapper.offForSchedule(now);
+        articleMapper.outForSchedule(now);
+        return 0;
+    }
+}

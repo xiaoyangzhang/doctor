@@ -1,0 +1,37 @@
+package com.yhyt.health.mapper;
+
+import com.yhyt.health.model.DeptDisease;
+import com.yhyt.health.model.query.DiseaseQuery;
+import com.yhyt.health.model.vo.DeptDiseaseVO;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface DeptDiseaseMapper {
+    int deleteByPrimaryKey(Long id);
+
+    int insert(DeptDisease record);
+
+    int insertSelective(DeptDisease record);
+
+    DeptDisease selectByPrimaryKey(Long id);
+
+    int updateByPrimaryKeySelective(DeptDisease record);
+
+    int updateByPrimaryKey(DeptDisease record);
+
+    List<DeptDiseaseVO> getDepartDiseaseListPage(DiseaseQuery deptDiseaseQuery);
+
+    int addDepartDiseaseBatch(@Param("list") List<DeptDisease> deptDiseases);
+
+    int deleteBatch(String idArr);
+
+    int deleteByDeptId(long deptId);
+
+    DeptDisease selectByDeptIdAndDiseaseId(@Param("deptId") long deptId, @Param("diseaseId") long diseaseId);
+    List<DeptDisease> selectByDeptId(@Param("deptId") long deptId);
+
+
+}

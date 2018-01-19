@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhyt.health.mapper.DialogDetailMapper">
+    <resultMap id="BaseResultMap" type="com.yhyt.health.model.DialogDetail">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="dialog_id" jdbcType="BIGINT" property="dialogId"/>
+        <result column="doctor_id" jdbcType="BIGINT" property="doctorId"/>
+        <result column="order_detail_id" jdbcType="BIGINT" property="orderDetailId"/>
+        <result column="message" jdbcType="VARCHAR" property="message"/>
+        <result column="message_type" jdbcType="TINYINT" property="messageType"/>
+        <result column="source_type" jdbcType="TINYINT" property="sourceType"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, dialog_id, doctor_id, order_detail_id, message, message_type, source_type, create_time
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from dialog_detail
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from dialog_detail
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.yhyt.health.model.DialogDetail">
+    insert into dialog_detail (id, dialog_id, doctor_id, 
+      order_detail_id, message, message_type, 
+      source_type, create_time)
+    values (#{id,jdbcType=BIGINT}, #{dialogId,jdbcType=BIGINT}, #{doctorId,jdbcType=BIGINT}, 
+      #{orderDetailId,jdbcType=BIGINT}, #{message,jdbcType=VARCHAR}, #{messageType,jdbcType=TINYINT}, 
+      #{sourceType,jdbcType=TINYINT}, #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+    <insert id="insertSelective" parameterType="com.yhyt.health.model.DialogDetail">
+        insert into dialog_detail
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="dialogId != null">
+                dialog_id,
+            </if>
+            <if test="doctorId != null">
+                doctor_id,
+            </if>
+            <if test="orderDetailId != null">
+                order_detail_id,
+            </if>
+            <if test="message != null">
+                message,
+            </if>
+            <if test="messageType != null">
+                message_type,
+            </if>
+            <if test="sourceType != null">
+                source_type,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="dialogId != null">
+                #{dialogId,jdbcType=BIGINT},
+            </if>
+            <if test="doctorId != null">
+                #{doctorId,jdbcType=BIGINT},
+            </if>
+            <if test="orderDetailId != null">
+                #{orderDetailId,jdbcType=BIGINT},
+            </if>
+            <if test="message != null">
+                #{message,jdbcType=VARCHAR},
+            </if>
+            <if test="messageType != null">
+                #{messageType,jdbcType=TINYINT},
+            </if>
+            <if test="sourceType != null">
+                #{sourceType,jdbcType=TINYINT},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yhyt.health.model.DialogDetail">
+        update dialog_detail
+        <set>
+            <if test="dialogId != null">
+                dialog_id = #{dialogId,jdbcType=BIGINT},
+            </if>
+            <if test="doctorId != null">
+                doctor_id = #{doctorId,jdbcType=BIGINT},
+            </if>
+            <if test="orderDetailId != null">
+                order_detail_id = #{orderDetailId,jdbcType=BIGINT},
+            </if>
+            <if test="message != null">
+                message = #{message,jdbcType=VARCHAR},
+            </if>
+            <if test="messageType != null">
+                message_type = #{messageType,jdbcType=TINYINT},
+            </if>
+            <if test="sourceType != null">
+                source_type = #{sourceType,jdbcType=TINYINT},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yhyt.health.model.DialogDetail">
+    update dialog_detail
+    set dialog_id = #{dialogId,jdbcType=BIGINT},
+      doctor_id = #{doctorId,jdbcType=BIGINT},
+      order_detail_id = #{orderDetailId,jdbcType=BIGINT},
+      message = #{message,jdbcType=VARCHAR},
+      message_type = #{messageType,jdbcType=TINYINT},
+      source_type = #{sourceType,jdbcType=TINYINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

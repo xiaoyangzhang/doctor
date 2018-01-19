@@ -1,0 +1,117 @@
+package com.yhyt.health.app.controller;
+
+import com.yhyt.health.model.DoctorRequestpatient;
+import com.yhyt.health.model.PatientCasearchives;
+import com.yhyt.health.result.AppResult;
+import com.yhyt.health.service.DialogService;
+import com.yhyt.health.service.api.PatientCasearchivesApi;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.web.bind.annotation.*;
+
+/**
+ * 作者: gsh
+ *
+ * @version 创建时间：2017年8月14日 下午9:42:59
+ * 患者信息
+ */
+@Api(value = "", description = "自诊、求诊相关操作")
+@RestController
+public class PatientAppController {
+
+    @Autowired
+    private PatientCasearchivesApi patientCasearchivesApi;
+    @Autowired
+    private DialogService dialogService;
+
+    private Logger logger = LoggerFactory.getLogger(PatientAppController.class);
+
+    @ApiOperation(value = "获取求诊预约转诊详情", notes = "获取求诊预约转诊详情")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "token", paramType = "header", required = true, dataType = "String")
+            , @ApiImplicitParam(name = "patientId", value = "患者id", paramType = "query", required = true, dataType = "Long")
+            , @ApiImplicitParam(name = "departmentId", value = "科室id", paramType = "query", required = false, dataType = "Long")
+            , @ApiImplicitParam(name = "id", value = "转诊/求诊/预约id", paramType = "query", required = true, dataType = "Long")
+            , @ApiImplicitParam(name = "type", value = "3转诊/1求诊/2预约id", paramType = "query", required = true, dataType = "String")
+            , @ApiImplicitParam(name = "dialogId", value = "dialogId", paramType = "query", required = false, dataType = "Long")
+    })
+    @GetMapping("/getPatientCasearchives")
+    public AppResult getPatientCasearchives(
+            @RequestHeader HttpHeaders httpHeaders
+            , @RequestParam Long patientId
+            , @RequestParam(required = false) Long departmentId
+            , @RequestParam Long id  // 1:求诊id 2:预约id 3:求诊id
+            , @RequestParam String type // 1:求诊 2:预约 3:求诊
+            , @RequestParam(required = false) Long dialogId
+    ) {
+        String token = httpHeaders.getFirst("token");
+        PatientCasearchives patientCasearchives = new PatientCasearchives();
+        patientCasearchives.setDialogId(dialogId);
+        patientCasearchives.setType(Byte.valueOf(type));
+        patientCasearchives.setDepartmentId(departmentId);
+        patientCasearchives.setId(id);
+        patientCasearchives.setPatientId(patientId);
+        return patientCasearchivesApi.getPatientCasearchives(token, patientCasearchives);
+    }
+
+    @ApiOperation(value = "获取求诊列表", notes = "获取求诊列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "token", paramType = "header", required = true, dataType = "String")
+            , @ApiImplicitParam(name = "departmentId", value = "科室id", paramType = "query", required = false, dataType = "Long")
+            , @ApiImplicitParam(name = "pageIndex", value = "页码", paramType = "query", required = false, dataType = "Integer")
+            , @ApiImplicitParam(name = "pageSize", value = "页容量", paramType = "query", required = false, dataType = "Integer")
+    })
+    @GetMapping("/doctorRequestpatient")
+    public AppResult getDoctorRequestpatient(
+            @RequestHeader HttpHeaders httpHeaders
+            , @RequestParam(required = false) Long departmentId
+            , @RequestParam(required = false) Integer pageIndex
+            , @RequestParam(required = false)  Integer pageSize
+    ) {
+        String token = httpHeaders.getFirst("token");
+        DoctorRequestpatient doctorRequestpatient = new DoctorRequestpatient();
+        doctorRequestpatient.setDepartmentId(departmentId);
+
+        return patientCasearchivesApi.getDoctorRequestpatient(token, doctorRequestpatient,pageIndex,pageSize);
+    }
+
+    @ApiOperation(value = "改变求诊状态", notes = "改变求诊状态")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "token", paramType = "header", required = true, dataType = "String")
+            , @ApiImplicitParam(name = "requestId", value = "求诊id", paramType = "query", required = false, dataType = "Long")
+            , @ApiImplicitParam(name = "state", value = "求诊状态2-处理中", paramType = "query", required = true, dataType = "String")
+    })
+    @PatchMapping("/doctorRequestpatient")
+    public AppResult updateDoctorRequestpatient(
+            @RequestHeader HttpHeaders httpHeaders
+            , @RequestParam(required = false) Long requestId
+            , @RequestParam String state
+    ) {
+        String token = httpHeaders.getFirst("token");
+        DoctorRequestpatient doctorRequestpatient = new DoctorRequestpatient();
+        doctorRequestpatient.setState(new Byte(state));
+        doctorRequestpatient.setId(requestId);
+        return patientCasearchivesApi.updateDoctorRequestpatient(token, doctorRequestpatient);
+    }
+
+    @ApiOperation(value = "获取患者诊断记录", notes = "获取患者诊断记录")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "登陆token", paramType = "header", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "patientId", value = "患者id", paramType = "query", required = true, dataType = "String")
+            , @ApiImplicitParam(name = "pageIndex", value = "页码", paramType = "query", required = false, dataType = "Integer")
+            , @ApiImplicitParam(name = "pageSize", value = "页容量", paramType = "query", required = false, dataType = "Integer")
+    })
+    @GetMapping("/getDiagnoseRecords")
+    public AppResult getDiagnoseRecords(@RequestHeader("token") String token
+            , @RequestParam(required = true) String patientId
+            , @RequestParam(required = false) Integer pageIndex
+            , @RequestParam(required = false)  Integer pageSize) {
+        return dialogService.querypatientRecords(token, Long.valueOf(patientId),pageIndex,pageSize);
+    }
+}

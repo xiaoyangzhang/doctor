@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhyt.health.mapper.DoctorRequestpatientMapper">
+    <resultMap id="BaseResultMap" type="com.yhyt.health.model.DoctorRequestpatient">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="hospital_id" jdbcType="BIGINT" property="hospitalId"/>
+        <result column="department_id" jdbcType="BIGINT" property="departmentId"/>
+        <result column="doctor_id" jdbcType="BIGINT" property="doctorId"/>
+        <result column="patient_id" jdbcType="BIGINT" property="patientId"/>
+        <result column="state" jdbcType="BIT" property="state"/>
+        <result column="case_id" jdbcType="BIGINT" property="caseId"/>
+        <result column="remark" jdbcType="VARCHAR" property="remark"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="operator" jdbcType="VARCHAR" property="operator"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, hospital_id, department_id, doctor_id, patient_id, state, case_id, remark, create_time, 
+    update_time, operator
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from doctor_requestpatient
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from doctor_requestpatient
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.yhyt.health.model.DoctorRequestpatient">
+    insert into doctor_requestpatient (id, hospital_id, department_id, 
+      doctor_id, patient_id, state, 
+      case_id, remark, create_time, 
+      update_time, operator)
+    values (#{id,jdbcType=BIGINT}, #{hospitalId,jdbcType=BIGINT}, #{departmentId,jdbcType=BIGINT}, 
+      #{doctorId,jdbcType=BIGINT}, #{patientId,jdbcType=BIGINT}, #{state,jdbcType=BIT}, 
+      #{caseId,jdbcType=BIGINT}, #{remark,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
+      #{updateTime,jdbcType=TIMESTAMP}, #{operator,jdbcType=VARCHAR})
+  </insert>
+    <insert id="insertSelective" parameterType="com.yhyt.health.model.DoctorRequestpatient">
+        insert into doctor_requestpatient
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="hospitalId != null">
+                hospital_id,
+            </if>
+            <if test="departmentId != null">
+                department_id,
+            </if>
+            <if test="doctorId != null">
+                doctor_id,
+            </if>
+            <if test="patientId != null">
+                patient_id,
+            </if>
+            <if test="state != null">
+                state,
+            </if>
+            <if test="caseId != null">
+                case_id,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="operator != null">
+                operator,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="hospitalId != null">
+                #{hospitalId,jdbcType=BIGINT},
+            </if>
+            <if test="departmentId != null">
+                #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="doctorId != null">
+                #{doctorId,jdbcType=BIGINT},
+            </if>
+            <if test="patientId != null">
+                #{patientId,jdbcType=BIGINT},
+            </if>
+            <if test="state != null">
+                #{state,jdbcType=BIT},
+            </if>
+            <if test="caseId != null">
+                #{caseId,jdbcType=BIGINT},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="operator != null">
+                #{operator,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yhyt.health.model.DoctorRequestpatient">
+        update doctor_requestpatient
+        <set>
+            <if test="hospitalId != null">
+                hospital_id = #{hospitalId,jdbcType=BIGINT},
+            </if>
+            <if test="departmentId != null">
+                department_id = #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="doctorId != null">
+                doctor_id = #{doctorId,jdbcType=BIGINT},
+            </if>
+            <if test="patientId != null">
+                patient_id = #{patientId,jdbcType=BIGINT},
+            </if>
+            <if test="state != null">
+                state = #{state,jdbcType=BIT},
+            </if>
+            <if test="caseId != null">
+                case_id = #{caseId,jdbcType=BIGINT},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="operator != null">
+                operator = #{operator,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yhyt.health.model.DoctorRequestpatient">
+    update doctor_requestpatient
+    set hospital_id = #{hospitalId,jdbcType=BIGINT},
+      department_id = #{departmentId,jdbcType=BIGINT},
+      doctor_id = #{doctorId,jdbcType=BIGINT},
+      patient_id = #{patientId,jdbcType=BIGINT},
+      state = #{state,jdbcType=BIT},
+      case_id = #{caseId,jdbcType=BIGINT},
+      remark = #{remark,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      operator = #{operator,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <select id="getDealingDiagnoseList" parameterType="long" resultType="com.yhyt.health.model.vo.app.PatientAppVO">
+
+     select * from (
+select p.age,p.birthday,p.head_image headImage, p.sex,p.realname name,dr.create_time applyTime,dr.id requestPatientId,'1' idType
+   ,dia.room_id roomId,dr.patient_id id,d.realname operator
+    from doctor_requestpatient dr LEFT JOIN patient p on dr.patient_id=p.id
+    left join dialog dia on dia.department_id =dr.department_id  AND dia.patient_id = dr.patient_id
+    LEFT JOIN doctor d ON d.id = dr.operator
+    where dr.department_id=#{deptId} and  dr.state=2
+ORDER BY dr.update_time DESC  ) newReq
+    UNION  select * from  (
+     select p.age,p.birthday,p.head_image headImage, p.sex,p.realname name,dar.create_time applyTime,dar.id requestPatientId,'3' idType
+,dia.room_id roomId,dar.patient_id id,d.realname operator
+  FROM dialog_appointment_transfer dar LEFT JOIN  patient p on  dar.patient_id=p.id
+  left join dialog dia on dia.department_id =dar.department_id  AND dia.patient_id = dar.patient_id
+  LEFT JOIN doctor d ON dar.operator_doctor_id = d.id
+    where dar.department_id=#{deptId}  and dar.state=6
+     order by dar.create_time DESC  ) transReq
+  </select>
+    <select id="getRefusedDiagnoseList" parameterType="long" resultType="com.yhyt.health.model.vo.app.PatientAppVO">
+    select * from (
+select p.age,p.birthday,p.head_image headImage, p.sex,p.realname name,dr.create_time applyTime,p.reside_location city,
+dep.name sourceDepartment ,h.name sourceHospital,pc.suspectedcase mainDisease,dr.id requestPatientId,'1' idType,p.id
+    from doctor_requestpatient dr join patient p on dr.patient_id=p.id and p.is_blacklist=1
+join `patient_casearchives` pc on pc.department_id=dr.department_id  AND dr.patient_id = pc.patient_id
+    join department dep on dep.id=dr.department_id
+    join hospital h on h.id=dr.hospital_id
+    where dr.department_id=#{deptId} and  dr.state=4
+ORDER BY dr.update_time DESC  ) newReq
+    UNION  select * from  (
+     select p.age,p.birthday,p.head_image headImage, p.sex,p.realname name,dar.create_time applyTime,p.reside_location city,
+dep.name sourceDepartment ,h.name sourceHospital,pc.suspectedcase mainDisease,dar.id requestPatientId,'3' idType,p.id
+
+  FROM dialog_appointment_transfer dar join  patient p on  dar.patient_id=p.id and   p.is_blacklist=1
+join `patient_casearchives` pc on pc.department_id=dar.department_id  AND dar.patient_id = pc.patient_id
+
+  join department dep on dep.id=dar.department_id
+    join hospital h on h.id=dar.hospital_id
+    where dar.department_id=#{deptId}  and dar.state=5
+     order by dar.create_time DESC  ) transReq
+  </select>
+    <select id="getNewRequestPatientList" parameterType="long" resultType="com.yhyt.health.model.vo.app.PatientAppVO">
+    SELECT
+    p.age,
+    p.birthday,
+    dr.id requestPatientId,
+    p.head_image headImage,
+    p.sex,
+    p.realname NAME,
+    dr.update_time applyTime,
+    dr.state,
+    p.id,
+    '1' idType,
+    p.reside_location city,
+    (SELECT
+            suspectedcase
+        FROM
+            patient_casearchives pc
+        WHERE
+            pc.department_id = dr.department_id
+                AND pc.patient_id = dr.patient_id
+        LIMIT 1) mainDisease,
+    d.room_id roomId,
+    d.departmentName sourceDepartment,
+    h.name sourceHospital
+FROM
+    doctor_requestpatient dr
+        LEFT JOIN
+    patient p ON dr.patient_id = p.id
+        LEFT JOIN
+    dialog d ON dr.patient_id = d.patient_id
+        AND dr.department_id = d.department_id
+        LEFT JOIN
+    hospital h ON d.hospital_id = h.id
+WHERE
+    dr.department_id = #{deptId}
+        AND dr.state = '1'
+ORDER BY dr.update_time
+  </select>
+    <select id="getNewRequestPatientListCount" parameterType="Long" resultType="Long">
+        SELECT
+	        COUNT(1)
+        FROM
+            doctor_requestpatient dr
+        WHERE
+            dr.department_id = #{departmentId}
+        AND dr.state = '1'
+    </select>
+
+    <select id="getDealingPatientListCount" parameterType="long" resultType="Long">
+        SELECT
+        COUNT(1)
+        FROM
+        (
+        SELECT
+        dr.id,dr.state
+        FROM
+        doctor_requestpatient dr
+        WHERE
+        dr.department_id = #{departmentId}
+        UNION ALL
+        SELECT
+        daf.id,CASE WHEN daf.state ='6' THEN '2' WHEN daf.state='5' THEN'4' ELSE '' END state
+        FROM
+        dialog_appointment_transfer daf
+        WHERE
+        daf.department_id = #{departmentId}
+        ) tmp
+        WHERE 1=1
+        <if test="state != null ">
+            AND tmp.state = #{state}
+        </if>
+    </select>
+</mapper>

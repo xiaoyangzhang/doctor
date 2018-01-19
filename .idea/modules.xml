@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/doctor.iml" filepath="$PROJECT_DIR$/doctor.iml" />
+      <module fileurl="file://$PROJECT_DIR$/doctor-api/doctor-api.iml" filepath="$PROJECT_DIR$/doctor-api/doctor-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/doctor-biz/doctor-biz.iml" filepath="$PROJECT_DIR$/doctor-biz/doctor-biz.iml" />
+      <module fileurl="file://$PROJECT_DIR$/doctor-client/doctor-client.iml" filepath="$PROJECT_DIR$/doctor-client/doctor-client.iml" />
+    </modules>
+  </component>
+</project>

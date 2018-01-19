@@ -1,0 +1,17 @@
+package com.yhyt.health.mapper;
+
+import com.yhyt.health.model.ArticleArea;
+
+public interface ArticleAreaMapper {
+    int deleteByPrimaryKey(Long id);
+
+    int insert(ArticleArea record);
+
+    int insertSelective(ArticleArea record);
+
+    ArticleArea selectByPrimaryKey(Long id);
+
+    int updateByPrimaryKeySelective(ArticleArea record);
+
+    int updateByPrimaryKey(ArticleArea record);
+}

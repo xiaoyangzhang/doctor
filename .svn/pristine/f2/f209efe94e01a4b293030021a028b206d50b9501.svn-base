@@ -1,0 +1,23 @@
+package com.yhyt.health.mapper;
+
+import java.util.List;
+
+import com.yhyt.health.model.DepartmentObstetrics;
+import com.yhyt.health.model.PatientlObstetrics;
+import com.yhyt.health.model.query.ObstetricsQuery;
+
+public interface DepartmentObstetricsMapper {
+    int deleteByPrimaryKey(Long id);
+
+    int insert(DepartmentObstetrics record);
+
+    int insertSelective(DepartmentObstetrics record);
+
+    DepartmentObstetrics selectByPrimaryKey(Long id);
+
+    int updateByPrimaryKeySelective(DepartmentObstetrics record);
+
+    int updateByPrimaryKey(DepartmentObstetrics record);
+
+	List<PatientlObstetrics> getObstetricsList(ObstetricsQuery doctorDiseaseQuery);
+}

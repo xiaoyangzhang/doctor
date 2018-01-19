@@ -1,0 +1,17 @@
+package com.yhyt.health.mapper;
+
+import com.yhyt.health.model.DepartmentObstetricsDangers;
+
+public interface DepartmentObstetricsDangersMapper {
+    int deleteByPrimaryKey(Long id);
+
+    int insert(DepartmentObstetricsDangers record);
+
+    int insertSelective(DepartmentObstetricsDangers record);
+
+    DepartmentObstetricsDangers selectByPrimaryKey(Long id);
+
+    int updateByPrimaryKeySelective(DepartmentObstetricsDangers record);
+
+    int updateByPrimaryKey(DepartmentObstetricsDangers record);
+}

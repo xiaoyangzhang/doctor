@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhyt.health.mapper.DialogAppointmentTransferMapper">
+    <resultMap id="BaseResultMap" type="com.yhyt.health.model.DialogAppointmentTransfer">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="patient_id" jdbcType="BIGINT" property="patientId"/>
+        <result column="hospital_id" jdbcType="BIGINT" property="hospitalId"/>
+        <result column="dialog_detail_id" jdbcType="BIGINT" property="dialogDetailId"/>
+        <result column="department_id" jdbcType="BIGINT" property="departmentId"/>
+        <result column="launch_doctor_id" jdbcType="BIGINT" property="launchDoctorId"/>
+        <result column="doctor_id" jdbcType="BIGINT" property="doctorId"/>
+        <result column="operator_doctor_id" jdbcType="BIGINT" property="operatorDoctorId"/>
+        <result column="state" jdbcType="TINYINT" property="state"/>
+        <result column="appointment_time" jdbcType="TIMESTAMP" property="appointmentTime"/>
+        <result column="launch_department_id" jdbcType="BIGINT" property="launchDepartmentId"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+
+    <resultMap type="DialogAppointmentTransferVo" id="DialogAppointmentTransferVo">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="patient_id" jdbcType="BIGINT" property="patientId"/>
+        <result column="patient_name" jdbcType="VARCHAR" property="patientName"/>
+        <result column="patient_head_image" jdbcType="VARCHAR" property="patientHeadImage"/>
+        <result column="hospital_id" jdbcType="BIGINT" property="hospitalId"/>
+        <result column="hospital_name" jdbcType="VARCHAR" property="hospitalName"/>
+        <result column="hospital_logo" jdbcType="VARCHAR" property="hospitalLogo"/>
+        <result column="dialog_detail_id" jdbcType="BIGINT" property="dialogDetailId"/>
+        <result column="department_id" jdbcType="BIGINT" property="departmentId"/>
+        <result column="department_name" jdbcType="VARCHAR" property="departmentName"/>
+        <result column="launch_doctor_id" jdbcType="BIGINT" property="launchDoctorId"/>
+        <result column="launch_doctor_name" jdbcType="VARCHAR" property="launchDoctorName"/>
+        <result column="doctor_id" jdbcType="BIGINT" property="doctorId"/>
+        <result column="doctor_name" jdbcType="VARCHAR" property="doctorName"/>
+        <result column="state" jdbcType="TINYINT" property="state"/>
+        <result column="appointment_time" jdbcType="TIMESTAMP" property="appointmentTime"/>
+        <result column="department_logo" jdbcType="VARCHAR" property="departmentLogo"/>
+        <result column="launch_department_logo" jdbcType="VARCHAR" property="launchDepartmentLogo"/>
+        <result column="launch_department_id" jdbcType="BIGINT" property="launchDepartmentId"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, patient_id, hospital_id, dialog_detail_id, department_id, launch_doctor_id, doctor_id, 
+    state, appointment_time, create_time,operator_doctor_id,launch_department_id
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from dialog_appointment_transfer
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from dialog_appointment_transfer
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id"
+            parameterType="com.yhyt.health.model.DialogAppointmentTransfer">
+    insert into dialog_appointment_transfer (id, patient_id, hospital_id, 
+      dialog_detail_id, department_id, launch_doctor_id, 
+      doctor_id, state,
+      appointment_time, create_time,launch_department_id)
+    values (#{id,jdbcType=BIGINT}, #{patientId,jdbcType=BIGINT}, #{hospitalId,jdbcType=BIGINT}, 
+      #{dialogDetailId,jdbcType=BIGINT}, #{departmentId,jdbcType=BIGINT}, #{launchDoctorId,jdbcType=BIGINT}, 
+      #{doctorId,jdbcType=BIGINT}, #{state,jdbcType=TINYINT},
+      #{appointmentTime,jdbcType=TIMESTAMP}, #{createTime,jdbcType=TIMESTAMP},#{launchDepartmentId})
+  </insert>
+    <insert id="insertSelective" parameterType="com.yhyt.health.model.DialogAppointmentTransfer">
+        insert into dialog_appointment_transfer
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="patientId != null">
+                patient_id,
+            </if>
+            <if test="hospitalId != null">
+                hospital_id,
+            </if>
+            <if test="dialogDetailId != null">
+                dialog_detail_id,
+            </if>
+            <if test="departmentId != null">
+                department_id,
+            </if>
+            <if test="launchDoctorId != null">
+                launch_doctor_id,
+            </if>
+            <if test="doctorId != null">
+                doctor_id,
+            </if>
+            <if test="operatorDoctorId != null">
+                operator_doctor_id,
+            </if>
+            <if test="state != null">
+                state,
+            </if>
+            <if test="appointmentTime != null">
+                appointment_time,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="launchDepartmentId != null">
+                launch_department_id,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="patientId != null">
+                #{patientId,jdbcType=BIGINT},
+            </if>
+            <if test="hospitalId != null">
+                #{hospitalId,jdbcType=BIGINT},
+            </if>
+            <if test="dialogDetailId != null">
+                #{dialogDetailId,jdbcType=BIGINT},
+            </if>
+            <if test="departmentId != null">
+                #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="launchDoctorId != null">
+                #{launchDoctorId,jdbcType=BIGINT},
+            </if>
+            <if test="doctorId != null">
+                #{doctorId,jdbcType=BIGINT},
+            </if>
+            <if test="operatorDoctorId != null">
+                #{operatorDoctorId,jdbcType=BIGINT},
+            </if>
+            <if test="state != null">
+                #{state,jdbcType=TINYINT},
+            </if>
+            <if test="appointmentTime != null">
+                #{appointmentTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="launchDepartmentId != null">
+                #{launchDepartmentId,jdbcType=BIGINT},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yhyt.health.model.DialogAppointmentTransfer">
+        update dialog_appointment_transfer
+        <set>
+            <if test="patientId != null">
+                patient_id = #{patientId,jdbcType=BIGINT},
+            </if>
+            <if test="hospitalId != null">
+                hospital_id = #{hospitalId,jdbcType=BIGINT},
+            </if>
+            <if test="dialogDetailId != null">
+                dialog_detail_id = #{dialogDetailId,jdbcType=BIGINT},
+            </if>
+            <if test="departmentId != null">
+                department_id = #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="launchDoctorId != null">
+                launch_doctor_id = #{launchDoctorId,jdbcType=BIGINT},
+            </if>
+            <if test="doctorId != null">
+                doctor_id = #{doctorId,jdbcType=BIGINT},
+            </if>
+            <if test="operatorDoctorId != null">
+                operator_doctor_id = #{operatorDoctorId,jdbcType=BIGINT},
+            </if>
+            <if test="state != null">
+                state = #{state,jdbcType=TINYINT},
+            </if>
+            <if test="appointmentTime != null">
+                appointment_time = #{appointmentTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yhyt.health.model.DialogAppointmentTransfer">
+    update dialog_appointment_transfer
+    set patient_id = #{patientId,jdbcType=BIGINT},
+      hospital_id = #{hospitalId,jdbcType=BIGINT},
+      dialog_detail_id = #{dialogDetailId,jdbcType=BIGINT},
+      department_id = #{departmentId,jdbcType=BIGINT},
+      launch_doctor_id = #{launchDoctorId,jdbcType=BIGINT},
+      doctor_id = #{doctorId,jdbcType=BIGINT},
+      state = #{state,jdbcType=TINYINT},
+      appointment_time = #{appointmentTime,jdbcType=TIMESTAMP},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <select id="getLocalHospitalByDeptId" parameterType="long" resultType="com.yhyt.health.model.dto.DepartCoopDTO">
+    SELECT name  as department from (
+select dep.id,dep.`name` from department d join dept_doctor dd on d.id=dd.department_id and d.id=#{deptId}  join  doctor doc on dd.doctor_id=doc.id join
+dialog_appointment_transfer dat on doc.id=dat.launch_doctor_id
+join department dep on dat.department_id=dep.id and dep.hospital_id=d.hospital_id
+UNION
+select dep.id,dep.`name` from department d join dialog_appointment_transfer dat on d.id=dat.department_id and d.id=1 join doctor doc on dat.launch_doctor_id=doc.id join department dep on doc.department_id=dep.id and dep.hospital_id=d.hospital_id
+
+ ) tmp
+where id!=#{deptId}
+
+  </select>
+    <select id="getDialogAppointmentTransfers" parameterType="map" resultMap="DialogAppointmentTransferVo">
+        SELECT
+        dat.id,
+        dat.state,dp.name department_name,pt.head_image patient_head_image,hp.name hospital_name,pt.realname
+        patient_name,dp.logo department_logo,hp.logo hospital_logo,dat.department_id,dat.launch_doctor_id,dat.launch_department_id
+        FROM
+        dialog_appointment_transfer dat
+        LEFT JOIN patient pt ON dat.patient_id = pt.id
+        LEFT JOIN department dp ON dat.department_id = dp.id
+        LEFT JOIN hospital hp ON dat.hospital_id = hp.id
+        where 1=1
+        <if test="id != null">
+            and dat.id =#{id,jdbcType=TINYINT}
+        </if>
+        <if test="dialogId != null">
+            AND dat.dialog_id = #{dialogId}
+        </if>
+        <if test="departmentId">
+            AND dat.department_id = #{departmentId}
+        </if>
+    </select>
+    <select id="transferpatientList" parameterType="map"
+            resultType="com.yhyt.health.model.vo.app.AppointmentTransferPatientVO">
+        SELECT
+        daf.id requestPatientId,
+        p.realname name,
+        p.id,
+        p.birthday,
+        p.age,
+        p.head_image headImage,
+        p.sex,
+        daf.state,
+        p.reside_location city,
+        d.name sourceDepartment,
+        h.name sourceHospital,
+        daf.create_time applyTime,
+        pdr.main_diagnose mainDisease,
+        '3' AS idType,
+        daf.department_id departmentId,
+        dg.room_id roomId
+        FROM
+        dialog_appointment_transfer daf
+        LEFT JOIN dialog_detail dd ON daf.dialog_detail_id = dd.id
+        LEFT JOIN patient_diagnose_records pdr ON dd.dialog_id = pdr.dialog_id
+        LEFT JOIN dialog dg ON daf.patient_id = dg.patient_id AND daf.department_id = dg.department_id
+        LEFT JOIN patient p ON daf.patient_id = p.id
+        LEFT JOIN department d ON daf.department_id = d.id
+        LEFT JOIN hospital h ON h.id = d.hospital_id
+    WHERE daf.department_id = #{departmentid} AND daf.state = '2'
+    ORDER BY daf.create_time
+
+  </select>
+    <select id="transferpatientListCount" parameterType="map" resultType="Long">
+        SELECT
+        COUNT(1)
+        FROM
+        dialog_appointment_transfer daf
+        WHERE daf.department_id = #{departmentId} AND daf.state = '2'
+
+    </select>
+    <select id="getDialogTransferByDeptIdAndPatientId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from dialog_appointment_transfer
+        where state in ('1','2','6') AND department_id = #{departmentId} AND patient_id = #{patientId}
+        AND launch_department_id = #{launchDepartmentId}
+    </select>
+</mapper>

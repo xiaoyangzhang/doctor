@@ -1,0 +1,635 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhyt.health.mapper.DialogAppointmentMapper">
+    <resultMap id="BaseResultMap" type="com.yhyt.health.model.DialogAppointment">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="dialog_detail_id" jdbcType="BIGINT" property="dialogDetailId"/>
+        <result column="doctor_id_launch" jdbcType="BIGINT" property="doctorIdLaunch"/>
+        <result column="doctor_id_appointment" jdbcType="BIGINT" property="doctorIdAppointment"/>
+        <result column="hospital_id" jdbcType="BIGINT" property="hospitalId"/>
+        <result column="department_id" jdbcType="BIGINT" property="departmentId"/>
+        <result column="patient_id_appointment" jdbcType="BIGINT" property="patientIdAppointment"/>
+        <result column="state" jdbcType="TINYINT" property="state"/>
+        <result column="sign_state" jdbcType="TINYINT" property="signState"/>
+        <result column="appointment_time" jdbcType="TIMESTAMP" property="appointmentTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="ampm" jdbcType="TINYINT" property="ampm"/>
+
+        <result column="treat_room" jdbcType="VARCHAR" property="treatRoom"/>
+        <result column="treat_num" jdbcType="VARCHAR" property="treatNum"/>
+
+    </resultMap>
+    <resultMap id="BaseResultVoMap" type="com.yhyt.health.model.vo.DialogAppointmentVo">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="dialog_detail_id" jdbcType="BIGINT" property="dialogDetailId"/>
+        <result column="doctor_id_launch" jdbcType="BIGINT" property="doctorIdLaunch"/>
+        <result column="doctor_name_launch" jdbcType="VARCHAR" property="doctorNameLaunch"/>
+        <result column="doctor_id_appointment" jdbcType="BIGINT" property="doctorIdAppointment"/>
+        <result column="doctor_name_appointment" jdbcType="VARCHAR" property="doctorNameAppointment"/>
+        <result column="hospital_id" jdbcType="BIGINT" property="hospitalId"/>
+        <result column="hospital_name" jdbcType="VARCHAR" property="hospitalName"/>
+        <result column="department_id" jdbcType="BIGINT" property="departmentId"/>
+        <result column="department_name" jdbcType="VARCHAR" property="departmentName"/>
+        <result column="state" jdbcType="TINYINT" property="state"/>
+        <result column="sign_state" jdbcType="TINYINT" property="signState"/>
+        <result column="appointment_time" jdbcType="TIMESTAMP" property="appointmentTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+
+        <result column="patient_id" jdbcType="BIGINT" property="patientId"/>
+        <result column="patient_name" jdbcType="VARCHAR" property="patientName"/>
+        <result column="patient_appointment_state" jdbcType="TINYINT" property="patientAppointmentState"/>
+        <result column="patient_image" jdbcType="VARCHAR" property="patientImage"/>
+        <result column="patient_sex" jdbcType="TINYINT" property="patientSex"/>
+
+        <result column="treat_num" jdbcType="VARCHAR" property="treatNum"/>
+        <result column="treat_room" jdbcType="VARCHAR" property="treatRoom"/>
+
+    </resultMap>
+    <resultMap id="doctorAppointmentsVo" type="com.yhyt.health.model.vo.doctorAppointmentsVo">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="username" jdbcType="VARCHAR" property="username"/>
+        <result column="realname" jdbcType="VARCHAR" property="realname"/>
+        <result column="head_image" jdbcType="VARCHAR" property="headImage"/>
+        <result column="sex" jdbcType="TINYINT" property="sex"/>
+        <result column="strongpoint" jdbcType="VARCHAR" property="strongpoint"/>
+        <result column="state" jdbcType="TINYINT" property="state"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="duty" jdbcType="VARCHAR" property="duty"/>
+        <result column="education" jdbcType="VARCHAR" property="education"/>
+        <result column="am_count" jdbcType="VARCHAR" property="amCount"/>
+        <result column="pm_count" jdbcType="VARCHAR" property="pmCount"/>
+    </resultMap>
+    <resultMap id="AppointmentPatientVo" type="AppointmentPatientVo">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="requestPatient_id" jdbcType="BIGINT" property="requestPatientId"/>
+        <result column="id_type" jdbcType="BIGINT" property="idType"/>
+        <result column="state" jdbcType="VARCHAR" property="state"/>
+        <result column="realname" jdbcType="VARCHAR" property="realname"/>
+        <result column="head_image" jdbcType="VARCHAR" property="headImage"/>
+        <result column="sex" jdbcType="VARCHAR" property="sex"/>
+        <result column="age" jdbcType="BIGINT" property="age"/>
+        <result column="newly_diagnosed" jdbcType="VARCHAR" property="newlyDiagnosed"/>
+        <result column="has_insurance" jdbcType="VARCHAR" property="hasInsurance"/>
+        <result column="appointment_doctor_name" jdbcType="VARCHAR" property="appointmentDoctorName"/>
+        <result column="department_name" jdbcType="VARCHAR" property="departmentName"/>
+        <result column="hospital_name" jdbcType="VARCHAR" property="hospitalName"/>
+        <result column="appointment_time" jdbcType="TIMESTAMP" property="appointmentTime"/>
+    </resultMap>
+    <resultMap id="overdueUndiagnoseVo" type="OverdueUndiagnoseVo">
+        <result column="appointment_time" jdbcType="TIMESTAMP" property="appointmentTimeOver"/>
+        <collection property="patientDetailVos" ofType="AppointmentPatientVo" resultMap="AppointmentPatientVo"/>
+    </resultMap>
+
+    <resultMap id="AppointCountsVo" type="AppointCountsVo">
+        <result column="appointDate" jdbcType="VARCHAR" property="appointDate"/>
+        <result column="appointCount" jdbcType="BIGINT" property="appointCount"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+    id, dialog_detail_id, doctor_id_launch, doctor_id_appointment, hospital_id, department_id,
+    state, sign_state, appointment_time, create_time,ampm,patient_id_appointment
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from dialog_appointment
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from dialog_appointment
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id"
+            parameterType="com.yhyt.health.model.DialogAppointment">
+    insert into dialog_appointment (id, dialog_detail_id, doctor_id_launch, 
+      doctor_id_appointment, hospital_id, department_id, 
+      state, sign_state, appointment_time, 
+      create_time,ampm,patient_id_appointment,treat_room,treat_num,demand)
+    values (#{id,jdbcType=BIGINT}, #{dialogDetailId,jdbcType=BIGINT}, #{doctorIdLaunch,jdbcType=BIGINT}, 
+      #{doctorIdAppointment,jdbcType=BIGINT}, #{hospitalId,jdbcType=BIGINT}, #{departmentId,jdbcType=BIGINT}, 
+      #{state,jdbcType=TINYINT}, #{signState,jdbcType=TINYINT}, #{appointmentTime,jdbcType=TIMESTAMP}, 
+      #{createTime,jdbcType=TIMESTAMP},#{ampm,jdbcType=TINYINT},#{patientIdAppointment,jdbcType=BIGINT},
+      #{treatRoom,jdbcType=VARCHAR},#{treatNum,jdbcType=VARCHAR},#{demand,jdbcType=VARCHAR})
+  </insert>
+    <insert id="insertSelective" parameterType="com.yhyt.health.model.DialogAppointment">
+        insert into dialog_appointment
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="dialogDetailId != null">
+                dialog_detail_id,
+            </if>
+            <if test="doctorIdLaunch != null">
+                doctor_id_launch,
+            </if>
+            <if test="doctorIdAppointment != null">
+                doctor_id_appointment,
+            </if>
+            <if test="hospitalId != null">
+                hospital_id,
+            </if>
+            <if test="departmentId != null">
+                department_id,
+            </if>
+            <if test="state != null">
+                state,
+            </if>
+            <if test="signState != null">
+                sign_state,
+            </if>
+            <if test="appointmentTime != null">
+                appointment_time,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="treatRoom != null">
+                treat_room,
+            </if>
+            <if test="treatNum != null">
+                treat_num,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="dialogDetailId != null">
+                #{dialogDetailId,jdbcType=BIGINT},
+            </if>
+            <if test="doctorIdLaunch != null">
+                #{doctorIdLaunch,jdbcType=BIGINT},
+            </if>
+            <if test="doctorIdAppointment != null">
+                #{doctorIdAppointment,jdbcType=BIGINT},
+            </if>
+            <if test="hospitalId != null">
+                #{hospitalId,jdbcType=BIGINT},
+            </if>
+            <if test="departmentId != null">
+                #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="state != null">
+                #{state,jdbcType=TINYINT},
+            </if>
+            <if test="signState != null">
+                #{signState,jdbcType=TINYINT},
+            </if>
+            <if test="appointmentTime != null">
+                #{appointmentTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="treatRoom != null">
+                #{treatRoom,jdbcType=VARCHAR},
+            </if>
+            <if test="treatNum != null">
+                #{treatNum,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yhyt.health.model.DialogAppointment">
+        update dialog_appointment
+        <set>
+            <if test="dialogDetailId != null">
+                dialog_detail_id = #{dialogDetailId,jdbcType=BIGINT},
+            </if>
+            <if test="doctorIdLaunch != null">
+                doctor_id_launch = #{doctorIdLaunch,jdbcType=BIGINT},
+            </if>
+            <if test="doctorIdAppointment != null">
+                doctor_id_appointment = #{doctorIdAppointment,jdbcType=BIGINT},
+            </if>
+            <if test="hospitalId != null">
+                hospital_id = #{hospitalId,jdbcType=BIGINT},
+            </if>
+            <if test="departmentId != null">
+                department_id = #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="state != null">
+                state = #{state,jdbcType=TINYINT},
+            </if>
+            <if test="signState != null">
+                sign_state = #{signState,jdbcType=TINYINT},
+            </if>
+            <if test="appointmentTime != null">
+                appointment_time = #{appointmentTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yhyt.health.model.DialogAppointment">
+    update dialog_appointment
+    set dialog_detail_id = #{dialogDetailId,jdbcType=BIGINT},
+      doctor_id_launch = #{doctorIdLaunch,jdbcType=BIGINT},
+      doctor_id_appointment = #{doctorIdAppointment,jdbcType=BIGINT},
+      hospital_id = #{hospitalId,jdbcType=BIGINT},
+      department_id = #{departmentId,jdbcType=BIGINT},
+      state = #{state,jdbcType=TINYINT},
+      sign_state = #{signState,jdbcType=TINYINT},
+      appointment_time = #{appointmentTime,jdbcType=TIMESTAMP},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <select id="queryDialogAppointmentList" parameterType="long" resultMap="BaseResultMap">
+    select d.* from dialog d join dialog_detail dd on d.id=dd.dialog_id join
+     dialog_appointment da on dd.id=da.dialog_detail_id
+     WHERE d.id=#{id}
+  </select>
+    <select id="queryDialogAppointmentTransferList" parameterType="long" resultMap="BaseResultMap">
+    select d.* from dialog d join dialog_detail dd on d.id=dd.dialog_id join
+     dialog_appointment_transfer da on dd.id=da.dialog_detail_id
+     WHERE d.id=#{id}
+  </select>
+    <select id="getDialogAppointment" parameterType="map" resultMap="BaseResultVoMap">
+        SELECT
+        da.*,d.realname doctor_name_appointment,dp.name department_name,hp.name hospital_name,p.id patient_id,p.realname
+        patient_name
+        ,da.treat_num,da.treat_room,da.demand,p.head_image patient_image
+        FROM
+        dialog_appointment da
+        LEFT JOIN doctor d ON da.doctor_id_appointment = d.id
+        LEFT JOIN patient p ON da.patient_id_appointment = p.id
+        LEFT JOIN department dp ON da.department_id = dp.id
+        LEFT JOIN hospital hp ON dp.hospital_id = hp.id
+        where 1=1
+        <if test="id != null">
+            and da.id = #{id,jdbcType=BIGINT}
+        </if>
+        <if test="dialogId != null">
+            AND da.dialog_id = #{dialogId}
+        </if>
+    </select>
+    <select id="getDoctorAppointments" parameterType="map" resultMap="doctorAppointmentsVo">
+    SELECT
+         dc.id, dc.username, dc.realname, dc.head_image, dc.sex, dc.strongpoint, dc.state
+         , dc.title, dc.duty, dc.education
+         , (SELECT COUNT(*) FROM dialog_appointment da1 WHERE da1.ampm ='1' AND da1.appointment_time = #{appointmentTime} AND da1.department_id = dd.department_id AND da1.doctor_id_appointment = dd.doctor_id AND da1.state='2' AND da1.sign_state ='1') am_count
+         , (SELECT COUNT(*) FROM dialog_appointment da2 WHERE da2.ampm ='2' AND da2.appointment_time = #{appointmentTime} AND da2.department_id = dd.department_id   AND da2.doctor_id_appointment = dd.doctor_id AND da2.state='2' AND da2.sign_state ='1') pm_count
+        FROM dept_doctor dd JOIN doctor dc ON dd.doctor_id = dc.id
+        LEFT JOIN dictionary di ON dc.title = di.item_name AND di.dict_code ='500'
+        WHERE dd.department_id = #{departmentId,jdbcType=BIGINT} AND dc.state ='2' ORDER BY di.item_code, convert(dc.realname using gbk)
+  </select>
+    <select id="appointmentexpire" parameterType="map" resultMap="BaseResultMap">
+   select * from dialog_appointment t where SYSDATE()>t.appointment_time and t.department_id=#{departmentid} and t.doctor_id_appointment= #{doctorid}
+  </select>
+
+    <update id="triageconfirm" parameterType="map">
+    update dialog_appointment
+    set
+      doctor_id_appointment = #{doctorIdAppointment},
+      treat_room = #{treatRoom},
+      treat_num = #{treatNum}
+    where id = #{appointmentId}
+  </update>
+    <update id="dismissAssignDoctor" parameterType="map">
+    update dialog_appointment
+    set
+    doctor_id_appointment = NULL ,
+    state = 1,
+    treat_room = NULL ,
+    treat_num = NULL
+    where id = #{appointmentid}
+  </update>
+    <select id="queryUndiagnoseList" parameterType="map" resultMap="AppointmentPatientVo">
+        SELECT
+        da.id requestPatient_id,
+        p.id,
+        da.state,
+        '2' id_type,
+        p.realname,
+        p.head_image,
+        p.sex,
+        p.age,
+        CASE WHEN dps.state = '2' THEN '2' ELSE '1' END newly_diagnosed,
+        p.has_insurance,
+        d.realname appointment_doctor_name,
+        dp.name department_name,
+        hp.name hospital_name,
+        da.appointment_time
+        FROM
+        dialog_appointment da
+        LEFT JOIN doctor d ON da.doctor_id_appointment = d.id
+        LEFT JOIN patient p ON da.patient_id_appointment = p.id
+        LEFT JOIN dept_patient_sign dps ON da.patient_id_appointment = dps.patient_id AND da.department_id = dps.department_id
+        LEFT  JOIN dialog dg ON dg.department_id = da.department_id AND da.patient_id_appointment = dg.patient_id
+        LEFT JOIN department dp ON da.department_id = dp.id
+        LEFT JOIN hospital hp ON da.hospital_id = hp.id
+        WHERE da.sign_state='1'
+        <if test="appointmentTime != null">
+            and da.appointment_time =#{appointmentTime}
+        </if>
+        <if test="departmentId != null">
+            AND da.department_id =#{departmentId}
+        </if>
+        <if test="appointmentId != null">
+            AND da.id = #{appointmentid}
+        </if>
+        <if test="ampms != null">
+            AND da.ampm in
+            <foreach item="item" index="index" collection="ampms"
+                     open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="state != null">
+            AND da.state = #{state,jdbcType=TINYINT}
+        </if>
+        ORDER BY da.create_time DESC
+    </select>
+
+    <select id="queryPatientNumNoAssignDoctor" parameterType="map" resultType="int">
+       select count(da.id) from dialog_appointment da where  da.state = '2' AND da.sign_state='1'
+            AND da.department_id=#{departmentId} AND da.appointment_time<![CDATA[>=]]>#{appointmentTime}
+  </select>
+    <select id="queryOverdueUndiagnoseList" parameterType="map" resultMap="overdueUndiagnoseVo">
+
+        SELECT
+        da.id requestPatient_id,
+        p.id,
+        da.state,
+        '2' id_type,
+        p.realname,
+        p.head_image,
+        p.sex,
+        p.age,
+        CASE WHEN dps.state = '2' THEN '2' ELSE '1' END newly_diagnosed,
+        p.has_insurance,
+        d.realname appointment_doctor_name,
+        dp.name department_name,
+        hp.name hospital_name,
+        da.appointment_time
+        FROM
+        dialog_appointment da
+        LEFT JOIN doctor d ON da.doctor_id_appointment = d.id
+        LEFT JOIN patient p ON da.patient_id_appointment = p.id
+        LEFT JOIN dept_patient_sign dps ON da.patient_id_appointment = dps.patient_id  AND da.department_id = dps.department_id
+        LEFT JOIN department dp ON da.department_id = dp.id
+        LEFT JOIN hospital hp ON da.hospital_id = hp.id
+        WHERE da.sign_state='1'
+        <if test="appointmentTime != null">
+            <![CDATA[ AND da.appointment_time < DATE_FORMAT(#{appointmentTime,jdbcType=DATE},'%Y-%m-%d &H:&i:%s') ]]>
+        </if>
+        <if test="departmentId != null">
+            AND da.department_id =#{departmentId}
+        </if>
+        <if test="state != null">
+            AND da.state = #{state,jdbcType=TINYINT}
+        </if>
+        ORDER BY da.create_time DESC
+    </select>
+    <select id="queryUndiagnoseListCount" parameterType="map" resultType="int">
+        SELECT
+        COUNT(1)
+        FROM
+        dialog_appointment da
+        WHERE da.sign_state='1'
+        <if test="state != null">
+            AND da.state=#{state}
+        </if>
+        <if test="ampm != null">
+            AND da.ampm =#{ampm}
+        </if>
+        <if test="departmentId !=null">
+            AND da.department_id =#{departmentId}
+        </if>
+        <if test="doctorIdAppointment != null">
+            AND da.doctor_id_appointment = #{doctorIdAppointment}
+        </if>
+        <if test="appointmentTime != null">
+            AND da.appointment_time<![CDATA[=]]>#{appointmentTime}
+        </if>
+    </select>
+
+    <select id="queryUndiagnoseListCountAll" parameterType="map" resultType="Long">
+        SELECT
+        COUNT(1)
+        FROM
+        dialog_appointment da
+        WHERE da.sign_state='1'
+        <if test="state != null">
+            AND da.state=#{state}
+        </if>
+        <if test="ampm != null">
+            AND da.ampm =#{ampm}
+        </if>
+        <if test="departmentId !=null">
+            AND da.department_id =#{departmentId}
+        </if>
+        <if test="doctorIdAppointment != null">
+            AND da.doctor_id_appointment = #{doctorIdAppointment}
+        </if>
+        <if test="appointmentTime != null">
+            AND da.appointment_time<![CDATA[>=]]>#{appointmentTime}
+        </if>
+        <if test="patientId != null">
+            AND  da.patient_id_appointment=#{patientId}
+        </if>
+    </select>
+
+    <select id="queryUndiagnoseByDoctorListCount" parameterType="map" resultType="int">
+        SELECT
+        COUNT(1)
+        FROM
+        dialog_appointment da
+        WHERE da.sign_state='1'
+        <if test="state != null">
+            AND da.state=#{state}
+        </if>
+        <if test="ampm != null">
+            AND da.ampm =#{ampm}
+        </if>
+        <if test="departmentId !=null">
+            AND da.department_id =#{departmentId}
+        </if>
+        <if test="doctorIdAppointment !=null">
+            AND da.doctor_id_appointment = #{doctorIdAppointment}
+        </if>
+        <if test="doctorIdAppointment ==null">
+            AND da.doctor_id_appointment IS  NULL
+        </if>
+        <if test="appointmentTime != null">
+            AND da.appointment_time<![CDATA[=]]>#{appointmentTime}
+        </if>
+    </select>
+
+    <select id="queryUndiagnoseListByDoctor" parameterType="map" resultMap="AppointmentPatientVo">
+        SELECT
+        da.id requestPatient_id,
+        p.realname,
+        p.id,
+        da.state,
+        '2' id_type,
+        p.head_image,
+        p.sex,
+        p.age,
+        CASE WHEN dps.state = '2' THEN '2' ELSE '1' END newly_diagnosed,
+        p.has_insurance,
+        d.realname appointment_doctor_name,
+        dp.name department_name,
+        hp.name hospital_name
+        FROM
+        dialog_appointment da
+        LEFT JOIN doctor d ON da.doctor_id_appointment = d.id
+        LEFT JOIN patient p ON da.patient_id_appointment = p.id
+        LEFT JOIN dept_patient_sign dps ON da.patient_id_appointment = dps.patient_id AND da.department_id = dps.department_id
+        LEFT  JOIN dialog dg ON da.department_id = dg.department_id AND da.patient_id_appointment = dg.patient_id
+        LEFT JOIN department dp ON da.department_id = dp.id
+        LEFT JOIN hospital hp ON da.hospital_id = hp.id
+        WHERE da.sign_state='1'
+        <if test="state != null">
+            AND da.state=#{state}
+        </if>
+        <if test="ampm != null">
+            AND da.ampm =#{ampm}
+        </if>
+        <if test="departmentId !=null">
+            AND da.department_id =#{departmentId}
+        </if>
+        <if test="doctorIdAppointment !=null">
+            AND da.doctor_id_appointment = #{doctorIdAppointment}
+        </if>
+        <if test="doctorIdAppointment ==null">
+            AND da.doctor_id_appointment IS  NULL
+        </if>
+        <if test="appointmentTime != null">
+            AND da.appointment_time<![CDATA[=]]>#{appointmentTime}
+        </if>
+        ORDER BY da.create_time DESC
+    </select>
+
+    <select id="queryDiagnoseByDoctorListCountAll" parameterType="map" resultType="int">
+        SELECT
+        COUNT(1)
+        FROM
+        dialog_appointment da
+        WHERE da.sign_state='1'
+        <if test="state != null">
+            AND da.state=#{state}
+        </if>
+        <if test="ampm != null">
+            AND da.ampm =#{ampm}
+        </if>
+        <if test="departmentId !=null">
+            AND da.department_id =#{departmentId}
+        </if>
+        <if test="doctorIdAppointment !=null">
+            AND da.doctor_id_appointment = #{doctorIdAppointment}
+        </if>
+        <if test="doctorIdAppointment ==null">
+            AND da.doctor_id_appointment IS  NULL
+        </if>
+        <if test="appointmentTime != null">
+            AND da.appointment_time<![CDATA[>=]]>#{appointmentTime}
+        </if>
+    </select>
+
+    <select id="queryAppointsCountByDate" parameterType="map" resultType="AppointCountsVo">
+        SELECT
+        date_format(appointment_time, '%Y-%m-%d') appointDate,
+        count(1) appointCount
+        FROM dialog_appointment t
+        WHERE 1=1
+        AND  <![CDATA[ t.appointment_time >= #{beginTime} ]]>
+        AND  <![CDATA[ t.appointment_time <= #{endTime} ]]>
+        <if test="departmentId !=null">
+            AND t.department_id =#{departmentId}
+        </if>
+        <choose>
+            <when test="doctorId == null">
+                AND t.doctor_id_appointment IS NULL AND  t.sign_state = 1 AND t.state = 2
+            </when>
+            <otherwise>
+                AND t.sign_state = 1 AND t.state = 2 AND t.doctor_id_appointment=#{doctorId}
+            </otherwise>
+        </choose>
+        GROUP BY appointDate
+    </select>
+    <select id="searchyUndiagnoseAllpatient" parameterType="map" resultMap="AppointmentPatientVo">
+        SELECT
+        da.id requestPatient_id,
+        p.realname,
+        p.id,
+        da.state,
+        '2' id_type,
+        p.head_image,
+        p.sex,
+        p.age,
+        CASE WHEN dps.state = '2' THEN '2' ELSE '1' END newly_diagnosed,
+        p.has_insurance,
+        d.realname appointment_doctor_name,
+        dp.name department_name,
+        hp.name hospital_name
+        FROM
+        dialog_appointment da
+        LEFT JOIN doctor d ON da.doctor_id_appointment = d.id
+        LEFT JOIN patient p ON da.patient_id_appointment = p.id
+        LEFT JOIN dept_patient_sign dps ON da.patient_id_appointment = dps.patient_id AND da.department_id = dps.department_id
+        LEFT  JOIN dialog dg ON da.department_id = dg.department_id AND da.patient_id_appointment = dg.patient_id
+        LEFT JOIN department dp ON da.department_id = dp.id
+        LEFT JOIN hospital hp ON da.hospital_id = hp.id
+        WHERE da.sign_state='1'
+        <if test="state != null">
+            AND da.state=#{state}
+        </if>
+        <if test="departmentId !=null">
+            AND da.department_id =#{departmentId}
+        </if>
+        <if test="appointmentTime != null">
+            AND da.appointment_time<![CDATA[>=]]>#{appointmentTime}
+        </if>
+        <if test="key != null">
+            AND p.realname like CONCAT('%',#{key},'%')
+        </if>
+        ORDER  BY  da.appointment_time
+    </select>
+    <select id="queryDialogAppointment" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from dialog_appointment
+        where state = 2 AND department_id =#{departmentId} AND  patient_id_appointment = #{patientId}
+    </select>
+    <select id="selectDialogAppointment" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from dialog_appointment
+        where state NOT IN ('3','4','5') AND department_id =#{departmentId} AND  patient_id_appointment = #{patientId}
+        AND appointment_time<![CDATA[=]]>#{appointmentTime}
+        AND ampm = #{ampm}
+    </select>
+    <select id="getMyPatientDialog" parameterType="map" resultType="PatientDialogVo">
+        SELECT
+          da.id dialogId,da.appointment_time appointmentTime,da.ampm,da.state
+          ,d.id departmentId,d.logo departmentLogo,d.`name` departmentName,h.`name` hospitalName
+          ,dc.realname doctorName,dio.room_id roomId
+          ,da.sign_state signState
+        FROM dialog_appointment da
+        LEFT JOIN department d ON da.department_id = d.id
+        LEFT JOIN hospital h ON d.hospital_id = h.id
+        LEFT JOIN doctor dc ON da.doctor_id_appointment = dc.id
+        LEFT JOIN dialog dio ON da.department_id = dio.department_id AND da.patient_id_appointment = dio.patient_id
+        WHERE da.patient_id_appointment = #{patientId}
+        <if test="states != null and states.size > 0">
+            AND da.state in
+            <foreach item="item" index="index" collection="states" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="signState != '' and signState != null">
+            AND da.sign_state = #{signState}
+        </if>
+        <if test="appointmentTimeBegin != null">
+            AND appointment_time<![CDATA[>=]]>#{appointmentTimeBegin}
+        </if>
+        <if test="appointmentTimeEnd != null">
+            AND appointment_time<![CDATA[<=]]>#{appointmentTimeEnd}
+        </if>
+        ORDER BY da.appointment_time DESC
+    </select>
+
+</mapper>

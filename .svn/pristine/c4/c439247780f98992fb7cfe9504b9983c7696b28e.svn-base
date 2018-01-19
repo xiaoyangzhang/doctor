@@ -1,0 +1,174 @@
+package com.yhyt.health.app.controller;
+
+import com.yhyt.health.constant.ResultCode;
+import com.yhyt.health.model.Dialog;
+import com.yhyt.health.model.DialogAppointmentNotice;
+import com.yhyt.health.result.AppResult;
+import com.yhyt.health.service.ImService;
+import com.yhyt.health.service.MessageService;
+import io.swagger.annotations.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+/**
+ * localadmin 作者:
+ *
+ * @version 创建时间：2017年8月17日 下午4:12:35
+ * 类说明
+ */
+@RestController
+@Api(value = "", description = "IM相关接口")
+public class ImController {
+
+    @Autowired
+    private ImService imService;
+    @Autowired
+    private MessageService messageService;
+
+    private static Logger logger = LoggerFactory.getLogger(ImController.class);
+
+    @ApiOperation(value = "创建聊天室", notes = "一、创建聊天室")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "patientid", value = "患者id", paramType = "query", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "departmentid", value = "科室id", paramType = "query", required = true, dataType = "String")
+    })
+    @PostMapping("/addDialog")
+    public AppResult addDialog(@RequestParam("token") String patientid, @RequestParam String departmentid) {
+        Dialog dialog = new Dialog();
+        dialog.setPatientId(Long.parseLong(patientid));
+        dialog.setDepartmentId(Long.parseLong(departmentid));
+
+        //返回app成功信息
+        AppResult appResult = new AppResult();
+        appResult.setResultCode(ResultCode.SUCCESS);
+        return imService.addDialog(dialog);
+    }
+
+    @ApiOperation(value = "推送消息", notes = "推送消息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "patients", value = "患者 id", paramType = "query", required = true, dataType = "List"),
+            @ApiImplicitParam(name = "title", value = "标题", paramType = "query", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "content", value = "内容", paramType = "query", required = true, dataType = "String")
+    })
+    @PostMapping("/sendMsgToPatients")
+    public AppResult sendMsgToPatients(@RequestHeader("token") String token, @RequestParam List<Long> patientIds, @RequestParam String title, @RequestParam String content) {
+        //userType(接收类型) 1:医生、2:患者
+        AppResult appResult = new AppResult();
+        try {
+            messageService.sendMessage(patientIds, "2", title, content);
+            appResult.setResultCode(ResultCode.SUCCESS);
+            appResult.getBody().put("msg", "发送成功");
+        } catch (Exception ex) {
+            appResult.setResultCode(ResultCode.EXCEPTION);
+        }
+
+        return appResult;
+    }
+
+    @ApiOperation(value = "群发消息", notes = "群发消息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "token",paramType = "header",required = false,dataType = "String"),
+            @ApiImplicitParam(name = "message", value = "内容", paramType = "query", required = true, dataType = "String")
+    })
+    @PostMapping("/sendGroupMessage")
+    public AppResult sendGroupMessage(
+            @RequestHeader(name = "token",required = false) String token
+            ,@ApiParam(value = "患者id集合") @RequestParam String roomIds
+            , @RequestParam String message
+     ) {
+        return imService.sendGroupMessage(token, message, roomIds);
+    }
+
+    @ApiOperation(value = "获取聊天记录", notes = "获取聊天记录")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "token",paramType = "header",required = true,dataType = "String"),
+            @ApiImplicitParam(name = "roomId", value = "房间Id", paramType = "query", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "messageId", value = "消息Id", paramType = "query", required = false, dataType = "String")
+    })
+    @PostMapping("/getImDialogRecord")
+    public AppResult getImDialogRecord(
+             @RequestHeader("token") String token
+            ,@RequestParam String roomId
+            ,@RequestParam(required = false) String messageId) {
+        return imService.getDialogRecord(token, roomId, messageId);
+    }
+
+    @ApiOperation(value = "获取医生/患者通知列表", notes = "获取医生/患者通知列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "token",paramType = "header",required = true,dataType = "String"),
+            @ApiImplicitParam(name = "userType", value = "用户类型1医生2患者", paramType = "query", required = true, dataType = "int"),
+            @ApiImplicitParam(name = "rows", value = "返回记录数", paramType = "query", required = true, dataType = "int"),
+            @ApiImplicitParam(name = "roomId", value = "聊天室id", paramType = "query", required = true, dataType = "String")
+    })
+    @PostMapping("/dialogNotices/get")
+    public AppResult getDialogNotices(
+             @RequestHeader("token") String token
+            ,@RequestParam int userType,@RequestParam int rows,@RequestParam String roomId) {
+        AppResult appResult = new AppResult();
+        List<DialogAppointmentNotice> dialogAppointmentNotices = imService.selectByUserId( rows,userType,roomId,token);
+        appResult.setResultCode(ResultCode.SUCCESS);
+        appResult.getBody().put("list",dialogAppointmentNotices);
+        return appResult;
+    }
+
+    @ApiOperation(value = "更新通知表用户是否显示", notes = "更新通知表用户是否显示")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "token",paramType = "header",required = true,dataType = "String"),
+            @ApiImplicitParam(name = "id", value = "通知 id", paramType = "query", required = true, dataType = "long"),
+            @ApiImplicitParam(name = "isShow", value = "是否展示1：展示2不展示", paramType = "query", required = true, dataType = "int"),
+            @ApiImplicitParam(name = "userType", value = "用户类型1医生2患者", paramType = "query", required = true, dataType = "int"),
+
+    })
+    @PostMapping("/dialogNotice/update")
+    public AppResult updateDialogNotice(
+             @RequestHeader("token") String token
+            ,@RequestParam long id
+            ,@RequestParam int isShow,@RequestParam int userType) {
+        AppResult appResult = new AppResult();
+        DialogAppointmentNotice dialogAppointmentNotice = new DialogAppointmentNotice();
+        dialogAppointmentNotice.setId(id);
+        if (userType==1){
+
+            dialogAppointmentNotice.setIsDoctorShow(isShow+"");
+        }
+        if (userType==2){
+            dialogAppointmentNotice.setIsPatientShow(isShow+"");
+        }
+        imService.updateDialogNotice(dialogAppointmentNotice);
+        appResult.setResultCode(ResultCode.SUCCESS);
+        return appResult;
+    }
+
+
+    @ApiOperation(value= "医生向患者推送信息，包括文字、图片、语音，支持多@推送",notes = "医生向患者推送信息，包括文字、图片、语音，支持多@推送")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "roomId",value= "房间id",paramType = "query",required = true, dataType = "String"),
+            @ApiImplicitParam(name = "type",value= "消息类型1->文字 2->图片 3->语音 ",paramType = "query",required = true, dataType = "String"),
+            @ApiImplicitParam(name = "token", value = "用户",paramType="header", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "sendCrowd",value= "发送对象 1医生 2患者 ",paramType = "query",required = false,defaultValue = "1",dataType = "String"),
+            @ApiImplicitParam(name = "isAit",value= "是否@推送  1是2否 ",paramType = "query",required = false,defaultValue = "2" ,dataType = "String"),
+            @ApiImplicitParam(name = "doctors",value= "@推送状态下 医生id '1_2_3_4'",paramType = "query",required = false,dataType = "String")
+    })
+    @PostMapping(value = "/patient/doctorPushMessageToPatients")
+    public AppResult doctorPushMessageToPatients(@RequestParam String roomId,
+                                                 @RequestParam String type,
+                                                 @RequestHeader(name = "token",required = true) String token,
+                                                 @RequestParam(value = "sendCrowd",required = false,defaultValue ="1") String sendCrowd,
+                                                 @RequestParam(value = "isAit",required = false,defaultValue ="2") String isAit,
+                                                 @RequestParam String doctors){
+
+        return this.imService.doctorPushMessageToPatient(roomId,type,token,sendCrowd,isAit,doctors);
+    }
+
+
+
+
+
+}

@@ -1,0 +1,77 @@
+server: 
+  port: 8005
+#  contextPath: /doctor
+
+spring:
+  application:
+    name: doctor-zxy1
+#    name: doctor
+#  jpa:
+#    generate-ddl: false
+#    show-sql: true
+  datasource:
+    username: root
+    password: xjk1234
+    url: jdbc:mysql://172.30.0.217:3306/xjk?useUnicode=true&characterEncoding=utf-8
+    
+  redis:
+    host: 172.30.0.218
+    port: 6379
+    password: 123456
+#    expireTime: 100
+
+  http:
+    multipart:
+      enabled: true
+      max-file-size: 30MB
+      max-request-size: 30MB
+#  jackson:
+#        time-zone: GMT+8
+#        date-format: yyyy-MM-dd HH:mm
+
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://172.30.0.218:8000/eureka/
+#    register-with-eureka: false
+  instance:
+    preferIpAddress: true
+    instance-id: ${spring.cloud.client.ipAddress}:${server.port}
+    lease-expiration-duration-in-seconds: 30
+    lease-renewal-interval-in-seconds: 30
+
+swagger: 
+  enable: true
+constant:
+  im:
+    url: http://172.30.0.231:8092/tiguser/
+    imOperUrl: http://172.30.0.231:8092/mucroom
+    roomAdd: http://dialog/dialog/room/add
+    givecardforfree: http://system/patient/orders/giveOrder
+im:
+  server:
+    roomUrl: http://172.30.0.231:8092/mucroom/add
+    userAdd: http://172.30.0.231:8092/mucroom/join
+    prefix: muc.114.113.117.243
+url:
+  patientUrl: http://patient/
+  systemUrl: http://system/
+  dialogUrl: http://dialog/
+  gateWay: https://test.cis95132.com:8000/
+  newhealthUrl: http://newhealth/
+fdfs:
+   soTimeout: 15000
+   connectTimeout: 6000
+   thumbImage:
+       width: 150
+       height: 150
+   trackerList:
+   - 172.30.0.218:22122
+constant:
+    fdfs:
+       url: https://test.cis95132.com:8000/
+
+HEALTH_URL: https://h.95132.com/app/hospitals/nocontent/index1.html
+EXHIBIT_URL: https://h.95132.com/app/hospitals/nocontent/index2.html
+TYPICALILL_URL: https://h.95132.com/app/hospitals/nocontent/index3.html

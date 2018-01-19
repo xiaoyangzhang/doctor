@@ -1,0 +1,131 @@
+package com.yhyt.health.service;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.yhyt.health.constant.DoctorConstant;
+import com.yhyt.health.mapper.*;
+import com.yhyt.health.model.Doctor;
+import com.yhyt.health.model.DoctorSetting;
+import com.yhyt.health.model.vo.PatientVisited;
+import com.yhyt.health.model.vo.WorkStationCount;
+import com.yhyt.health.util.DateUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.yhyt.health.constant.ResultCode;
+import com.yhyt.health.model.PatientDiagnoseRecords;
+import com.yhyt.health.result.AppResult;
+
+/**
+ * localadmin 作者:
+ *
+ * @version 创建时间：2017年8月18日 下午4:09:09
+ * 类说明
+ */
+@Service
+public class PatientDiagnoseServiceImpl implements PatientDiagnoseService {
+    @Autowired
+    private PatientDiagnoseRecordsMapper patientDiagnoseRecordsMapper;
+    @Autowired
+    private DeptPatientSignMapper deptPatientSignMapper;
+    @Autowired
+    private DialogAppointmentMapper dialogAppointmentMapper;
+    @Autowired
+    private DoctorRequestpatientMapper doctorRequestpatientMapper;
+    @Autowired
+    private DialogAppointmentTransferMapper dialogAppointmentTransferMapper;
+    @Autowired
+    private DoctorConstant doctorConstant;
+    @Autowired
+    private RedisService redisService;
+    @Autowired
+    private DoctorSettingMapper doctorSettingMapper;
+
+    private static final Logger logger = LoggerFactory.getLogger(PatientDiagnoseServiceImpl.class);
+
+
+    @Override
+    public AppResult updatePatinetDiagnose(String token, long id, String mainDiagnose) {
+        //根据token取出当前用户
+//		Doctor doctor=(Doctor) redisService.get("doctors", token);
+        AppResult appResult = new AppResult();
+        PatientDiagnoseRecords patientDiagnoseRecords = new PatientDiagnoseRecords();
+        patientDiagnoseRecords.setId(id);
+        patientDiagnoseRecords.setMainDiagnose(mainDiagnose);
+        patientDiagnoseRecords.setUpdateTime(new Date());
+        patientDiagnoseRecordsMapper.updateByPrimaryKeySelective(patientDiagnoseRecords);
+        //结果返回
+        appResult.setResultCode(ResultCode.SUCCESS);
+        return appResult;
+    }
+
+    @Override
+    public List<PatientVisited> getDepartPatientsVisited(long departId) {
+        return patientDiagnoseRecordsMapper.getDepartPatientsVisited(departId);
+    }
+
+    @Override
+    public AppResult getWorkStationCount(String token, Long departmentId, Long doctorId) {
+        AppResult appResult = new AppResult();
+        appResult.setResultCode(ResultCode.SUCCESS);
+        Doctor doctor = (Doctor) redisService.get(doctorConstant.getRedis().get("global"), token);
+        if (departmentId == null) {
+            departmentId = doctor.getDepartmentId();
+        }
+        if (null == doctorId) {
+            doctorId = doctor.getId();
+        }
+        //查询诊后咨询人数
+        Long patientsVisitedCount = patientDiagnoseRecordsMapper.getDepartPatientsVisitedCount(departmentId);
+
+        //查询诊后扫码签到人数
+        Long signCount = deptPatientSignMapper.getSignApplyWithScanCodeCount(departmentId);
+        //全部待诊人数
+        Map<String, Object> mapAppointment = new HashMap<String,Object>();
+        mapAppointment.put("departmentId", departmentId);
+        mapAppointment.put("state", (byte) 2);
+        mapAppointment.put("appointmentTime", DateUtil.setStartDay(new Date()));
+        Long appointCount = dialogAppointmentMapper.queryUndiagnoseListCountAll(mapAppointment);
+        //今日待诊
+        int todayAppointCount =dialogAppointmentMapper.queryUndiagnoseListCount(mapAppointment);
+        //新求诊
+        Long requestPatientCount = doctorRequestpatientMapper.getNewRequestPatientListCount(departmentId);
+        //转诊
+        Long transferCount= dialogAppointmentTransferMapper.transferpatientListCount (departmentId);
+        //处理中
+        Map<String, Object> requestMap = new HashMap<String, Object>();
+        requestMap.put("departmentId", departmentId);
+        requestMap.put("state", (byte) 2);
+        Long dealingCount = doctorRequestpatientMapper.getDealingPatientListCount(requestMap);
+        /*//已拒绝
+        requestMap.put("state", (byte) 4);
+        Long refuseCount = doctorRequestpatientMapper.getDealingPatientListCount(requestMap);*/
+
+        //组装返回VO
+        WorkStationCount workStationCount = new WorkStationCount();
+        workStationCount.setPatientsVisitedCount(patientsVisitedCount);
+        workStationCount.setPatientSignCount(signCount);
+        workStationCount.setTodayAppointCount(Long.valueOf(todayAppointCount));
+        workStationCount.setAppointCount(Long.valueOf(appointCount));
+        workStationCount.setRequestPatientCount(requestPatientCount);
+        workStationCount.setTransferCount(transferCount);
+        workStationCount.setDealingCount(dealingCount);
+        //查询工作站设置
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("doctorId", doctorId);
+        map.put("departmentId", departmentId);
+        List<DoctorSetting> doctorSettings =  doctorSettingMapper.findPersistableList(map);
+        appResult.getBody().put("count", workStationCount);
+        if (null != doctorSettings && doctorSettings.size() > 0) {
+            appResult.getBody().put("setting", doctorSettings.get(0));
+        } else {
+            appResult.getBody().put("setting", new DoctorSetting());
+        }
+        return appResult;
+    }
+}

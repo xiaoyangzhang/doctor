@@ -1,0 +1,61 @@
+server: 
+  port: 80
+#  contextPath: /doctor
+
+spring:
+  application:
+    name: doctorgsh
+#  jpa:
+#    generate-ddl: false
+#    show-sql: true
+  datasource:
+    username: root
+    password: xjk1234
+    url: jdbc:mysql://172.30.0.230:3306/xjk?useUnicode=true&characterEncoding=utf-8
+
+  redis:
+    cluster:
+        nodes: 172.30.0.219:6379
+        timeout: 3000
+        max-redirects: 8
+        password: 123456
+    cluster-enabled: yes
+#    host: 172.30.0.219
+#    port: 6379
+#    password: 123456
+#    expireTime: 100
+
+  http:
+    multipart:
+      enabled: true
+      max-file-size: 30MB
+      max-request-size: 30MB
+#  jackson:
+#        time-zone: GMT+8
+#        date-format: yyyy-MM-dd HH:mm
+
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://172.30.0.219:8000/eureka/,http://172.30.0.233:8000/eureka/
+  instance:
+    preferIpAddress: true
+    instance-id: ${spring.cloud.client.ipAddress}:${server.port}
+    lease-expiration-duration-in-seconds: 30
+    lease-renewal-interval-in-seconds: 30
+
+swagger: 
+   enable: true
+constant:
+  im:
+    url: http://172.30.0.231:8092/tiguser/
+    imOperUrl: http://172.30.0.231:8092/mucroom
+    roomAdd: http://dialog/dialog/room/add
+    givecardforfree: http://system/patient/orders/giveOrder
+
+im:
+  server:
+    roomUrl: http://172.30.0.231:8092/mucroom/add
+    userAdd: http://172.30.0.231:8092/mucroom/join
+    prefix: muc.114.113.117.243

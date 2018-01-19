@@ -1,0 +1,63 @@
+package com.yhyt.health.mapper;
+
+import com.yhyt.health.model.Doctor;
+import com.yhyt.health.model.DoctorKey;
+import com.yhyt.health.model.query.DoctorBlackQuery;
+import com.yhyt.health.model.query.DoctorQuery;
+import com.yhyt.health.model.vo.*;
+import com.yhyt.health.model.vo.app.DoctorAppVO;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Map;
+
+@Repository
+public interface DoctorMapper {
+    int deleteByPrimaryKey(DoctorKey key);
+
+    int insert(Doctor record);
+
+    int insertSelective(Doctor record);
+
+    Doctor selectByPrimaryKey(long id);
+
+    DoctorVO selectDoctorInfoById(long id);
+
+    int updateByPrimaryKeySelective(Doctor record);
+
+    int updateByPrimaryKey(Doctor record);
+
+    List<DoctorVO> getDoctorListPage(DoctorQuery doctorQuery);
+    List<DoctorDiseaseVO> getDiseaseDoctorListPage(DoctorQuery doctorQuery);
+
+    List<DoctorVO> getDeptDoctorList(long deptId);
+
+    DoctorExtVO viewDoctorExtInfo(long id);
+
+    List<DoctorExtVO> getDoctorsByDiseaseId(long diseaseId);
+
+    List<DoctorExtVO> getDoctorDiseaseListPage(@Param("realname") String realname);
+
+    List<Doctor> getDoctorsListByName(String name);
+
+    List<DoctorBlacklistVO> getDoctorBlacklistListPage(DoctorBlackQuery query);
+
+    Doctor getDoctor(Map<String, Object> map);
+
+    Map<String, Long> getHospitalAndDeptByDoctorId(long id);
+
+    List<Doctor> queryDoctorsByDeptId(long deptId);
+
+    List<Doctor> getDoctorByDepartmentId(long departmentId);
+
+    DoctorAppInfoVo selectDoctorForAppById(long id);
+
+    DoctorAppInfoVo selectDoctorForAppByUserName(String userName);
+
+    List<DoctorAppVO> appointmentdoctorlist(Map<String, Object> map);
+
+    List<DoctorInfoVo> getDoctorByDepartmentIdForPatient(Long departmentId);
+    Doctor queryDoctorByName(String name);
+    int updateDeptIdById(Doctor doctor);
+}

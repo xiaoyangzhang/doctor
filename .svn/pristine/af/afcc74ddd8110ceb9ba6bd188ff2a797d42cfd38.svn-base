@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhyt.health.mapper.DictionaryMapper">
+    <resultMap id="BaseResultMap" type="com.yhyt.health.model.Dictionary">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="dict_code" jdbcType="INTEGER" property="dictCode"/>
+        <result column="dict_name" jdbcType="VARCHAR" property="dictName"/>
+        <result column="item_code" jdbcType="INTEGER" property="itemCode"/>
+        <result column="item_name" jdbcType="VARCHAR" property="itemName"/>
+        <result column="item_desc" jdbcType="VARCHAR" property="itemDesc"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, dict_code, dict_name, item_code, item_name, item_desc
+  </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from dictionary
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from dictionary
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.yhyt.health.model.Dictionary">
+    insert into dictionary (dict_code, dict_name, 
+      item_code, item_name, item_desc
+      )
+    values (#{dictCode,jdbcType=INTEGER}, #{dictName,jdbcType=VARCHAR}, 
+      #{itemCode,jdbcType=INTEGER}, #{itemName,jdbcType=VARCHAR}, #{itemDesc,jdbcType=VARCHAR}
+      )
+  </insert>
+    <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
+            parameterType="com.yhyt.health.model.Dictionary">
+        insert into dictionary
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="dictCode != null">
+                dict_code,
+            </if>
+            <if test="dictName != null">
+                dict_name,
+            </if>
+            <if test="itemCode != null">
+                item_code,
+            </if>
+            <if test="itemName != null">
+                item_name,
+            </if>
+            <if test="itemDesc != null">
+                item_desc,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="dictCode != null">
+                #{dictCode,jdbcType=INTEGER},
+            </if>
+            <if test="dictName != null">
+                #{dictName,jdbcType=VARCHAR},
+            </if>
+            <if test="itemCode != null">
+                #{itemCode,jdbcType=INTEGER},
+            </if>
+            <if test="itemName != null">
+                #{itemName,jdbcType=VARCHAR},
+            </if>
+            <if test="itemDesc != null">
+                #{itemDesc,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yhyt.health.model.Dictionary">
+        update dictionary
+        <set>
+            <if test="dictCode != null">
+                dict_code = #{dictCode,jdbcType=INTEGER},
+            </if>
+            <if test="dictName != null">
+                dict_name = #{dictName,jdbcType=VARCHAR},
+            </if>
+            <if test="itemCode != null">
+                item_code = #{itemCode,jdbcType=INTEGER},
+            </if>
+            <if test="itemName != null">
+                item_name = #{itemName,jdbcType=VARCHAR},
+            </if>
+            <if test="itemDesc != null">
+                item_desc = #{itemDesc,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yhyt.health.model.Dictionary">
+    update dictionary
+    set dict_code = #{dictCode,jdbcType=INTEGER},
+      dict_name = #{dictName,jdbcType=VARCHAR},
+      item_code = #{itemCode,jdbcType=INTEGER},
+      item_name = #{itemName,jdbcType=VARCHAR},
+      item_desc = #{itemDesc,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+    <select id="findDictionaryList" parameterType="java.util.Map" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from dictionary t
+        <include refid="search_dictionary"></include>
+    </select>
+    <select id="findDictionaryListdictName" parameterType="java.util.Map" resultMap="BaseResultMap">
+  	select * from dictionary t 
+  	where t.dict_code=#{dictCode}
+  </select>
+    <!-- 账户列表搜索条件  -->
+    <sql id="search_dictionary">
+        <trim prefix="WHERE" prefixOverrides="AND|OR">
+            <if test="id!=null">and t.id = #{id,jdbcType=INTEGER}</if>
+            <if test="dictCode!=null">and t.dict_code = #{dictCode,jdbcType=INTEGER}</if>
+            <if test="dictName!=null">and t.dict_name like concat(#{dictName,jdbcType=VARCHAR},'%')</if>
+            <if test="itemName!=null">and t.item_name like concat('%',#{itemName,jdbcType=VARCHAR},'%')</if>
+        </trim>
+    </sql>
+
+</mapper>

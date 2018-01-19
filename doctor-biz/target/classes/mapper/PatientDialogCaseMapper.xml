@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhyt.health.mapper.PatientDialogCaseMapper">
+
+    <resultMap id="BaseResultMap" type="com.yhyt.health.model.PatientDialogCase">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="dialog_id" jdbcType="BIGINT" property="dialogId"/>
+        <result column="department_id" jdbcType="BIGINT" property="departmentId"/>
+        <result column="patient_id" jdbcType="BIGINT" property="patientId"/>
+        <result column="case_id" jdbcType="VARCHAR" property="caseId"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+    id, dialog_id, department_id, patient_id, case_id, create_time
+  </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from patient_dialog_case
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from patient_dialog_case
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.yhyt.health.model.PatientDialogCase">
+    insert into patient_dialog_case (id, dialog_id, department_id, 
+      patient_id, case_id, create_time
+      )
+    values (#{id,jdbcType=BIGINT}, #{dialogId,jdbcType=BIGINT}, #{departmentId,jdbcType=BIGINT}, 
+      #{patientId,jdbcType=BIGINT}, #{caseId,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+    <insert id="insertSelective" parameterType="com.yhyt.health.model.PatientDialogCase">
+        insert into patient_dialog_case
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="dialogId != null">
+                dialog_id,
+            </if>
+            <if test="departmentId != null">
+                department_id,
+            </if>
+            <if test="patientId != null">
+                patient_id,
+            </if>
+            <if test="caseId != null">
+                case_id,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="dialogId != null">
+                #{dialogId,jdbcType=BIGINT},
+            </if>
+            <if test="departmentId != null">
+                #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="patientId != null">
+                #{patientId,jdbcType=BIGINT},
+            </if>
+            <if test="caseId != null">
+                #{caseId,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yhyt.health.model.PatientDialogCase">
+        update patient_dialog_case
+        <set>
+            <if test="dialogId != null">
+                dialog_id = #{dialogId,jdbcType=BIGINT},
+            </if>
+            <if test="departmentId != null">
+                department_id = #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="patientId != null">
+                patient_id = #{patientId,jdbcType=BIGINT},
+            </if>
+            <if test="caseId != null">
+                case_id = #{caseId,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yhyt.health.model.PatientDialogCase">
+    update patient_dialog_case
+    set dialog_id = #{dialogId,jdbcType=BIGINT},
+      department_id = #{departmentId,jdbcType=BIGINT},
+      patient_id = #{patientId,jdbcType=BIGINT},
+      case_id = #{caseId,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <select id="selectPatientDialogCase" parameterType="map" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from patient_dialog_case
+        where 1=1
+        <if test="id != null">
+            AND id = #{id,jdbcType=BIGINT}
+        </if>
+        <if test="departmentId != null">
+            AND department_id = #{departmentId,jdbcType=BIGINT}
+        </if>
+        <if test="patientId != null">
+            AND patient_id = #{patientId,jdbcType=BIGINT}
+        </if>
+        <if test="dialogId != null">
+            AND dialog_id = #{dialogId,jdbcType=BIGINT}
+        </if>
+    </select>
+</mapper>

@@ -1,0 +1,49 @@
+package com.yhyt.health.mapper;
+
+import com.yhyt.health.model.Article;
+import com.yhyt.health.model.vo.ArticleAppVo;
+import feign.Param;
+import org.springframework.stereotype.Repository;
+import com.yhyt.health.model.ArticleDTO;
+import com.yhyt.health.model.query.ArticleQuery;
+
+import java.util.List;
+
+import java.util.List;
+
+@Repository
+public interface ArticleMapper {
+    int deleteByPrimaryKey(Long id);
+
+    int insert(Article record);
+
+    int insertSelective(Article record);
+
+    Article selectByPrimaryKey(Long id);
+
+    int updateByPrimaryKeySelective(Article record);
+
+    int updateByPrimaryKeyWithBLOBs(Article record);
+
+    int updateByPrimaryKey(Article record);
+
+    /**
+     * 分页查询医师培训&参与课提列表
+     * @param departmentId
+     * @param cityId
+     * @param type
+     * @param pageIndex
+     * @param pageSize
+     * @return
+     */
+    List<ArticleAppVo> getArticleAppVoList(final @Param("departmentId") Long departmentId,
+                                           final @Param("cityId") int cityId,
+                                           final @Param("type") String type,
+                                           final @Param("pageIndex") Integer pageIndex,
+                                           final @Param("pageSize") Integer pageSize);
+
+
+
+
+    List<ArticleDTO> queryArticleListPage(ArticleQuery articleQuery);
+}

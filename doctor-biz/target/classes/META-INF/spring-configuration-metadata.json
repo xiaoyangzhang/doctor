@@ -1,0 +1,38 @@
+{
+  "hints": [],
+  "groups": [
+    {
+      "sourceType": "com.yhyt.health.constant.DoctorConstant",
+      "name": "constant",
+      "type": "com.yhyt.health.constant.DoctorConstant"
+    },
+    {
+      "sourceType": "com.yhyt.health.config.DataBaseConfiguration",
+      "name": "spring.datasource",
+      "sourceMethod": "getDataSource()",
+      "type": "javax.sql.DataSource"
+    }
+  ],
+  "properties": [
+    {
+      "sourceType": "com.yhyt.health.constant.DoctorConstant",
+      "name": "constant.fdfs",
+      "type": "java.util.Map<java.lang.String,java.lang.String>"
+    },
+    {
+      "sourceType": "com.yhyt.health.constant.DoctorConstant",
+      "name": "constant.im",
+      "type": "java.util.Map<java.lang.String,java.lang.String>"
+    },
+    {
+      "sourceType": "com.yhyt.health.constant.DoctorConstant",
+      "name": "constant.redis",
+      "type": "java.util.Map<java.lang.String,java.lang.String>"
+    },
+    {
+      "sourceType": "com.yhyt.health.constant.DoctorConstant",
+      "name": "constant.sms",
+      "type": "java.util.Map<java.lang.String,java.lang.String>"
+    }
+  ]
+}

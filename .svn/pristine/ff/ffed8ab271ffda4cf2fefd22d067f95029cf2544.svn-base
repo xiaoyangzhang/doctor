@@ -1,0 +1,663 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhyt.health.mapper.DoctorMapper">
+    <resultMap id="BaseResultMap" type="com.yhyt.health.model.Doctor">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="username" jdbcType="VARCHAR" property="username"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="im_password" jdbcType="VARCHAR" property="imPassword"/>
+        <result column="realname" jdbcType="VARCHAR" property="realname"/>
+        <result column="birthday" jdbcType="DATE" property="birthday"/>
+        <result column="head_image" jdbcType="VARCHAR" property="headImage"/>
+        <result column="sex" jdbcType="TINYINT" property="sex"/>
+        <result column="mobile_number" jdbcType="VARCHAR" property="mobileNumber"/>
+        <result column="department_id" jdbcType="BIGINT" property="departmentId"/>
+        <result column="summary" jdbcType="VARCHAR" property="summary"/>
+        <result column="strongpoint" jdbcType="VARCHAR" property="strongpoint"/>
+        <result column="practice_certificate" jdbcType="VARCHAR" property="practiceCertificate"/>
+        <result column="qualification_certificate" jdbcType="VARCHAR" property="qualificationCertificate"/>
+        <result column="is_blacklist" jdbcType="TINYINT" property="isBlacklist"/>
+        <result column="is_online" jdbcType="TINYINT" property="isOnline"/>
+        <result column="state" jdbcType="TINYINT" property="state"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="duty" jdbcType="VARCHAR" property="duty"/>
+        <result column="education" jdbcType="VARCHAR" property="education"/>
+        <result column="email" jdbcType="VARCHAR" property="email"/>
+        <result column="operator" jdbcType="VARCHAR" property="operator"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="last_time" jdbcType="TIMESTAMP" property="lastTime"/>
+        <result column="is_admin" jdbcType="VARCHAR" property="isAdmin"/>
+    </resultMap>
+    <resultMap id="doctorVO" type="com.yhyt.health.model.vo.DoctorVO">
+        <id property="id" column="id" jdbcType="BIGINT"></id>
+        <result column="departDoctorId" jdbcType="BIGINT" property="departDoctorId"/>
+        <result column="diseaseDoctorId" jdbcType="BIGINT" property="diseaseDoctorId"/>
+        <result column="username" jdbcType="VARCHAR" property="username"/>
+        <result column="realname" jdbcType="VARCHAR" property="realname"/>
+        <result column="birthday" jdbcType="DATE" property="birthday"/>
+        <result column="head_image" jdbcType="VARCHAR" property="headImage"/>
+        <result column="sex" jdbcType="TINYINT" property="sex"/>
+        <result column="mobile_number" jdbcType="VARCHAR" property="mobileNumber"/>
+        <result column="summary" jdbcType="VARCHAR" property="summary"/>
+        <result column="strongpoint" jdbcType="VARCHAR" property="strongpoint"/>
+        <result column="practice_certificate" jdbcType="VARCHAR" property="practiceCertificate"/>
+        <result column="qualification_certificate" jdbcType="VARCHAR" property="qualificationCertificate"/>
+        <result column="is_blacklist" jdbcType="TINYINT" property="isBlacklist"/>
+        <result column="is_online" jdbcType="TINYINT" property="isOnline"/>
+        <result column="state" jdbcType="TINYINT" property="state"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="duty" jdbcType="VARCHAR" property="duty"/>
+        <result column="education" jdbcType="VARCHAR" property="education"/>
+        <result column="email" jdbcType="VARCHAR" property="email"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="last_time" jdbcType="TIMESTAMP" property="lastTime"/>
+        <result column="department" jdbcType="VARCHAR" property="department"/>
+        <result column="hospital" jdbcType="VARCHAR" property="hospital"/>
+        <result column="is_admin" jdbcType="TINYINT" property="isAdmin"/>
+        <result column="department_id" jdbcType="BIGINT" property="departmentId"/>
+        <result column="hospital_id" jdbcType="BIGINT" property="hospitalId"/>
+        <result column="audit_state" jdbcType="VARCHAR" property="auditState"/>
+        <!--<collection property="blacklistList" ofType="com.yhyt.health.model.SysBlacklist">-->
+        <!--<result column="reason" jdbcType="VARCHAR" property="reason" />-->
+        <!--<result column="type" jdbcType="TINYINT" property="type" />-->
+        <!--<result column="operator" jdbcType="VARCHAR" property="operator" />-->
+        <!--<result column="create_time" jdbcType="TIMESTAMP" property="createTime" />-->
+        <!--</collection>-->
+        <!--<collection property="feedbackList" ofType="com.yhyt.health.model.SysFeedback">-->
+        <!--<result column="content" jdbcType="VARCHAR" property="content" />-->
+        <!--<result column="create_time" jdbcType="TIMESTAMP" property="createTime" />-->
+        <!--</collection>-->
+    </resultMap>
+    <resultMap id="doctorInfoVO" type="com.yhyt.health.model.vo.DoctorInfoVo">
+        <id property="id" column="id" jdbcType="BIGINT"></id>
+        <result column="departDoctorId" jdbcType="BIGINT" property="departDoctorId"/>
+        <result column="diseaseDoctorId" jdbcType="BIGINT" property="diseaseDoctorId"/>
+        <result column="username" jdbcType="VARCHAR" property="username"/>
+        <result column="realname" jdbcType="VARCHAR" property="realname"/>
+        <result column="birthday" jdbcType="DATE" property="birthday"/>
+        <result column="head_image" jdbcType="VARCHAR" property="headImage"/>
+        <result column="sex" jdbcType="TINYINT" property="sex"/>
+        <result column="mobile_number" jdbcType="VARCHAR" property="mobileNumber"/>
+        <result column="summary" jdbcType="VARCHAR" property="summary"/>
+        <result column="strongpoint" jdbcType="VARCHAR" property="strongpoint"/>
+        <result column="practice_certificate" jdbcType="VARCHAR" property="practiceCertificate"/>
+        <result column="qualification_certificate" jdbcType="VARCHAR" property="qualificationCertificate"/>
+        <result column="is_blacklist" jdbcType="TINYINT" property="isBlacklist"/>
+        <result column="is_online" jdbcType="TINYINT" property="isOnline"/>
+        <result column="state" jdbcType="TINYINT" property="state"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="duty" jdbcType="VARCHAR" property="duty"/>
+        <result column="education" jdbcType="VARCHAR" property="education"/>
+        <result column="email" jdbcType="VARCHAR" property="email"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="last_time" jdbcType="TIMESTAMP" property="lastTime"/>
+        <result column="department" jdbcType="VARCHAR" property="department"/>
+        <result column="hospital" jdbcType="VARCHAR" property="hospital"/>
+        <result column="is_admin" jdbcType="TINYINT" property="isAdmin"/>
+        <result column="department_id" jdbcType="BIGINT" property="departmentId"/>
+        <result column="hospital_id" jdbcType="BIGINT" property="hospitalId"/>
+        <result column="audit_state" jdbcType="VARCHAR" property="auditState"/>
+        <result column="logo" jdbcType="VARCHAR" property="logo"/>
+    </resultMap>
+    <resultMap id="doctorAppInfoVO" type="com.yhyt.health.model.vo.DoctorAppInfoVo">
+        <id property="id" column="id" jdbcType="BIGINT"></id>
+        <result column="departDoctorId" jdbcType="BIGINT" property="departDoctorId"/>
+        <result column="diseaseDoctorId" jdbcType="BIGINT" property="diseaseDoctorId"/>
+        <result column="username" jdbcType="VARCHAR" property="username"/>
+        <result column="realname" jdbcType="VARCHAR" property="realname"/>
+        <result column="birthday" jdbcType="DATE" property="birthday"/>
+        <result column="head_image" jdbcType="VARCHAR" property="headImage"/>
+        <result column="sex" jdbcType="TINYINT" property="sex"/>
+        <result column="mobile_number" jdbcType="VARCHAR" property="mobileNumber"/>
+        <result column="summary" jdbcType="VARCHAR" property="summary"/>
+        <result column="strongpoint" jdbcType="VARCHAR" property="strongpoint"/>
+        <result column="practice_certificate" jdbcType="VARCHAR" property="practiceCertificate"/>
+        <result column="qualification_certificate" jdbcType="VARCHAR" property="qualificationCertificate"/>
+        <result column="is_blacklist" jdbcType="TINYINT" property="isBlacklist"/>
+        <result column="is_online" jdbcType="TINYINT" property="isOnline"/>
+        <result column="state" jdbcType="TINYINT" property="state"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="duty" jdbcType="VARCHAR" property="duty"/>
+        <result column="education" jdbcType="VARCHAR" property="education"/>
+        <result column="email" jdbcType="VARCHAR" property="email"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="last_time" jdbcType="TIMESTAMP" property="lastTime"/>
+        <result column="department" jdbcType="VARCHAR" property="department"/>
+        <result column="hospital" jdbcType="VARCHAR" property="hospital"/>
+        <result column="is_admin" jdbcType="TINYINT" property="isAdmin"/>
+        <result column="department_id" jdbcType="BIGINT" property="departmentId"/>
+        <result column="hospital_id" jdbcType="BIGINT" property="hospitalId"/>
+        <result column="audit_state" jdbcType="VARCHAR" property="auditState"/>
+        <result column="logo" jdbcType="VARCHAR" property="logo"/>
+        <result column="hospital_logo" jdbcType="VARCHAR" property="hospitalLogo"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, username, password, realname, birthday, head_image, sex, mobile_number, department_id,
+    summary, strongpoint, practice_certificate, qualification_certificate, is_blacklist,
+    is_online, state, title, duty, education, email, operator, create_time, last_time,im_password
+  </sql>
+    <select id="getDoctorListPage" parameterType="com.yhyt.health.model.query.DoctorQuery" resultMap="doctorVO">
+        select * from(
+        select doctor.id, username,realname,birthday,head_image, sex, mobile_number, doctor.department_id,
+        doctor.summary, strongpoint, practice_certificate, qualification_certificate, is_blacklist,
+        is_online, doctor.state, title, duty, education, email, doctor.operator, doctor.create_time,
+        doctor.last_time,
+        dep.name department,h.name hospital,dep.hospital_id
+        from doctor
+        left join department dep on doctor.department_id=dep.id
+        left join hospital h on dep.hospital_id=h.id
+
+        WHERE 1=1
+        <if test="username != null and username!= ''">
+            and username like concat('%',#{username},'%')
+        </if>
+        <if test="realname != null and realname != ''">
+            and realname like concat('%',#{realname},'%')
+
+        </if>
+        <if test="registerTimeStart != null">
+            and doctor.create_time <![CDATA[>=]]> #{registerTimeStart}
+        </if>
+        <if test="registerTimeEnd != null">
+            and doctor.create_time <![CDATA[<=]]> #{registerTimeEnd}
+
+        </if>
+        <if test="state!=null">
+            and state=#{state}
+        </if>
+        ) tmp
+        group by id,username
+        order by `create_time` desc
+    </select>
+    <select id="getDiseaseDoctorListPage" parameterType="com.yhyt.health.model.query.DoctorQuery"
+            resultType="com.yhyt.health.model.vo.DoctorDiseaseVO">
+        select doctor.id doctorId, username,realname,title,
+        dep.name department,h.name hospital
+        from doctor
+        left join department dep on doctor.department_id=dep.id
+        left join hospital h on dep.hospital_id=h.id
+        WHERE 1=1
+        <if test="realname != null and realname != ''">
+            and realname like concat('%',#{realname},'%')
+
+        </if>
+        and doctor.state=2
+    </select>
+    <select id="viewDoctorExtInfo" parameterType="long" resultType="com.yhyt.health.model.vo.DoctorExtVO">
+    select doc.summary, strongpoint, title, duty, education,doc.id,dep.name departmentName,h.name hospitalName from doctor doc join department dep on doc.department_id = dep.id
+    join hospital h on h.id = dep.hospital_id where doc.id=#{id}
+  </select>
+    <select id="selectByPrimaryKey" parameterType="long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from doctor
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <select id="selectDoctorInfoById" parameterType="long" resultMap="doctorVO">
+    select doc.id, username, realname, birthday, head_image, sex, mobile_number,
+    doc.summary, strongpoint, practice_certificate, qualification_certificate, is_blacklist,
+    is_online, doc.state, title, duty, education, email, doc.operator, doc.create_time, doc.last_time
+  ,dep.name department ,h.name hospital,h.id hospitalId,doc.department_id
+    from doctor doc left join department dep on doc.department_id = dep.id LEFT join   hospital h on dep.hospital_id=h.id
+    where doc.id = #{id,jdbcType=BIGINT}
+  </select>
+    <delete id="deleteByPrimaryKey" parameterType="com.yhyt.health.model.DoctorKey">
+    delete from doctor
+    where id = #{id,jdbcType=BIGINT}
+      and username = #{username,jdbcType=VARCHAR}
+  </delete>
+    <insert id="insert" parameterType="com.yhyt.health.model.Doctor" keyProperty="id" useGeneratedKeys="true">
+    insert into doctor (id, username, password, 
+      realname, birthday, head_image, 
+      sex, mobile_number, department_id, 
+      summary, strongpoint, practice_certificate, 
+      qualification_certificate, is_blacklist, 
+      is_online, state, title, 
+      duty, education, email, 
+      operator, create_time, last_time,im_password
+      )
+    values (#{id,jdbcType=BIGINT}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, 
+      #{realname,jdbcType=VARCHAR}, #{birthday,jdbcType=DATE}, #{headImage,jdbcType=VARCHAR}, 
+      #{sex,jdbcType=TINYINT}, #{mobileNumber,jdbcType=VARCHAR}, #{departmentId,jdbcType=BIGINT}, 
+      #{summary,jdbcType=VARCHAR}, #{strongpoint,jdbcType=VARCHAR}, #{practiceCertificate,jdbcType=VARCHAR}, 
+      #{qualificationCertificate,jdbcType=VARCHAR}, #{isBlacklist,jdbcType=TINYINT}, 
+      #{isOnline,jdbcType=TINYINT}, #{state,jdbcType=TINYINT}, #{title,jdbcType=VARCHAR}, 
+      #{duty,jdbcType=VARCHAR}, #{education,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, 
+      #{operator,jdbcType=BIGINT}, #{createTime,jdbcType=TIMESTAMP}, #{lastTime,jdbcType=TIMESTAMP},#{imPassword,jdbcType=VARCHAR}
+      )
+  </insert>
+    <insert id="insertSelective" parameterType="com.yhyt.health.model.Doctor" keyProperty="id" useGeneratedKeys="true">
+        insert into doctor
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="username != null">
+                username,
+            </if>
+            <if test="password != null">
+                password,
+            </if>
+            <if test="imPassword != null">
+                im_password,
+            </if>
+            <if test="realname != null">
+                realname,
+            </if>
+            <if test="birthday != null">
+                birthday,
+            </if>
+            <if test="headImage != null">
+                head_image,
+            </if>
+            <if test="sex != null">
+                sex,
+            </if>
+            <if test="mobileNumber != null">
+                mobile_number,
+            </if>
+            <if test="departmentId != null">
+                department_id,
+            </if>
+            <if test="summary != null">
+                summary,
+            </if>
+            <if test="strongpoint != null">
+                strongpoint,
+            </if>
+            <if test="practiceCertificate != null">
+                practice_certificate,
+            </if>
+            <if test="qualificationCertificate != null">
+                qualification_certificate,
+            </if>
+            <if test="isBlacklist != null">
+                is_blacklist,
+            </if>
+            <if test="isOnline != null">
+                is_online,
+            </if>
+            <if test="state != null">
+                state,
+            </if>
+            <if test="title != null">
+                title,
+            </if>
+            <if test="duty != null">
+                duty,
+            </if>
+            <if test="education != null">
+                education,
+            </if>
+            <if test="email != null">
+                email,
+            </if>
+            <if test="operator != null">
+                operator,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="lastTime != null">
+                last_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="username != null">
+                #{username,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null">
+                #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="imPassword != null">
+                #{imPassword,jdbcType=VARCHAR},
+            </if>
+            <if test="realname != null">
+                #{realname,jdbcType=VARCHAR},
+            </if>
+            <if test="birthday != null">
+                #{birthday,jdbcType=DATE},
+            </if>
+            <if test="headImage != null">
+                #{headImage,jdbcType=VARCHAR},
+            </if>
+            <if test="sex != null">
+                #{sex,jdbcType=TINYINT},
+            </if>
+            <if test="mobileNumber != null">
+                #{mobileNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="departmentId != null">
+                #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="summary != null">
+                #{summary,jdbcType=VARCHAR},
+            </if>
+            <if test="strongpoint != null">
+                #{strongpoint,jdbcType=VARCHAR},
+            </if>
+            <if test="practiceCertificate != null">
+                #{practiceCertificate,jdbcType=VARCHAR},
+            </if>
+            <if test="qualificationCertificate != null">
+                #{qualificationCertificate,jdbcType=VARCHAR},
+            </if>
+            <if test="isBlacklist != null">
+                #{isBlacklist,jdbcType=TINYINT},
+            </if>
+            <if test="isOnline != null">
+                #{isOnline,jdbcType=TINYINT},
+            </if>
+            <if test="state != null">
+                #{state,jdbcType=TINYINT},
+            </if>
+            <if test="title != null">
+                #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="duty != null">
+                #{duty,jdbcType=VARCHAR},
+            </if>
+            <if test="education != null">
+                #{education,jdbcType=VARCHAR},
+            </if>
+            <if test="email != null">
+                #{email,jdbcType=VARCHAR},
+            </if>
+            <if test="operator != null">
+                #{operator},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="lastTime != null">
+                #{lastTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" useGeneratedKeys="true" keyProperty="id"
+            parameterType="com.yhyt.health.model.Doctor">
+        update doctor
+        <set>
+            <if test="username != null">
+                username = #{username},
+            </if>
+            <if test="password != null">
+                password = #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="realname != null">
+                realname = #{realname,jdbcType=VARCHAR},
+            </if>
+            <if test="birthday != null">
+                birthday = #{birthday,jdbcType=DATE},
+            </if>
+            <if test="headImage != null">
+                head_image = #{headImage,jdbcType=VARCHAR},
+            </if>
+            <if test="sex != null">
+                sex = #{sex,jdbcType=TINYINT},
+            </if>
+            <if test="mobileNumber != null">
+                mobile_number = #{mobileNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="departmentId!=null">
+
+                department_id = #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="summary != null">
+                summary = #{summary,jdbcType=VARCHAR},
+            </if>
+            <if test="strongpoint != null">
+                strongpoint = #{strongpoint,jdbcType=VARCHAR},
+            </if>
+            <if test="practiceCertificate != null">
+                practice_certificate = #{practiceCertificate,jdbcType=VARCHAR},
+            </if>
+            <if test="qualificationCertificate != null">
+                qualification_certificate = #{qualificationCertificate,jdbcType=VARCHAR},
+            </if>
+            <if test="isBlacklist != null">
+                is_blacklist = #{isBlacklist,jdbcType=TINYINT},
+            </if>
+            <if test="isOnline != null">
+                is_online = #{isOnline,jdbcType=TINYINT},
+            </if>
+            <if test="state != null">
+                state = #{state,jdbcType=TINYINT},
+            </if>
+            <if test="title != null">
+                title = #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="duty != null">
+                duty = #{duty,jdbcType=VARCHAR},
+            </if>
+            <if test="education != null">
+                education = #{education,jdbcType=VARCHAR},
+            </if>
+            <if test="email != null">
+                email = #{email,jdbcType=VARCHAR},
+            </if>
+            <if test="operator != null">
+                operator = #{operator},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="lastTime != null">
+                last_time = #{lastTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="imPassword != null">
+                im_password = #{imPassword}
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yhyt.health.model.Doctor">
+    update doctor
+    set password = #{password,jdbcType=VARCHAR},
+      realname = #{realname,jdbcType=VARCHAR},
+      birthday = #{birthday,jdbcType=DATE},
+      head_image = #{headImage,jdbcType=VARCHAR},
+      sex = #{sex,jdbcType=TINYINT},
+      mobile_number = #{mobileNumber,jdbcType=VARCHAR},
+      department_id = #{departmentId,jdbcType=BIGINT},
+      summary = #{summary,jdbcType=VARCHAR},
+      strongpoint = #{strongpoint,jdbcType=VARCHAR},
+      practice_certificate = #{practiceCertificate,jdbcType=VARCHAR},
+      qualification_certificate = #{qualificationCertificate,jdbcType=VARCHAR},
+      is_blacklist = #{isBlacklist,jdbcType=TINYINT},
+      is_online = #{isOnline,jdbcType=TINYINT},
+      state = #{state,jdbcType=TINYINT},
+      title = #{title,jdbcType=VARCHAR},
+      duty = #{duty,jdbcType=VARCHAR},
+      education = #{education,jdbcType=VARCHAR},
+      email = #{email,jdbcType=VARCHAR},
+      operator = #{operator,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      last_time = #{lastTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+      and username = #{username,jdbcType=VARCHAR}
+  </update>
+
+    <select id="getDoctorDiseaseListPage" parameterType="String" resultType="com.yhyt.health.model.vo.DoctorExtVO">
+        SELECT username,realname, title,id, departmentName, hospitalName ,group_concat(name separator ',') diseases from
+        (
+        select username,realname, title,doc.id,dep.name departmentName,h.name hospitalName ,dd.name from doctor doc
+        left join department dep on doc.department_id = dep.id
+        left join hospital h on h.id = dep.hospital_id
+        left join( select dict.name,doctor_id from doctor_disease
+        join dict_disease dict on disease_id=dict.id) dd on doc.id = dd.doctor_id
+        where 1=1
+        <if test="realname != null and realname != ''">
+            and doc.realname like concat('%',#{realname},'%')
+        </if>) tmp
+        group by username,id
+
+    </select>
+    <select id="getDoctorBlacklistListPage" parameterType="com.yhyt.health.model.query.DoctorBlackQuery"
+            resultType="com.yhyt.health.model.vo.DoctorBlacklistVO">
+        select doc.id,ifnull(reason,"") reason,sb.create_time operatorTime,sb.operator ,username,realname,sex,birthday
+        from(
+        select id, username,realname, sex,birthday,create_time from doctor WHERE is_blacklist=2)doc
+        join (select user_id,create_time,reason,operator from sys_blacklist where user_type=2 and type=1 order by
+        create_time DESC ) sb on doc.id=sb.user_id
+        where 1=1
+        <if test="regiserTimeStart != null">
+            and doc.create_time <![CDATA[>=]]> #{regiserTimeStart}
+        </if>
+        <if test="registerTimeEnd != null">
+            and doc.create_time <![CDATA[<=]]> #{registerTimeEnd}
+        </if>
+        <if test="username != null and username !=''">
+            and doc.username like concat ('%',#{username},'%')
+        </if>
+        group by sb.user_id,reason,sb.`create_time`,sb.`operator`,username,realname,sex,birthday
+    </select>
+    <select id="getDoctor" parameterType="map" resultMap="BaseResultMap">
+        select * from doctor
+        where 1=1
+        <if test="username != null">
+            and username= #{username}
+        </if>
+        order by create_time DESC
+    </select>
+    <select id="getHospitalAndDeptByDoctorId" parameterType="long" resultType="map">
+    select dep.id deptId, h.id hospitalId from doctor doc join department dep on doc.department_id=dep.id join hospital h on dep.hospital_id=h.id
+    WHERE doc.id=#{id}
+  </select>
+    <select id="queryDoctorsByDeptId" parameterType="long" resultMap="BaseResultMap">
+    select * from doctor WHERE department_id=#{deptId}
+  </select>
+    <select id="getDoctorsListByName" parameterType="String" resultMap="BaseResultMap">
+    select * from doctor where username like concat('%',#{name},'%')
+  </select>
+    <select id="queryDoctorByName" parameterType="String" resultMap="BaseResultMap">
+    select * from doctor where username =#{name}
+  </select>
+    <select id="getDeptDoctorList" parameterType="long" resultMap="doctorVO">
+    select doc.id, username, realname, sex, title, duty,  dep.create_time,dep.is_admin,dep.id departDoctorId
+    from doctor doc join dept_doctor dep on doc.id = dep.doctor_id
+    where dep.department_id = #{deptId,jdbcType=BIGINT}
+  </select>
+    <select id="getDoctorsByDiseaseId" parameterType="long" resultType="com.yhyt.health.model.vo.DoctorExtVO">
+    select username,realname,title,doc.id,dep.name departmentName,h.name hospitalName,dd.id doctorDiseaseId
+     from  doctor_disease dd
+left join doctor doc on doc.id = dd.doctor_id
+   LEFT join department dep on doc.department_id = dep.id
+    left join hospital h on h.id = dep.hospital_id
+    where dd.disease_id=#{diseaseId}
+    ORDER by dd.seq
+  </select>
+    <select id="getDoctorByDepartmentId" parameterType="long" resultMap="BaseResultMap">
+  select
+    dc.id, dc.username, dc.realname, dc.birthday,dc.head_image, dc.sex, dc.mobile_number, dc.department_id,
+    dc.summary, dc.strongpoint, dc.practice_certificate, dc.qualification_certificate, dc.is_blacklist,
+    dc.is_online, dc.state, dc.title, dc.duty, dc.education, dc.email, dc.operator, dc.create_time, dc.last_time,dd.is_admin
+       from doctor dc 
+       left join dept_doctor dd on dd.doctor_id=dc.id
+       LEFT JOIN dictionary dic on dc.title=dic.item_name
+   where dd.department_id=#{departmentId,jdbcType=BIGINT}
+   ORDER BY item_code ASC,  convert(dc.realname USING gbk) ASC
+  </select>
+
+    <select id="selectDoctorForAppById" parameterType="long" resultMap="doctorAppInfoVO">
+    select doc.id,doc.department_id, username, realname, birthday, head_image, sex, mobile_number,
+    doc.summary, strongpoint, practice_certificate, qualification_certificate, is_blacklist,
+    is_online, doc.state, title, duty, education, email, doc.operator, doc.create_time, doc.last_time
+  ,dep.name department ,h.name hospital,h.id hospital_id,dep.logo,h.logo hospital_logo,
+  (SELECT dr.state FROM doctor_review dr WHERE doctor_id = doc.id ORDER BY dr.apply_time DESC LIMIT 1) audit_state
+    from doctor doc 
+     left join department dep on doc.department_id = dep.id 
+     left join hospital h on dep.hospital_id=h.id
+    where doc.id = #{id,jdbcType=BIGINT}
+  </select>
+
+
+    <select id="appointmentdoctorlist" parameterType="map" resultType="com.yhyt.health.model.vo.app.DoctorAppVO">
+    SELECT
+        id,
+        realname NAME,
+        count(appointId) appointmentCount,
+        headImage,
+        item_code
+        FROM
+        (
+        SELECT
+        dd.doctor_id id,
+        b.id appointId,
+        a.head_image headImage,
+        a.realname,
+        dic.item_code
+        FROM
+        dept_doctor dd
+        LEFT JOIN dialog_appointment b ON dd.doctor_id = b.doctor_id_appointment AND dd.department_id = b.department_id
+        AND b.state = 2 AND b.doctor_id_appointment IS NOT NULL AND
+        b.sign_state = '1'
+        AND b.appointment_time <![CDATA[>=]]>#{appointmentTime}
+        LEFT JOIN doctor a ON dd.doctor_id = a.id
+        LEFT JOIN dictionary dic ON a.title = dic.item_name
+        WHERE
+        dd.department_id = #{departmentId}
+        ) tmp
+        GROUP BY id, realname, headImage, item_code
+        ORDER BY item_code ASC, convert(NAME USING gbk) ASC
+
+  </select>
+
+    <select id="getDoctorByDepartmentIdForPatient" parameterType="long"
+            resultType="com.yhyt.health.model.vo.app.DoctorAppVO">
+    SELECT
+    dd.doctor_id id,d.realname name,d.title,d.head_image headImage,dp.name department
+    FROM
+        dept_doctor dd
+    LEFT JOIN doctor d ON dd.doctor_id = d.id
+    LEFT JOIN department dp ON dd.department_id = dp.id
+    LEFT JOIN dictionary dic ON d.title = dic.item_name
+    where dd.department_id=#{departmentId,jdbcType=BIGINT}
+    ORDER BY item_code ASC, convert(d.realname USING gbk) ASC
+  </select>
+    <update id="updateDeptIdById" parameterType="com.yhyt.health.model.Doctor">
+        update doctor set department_id=NULL where id=#{id}
+    </update>
+    <select id="selectDoctorForAppByUserName" parameterType="String" resultMap="doctorAppInfoVO">
+        select doc.id,doc.department_id, username, realname, birthday, head_image, sex, mobile_number,
+        doc.summary, strongpoint, practice_certificate, qualification_certificate, is_blacklist,
+        is_online, doc.state, title, duty, education, email, doc.operator, doc.create_time, doc.last_time
+        ,dep.name department ,h.name hospital,h.id hospital_id,dep.logo,h.logo hospital_logo,
+        (SELECT dr.state FROM doctor_review dr WHERE doctor_id = doc.id ORDER BY dr.apply_time DESC LIMIT 1) audit_state
+        from doctor doc
+        left join department dep on doc.department_id = dep.id
+        left join hospital h on dep.hospital_id=h.id
+        where doc.username = #{userName}
+    </select>
+
+    <!--根据医生所在科室id 获取医院所在城市id -->
+    <select id="getCityIdBydepartmentId" resultType="java.lang.String">
+      select hl.dict_city_id_province from department dt
+	left join hospital hl
+    on dt.hospital_id = hl.id
+    where dt.id = #{departmentId}
+
+    </select>
+
+    <!-- 根据部门id 获取患者端聊天室下 部门医生列表 -->
+    <select id="getDoctorListVoByDepartmentId" resultType="com.yhyt.health.model.vo.app.UserListVo">
+        SELECT
+            dd.doctor_id userId,
+            ifnull(d.head_image,"") headImage,
+            ifnull(d.title,"") title,
+            '1' type,
+            ifnull(d.realname,"")realname ,
+            dd.is_admin as isAdmin
+        FROM
+          dept_doctor dd
+          LEFT JOIN doctor d ON dd.doctor_id = d.id
+          LEFT JOIN department dp ON dd.department_id = dp.id
+          LEFT JOIN dictionary dic ON d.title = dic.item_name
+        where dd.department_id=#{departmentId}
+        ORDER BY item_code ASC, convert(d.realname USING gbk) ASC
+    </select>
+
+</mapper>

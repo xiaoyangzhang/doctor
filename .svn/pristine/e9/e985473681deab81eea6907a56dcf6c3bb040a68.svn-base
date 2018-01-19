@@ -1,0 +1,93 @@
+package com.yhyt.health.service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.yhyt.health.mapper.DepartmentObstetricsDangersMapper;
+import com.yhyt.health.mapper.DepartmentObstetricsMapper;
+import com.yhyt.health.mapper.DoctorReviewMapper;
+import com.yhyt.health.model.DepartmentObstetrics;
+import com.yhyt.health.model.DepartmentObstetricsDangers;
+import com.yhyt.health.model.DeptDoctor;
+import com.yhyt.health.model.Device;
+import com.yhyt.health.model.Dictionary;
+import com.yhyt.health.model.Doctor;
+import com.yhyt.health.model.DoctorDisease;
+import com.yhyt.health.model.DoctorReview;
+import com.yhyt.health.model.PatientlObstetrics;
+import com.yhyt.health.model.dto.SysBlacklistDTO;
+import com.yhyt.health.model.query.DeptDoctorQuery;
+import com.yhyt.health.model.query.DoctorBlackQuery;
+import com.yhyt.health.model.query.DoctorDiseaseQuery;
+import com.yhyt.health.model.query.DoctorQuery;
+import com.yhyt.health.model.query.DoctorReviewQuery;
+import com.yhyt.health.model.query.ObstetricsQuery;
+import com.yhyt.health.model.vo.DoctorBlacklistVO;
+import com.yhyt.health.model.vo.DoctorDiseaseVO;
+import com.yhyt.health.model.vo.DoctorExtVO;
+import com.yhyt.health.model.vo.DoctorReviewVO;
+import com.yhyt.health.model.vo.DoctorVO;
+import com.yhyt.health.result.AppResult;
+@Service
+public class ObstetricsServiceImpl implements ObstetricsService {
+
+
+    @Autowired
+    private DepartmentObstetricsMapper departmentObstetricsMapper;
+    
+    @Autowired
+    private DepartmentObstetricsDangersMapper departmentObstetricsDangersMapper;
+    
+	
+	@Override
+	public PageInfo<PatientlObstetrics> getObstetricsList(ObstetricsQuery doctorDiseaseQuery) {
+		// TODO Auto-generated method stub
+		
+		 Page<ObstetricsQuery> page = PageHelper.startPage(doctorDiseaseQuery.getPageIndex(), doctorDiseaseQuery.getPageSize());
+
+        List<PatientlObstetrics> doctorReviewListPage = departmentObstetricsMapper.getObstetricsList(doctorDiseaseQuery);
+        PageInfo<PatientlObstetrics> pageInfo = new PageInfo<>(doctorReviewListPage);
+        return pageInfo;
+	}
+
+
+	@Override
+	public List<DepartmentObstetrics> getObstetricsDetailList(ObstetricsQuery doctorDiseaseQuery) {
+		 List<DepartmentObstetrics> ar=new ArrayList<DepartmentObstetrics>();
+		 String[] st=doctorDiseaseQuery.getUsername().split(",");
+		 for(int j=0;j<st.length;j++) {
+			 String id=st[j];
+			 Map ap=new HashMap();
+			 ap.put("id", id);
+	        List<DepartmentObstetrics> doctorReviewListPage = departmentObstetricsMapper.getObstetricsDetailList(ap);
+	        if(null!=doctorReviewListPage&&doctorReviewListPage.size()!=0) {
+	        	DepartmentObstetrics sc=doctorReviewListPage.get(0);
+	        	
+	            List<Dictionary> docto=departmentObstetricsDangersMapper.getObstetricsDetailList(ap);
+		        if(null!=docto&&docto.size()!=0) {
+		        	String dan="";
+		        	for(int di=0;di<docto.size();di++) {
+		        		
+		        		dan+=docto.get(di).getDictName();
+		        	}
+		        sc.setDangerous(dan);
+		        }
+	        	
+	        	ar.add(sc);
+	        	
+	        }
+	        
+	   
+		 }
+	        return ar;
+	}
+
+}

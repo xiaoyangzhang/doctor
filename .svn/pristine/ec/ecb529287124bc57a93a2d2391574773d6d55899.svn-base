@@ -1,0 +1,25 @@
+package com.yhyt.health.mapper;
+
+import com.yhyt.health.model.Device;
+import org.springframework.stereotype.Repository;
+
+import java.util.Map;
+
+@Repository
+public interface DeviceMapper {
+    int insert(Device record);
+
+    int delete(Device record);
+
+    int insertSelective(Device record);
+
+    Device selectDevice(Map<String, Object> map);
+
+    int updateByPrimaryKeySelective(Device record);
+
+    int logout(Device device);
+
+    int updateStatusByUserId(long userId);
+
+    int updateByPrimaryKey(Device device);
+}

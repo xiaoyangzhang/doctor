@@ -1,0 +1,19 @@
+package com.yhyt.health.service.api;
+
+import com.yhyt.health.model.DoctorRequestpatient;
+import com.yhyt.health.model.PatientCasearchives;
+import com.yhyt.health.result.AppResult;
+
+/**
+ * 病人案例
+ *
+ * @author gsh
+ * @create 2017-09-01 15:28
+ **/
+public interface PatientCasearchivesApi {
+    AppResult getPatientCasearchives(String token, PatientCasearchives patientCasearchives);
+
+    AppResult getDoctorRequestpatient(String token, DoctorRequestpatient doctorRequestpatient,Integer pageIndex,Integer pageSize);
+
+    AppResult updateDoctorRequestpatient(String token, DoctorRequestpatient doctorRequestpatient);
+}

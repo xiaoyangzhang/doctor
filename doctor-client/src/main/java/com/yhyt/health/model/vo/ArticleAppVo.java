@@ -1,0 +1,215 @@
+package com.yhyt.health.model.vo;
+
+import java.util.Date;
+
+/**
+ * app所需文章对象
+ * @author wangzhan
+ * @version 1.0
+ * data： 2017/12/06
+ */
+public class ArticleAppVo {
+
+    /**
+     * 文章id
+     */
+    private Long id;
+
+    /**
+     * 文章类型 1-培训 2-课题
+     */
+
+    private String type;
+
+    /**
+     * 发布源 1-医生端
+     */
+    private String source;
+
+    /**
+     * 标题
+     */
+    private String title;
+
+
+    /**
+     * 是否置顶1-否 2-是
+     */
+    private String isTop;
+
+    /**
+     * 是否饮用外部链接
+     */
+    private String isQuote;
+
+    /**
+     * 文章路径
+     */
+    private String url;
+
+    /**
+     * 3上架中
+     */
+    private String state;
+
+    /**
+     * 点击量
+     */
+    private int clickCount;
+
+    /**
+     * 上线日期
+     */
+    private Date onlineDay;
+
+    /**
+     * 发布时间
+     */
+    private Date issueTime;
+
+    /**
+     *
+     * @return 文章id
+     */
+    public Long getId() {
+        return id;
+    }
+
+    /**
+     *
+     * @return 文章类型 1-培训 2-课题
+     */
+    public String getType() {
+        return type;
+    }
+
+
+
+    /**
+     *
+     * @return 标题
+     */
+    public String getTitle() {
+        return title;
+    }
+
+    /**
+     *
+     * @return 是否置顶1-否 2-是
+     */
+    public String getIsTop() {
+        return isTop;
+    }
+
+    /**
+     *
+     * @return 点击量
+     */
+    public int getClickCount() {
+        return clickCount;
+    }
+
+    /**
+     *
+     * @return 3上架中
+     */
+    public String getState() {
+        return state;
+    }
+
+    /**
+     *
+     * @return 上线日期
+     */
+    public Date getOnlineDay() {
+        return onlineDay;
+    }
+
+    /**
+     *
+     * @param id 文章id
+     */
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    /**
+     *
+     * @param type 文章类型 1-培训 2-课题
+     */
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    /**
+     *
+     * @param title 标题
+     */
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    /**
+     *
+     * @param isTop 是否置顶1-否 2-是
+     */
+    public void setIsTop(String isTop) {
+        this.isTop = isTop;
+    }
+
+    /**
+     *
+     * @param clickCount 点击量
+     */
+    public void setClickCount(int clickCount) {
+        this.clickCount = clickCount;
+    }
+
+    /**
+     *
+     * @param state 3上架中
+     */
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    /**
+     *
+     * @param onlineDay 上架时间
+     */
+    public void setOnlineDay(Date onlineDay) {
+        this.onlineDay = onlineDay;
+    }
+
+    public String getSource() { return source; }
+
+    public String getIsQuote() { return isQuote; }
+
+    public void setSource(String source) {this.source = source; }
+
+    public void setIsQuote(String isQuote) { this.isQuote = isQuote;}
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    /**
+     * 发布时间
+     * @return
+     */
+    public Date getIssueTime() {
+        return issueTime;
+    }
+
+    /**
+     * 发布时间
+     * @param issueTime
+     */
+    public void setIssueTime(Date issueTime) {
+        this.issueTime = issueTime;
+    }
+}

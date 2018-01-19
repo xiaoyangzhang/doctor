@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhyt.health.mapper.DeptPatientSignMapper">
+    <resultMap id="BaseResultMap" type="com.yhyt.health.model.DeptPatientSign">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="department_id" jdbcType="BIGINT" property="departmentId"/>
+        <result column="patient_id" jdbcType="BIGINT" property="patientId"/>
+        <result column="diagnose_date" jdbcType="TIMESTAMP" property="diagnoseDate"/>
+        <result column="main_doctor" jdbcType="VARCHAR" property="mainDoctor"/>
+        <result column="type" jdbcType="TINYINT" property="type"/>
+        <result column="is_repeat" jdbcType="TINYINT" property="isRepeat"/>
+        <result column="diagnose_result" jdbcType="VARCHAR" property="diagnoseResult"/>
+        <result column="state" jdbcType="TINYINT" property="state"/>
+        <result column="source" jdbcType="TINYINT" property="source"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="review_time" jdbcType="TIMESTAMP" property="reviewTime"/>
+        <result column="refuse_reason" jdbcType="VARCHAR" property="refuseReason"/>
+        <result column="operator" jdbcType="VARCHAR" property="operator"/>
+        <result column="headimage" jdbcType="VARCHAR" property="headimage"/>
+        <result column="receive_doctor" jdbcType="VARCHAR" property="receiveDoctor"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, department_id, patient_id, diagnose_date, main_doctor, type, is_repeat, diagnose_result, 
+    state, source, create_time, review_time, refuse_reason, operator
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from dept_patient_sign
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from dept_patient_sign
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.yhyt.health.model.DeptPatientSign">
+    insert into dept_patient_sign (id, department_id, patient_id, 
+      diagnose_date, main_doctor, type, 
+      is_repeat, diagnose_result, state, 
+      source, create_time, review_time, 
+      refuse_reason, operator,receive_doctor)
+    values (#{id,jdbcType=BIGINT}, #{departmentId,jdbcType=BIGINT}, #{patientId,jdbcType=BIGINT}, 
+      #{diagnoseDate,jdbcType=TIMESTAMP}, #{mainDoctor,jdbcType=VARCHAR}, #{type,jdbcType=TINYINT},
+      #{isRepeat,jdbcType=TINYINT}, #{diagnoseResult,jdbcType=VARCHAR}, #{state,jdbcType=TINYINT}, 
+      #{source,jdbcType=TINYINT}, #{createTime,jdbcType=TIMESTAMP}, #{reviewTime,jdbcType=TIMESTAMP}, 
+      #{refuseReason,jdbcType=VARCHAR}, #{operator,jdbcType=VARCHAR},#{receiveDoctor,jdbcType=VARCHAR})
+  </insert>
+    <insert id="insertSelective" parameterType="com.yhyt.health.model.DeptPatientSign">
+        insert into dept_patient_sign
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="departmentId != null">
+                department_id,
+            </if>
+            <if test="patientId != null">
+                patient_id,
+            </if>
+            <if test="diagnoseDate != null">
+                diagnose_date,
+            </if>
+            <if test="mainDoctor != null">
+                main_doctor,
+            </if>
+            <if test="type != null">
+                type,
+            </if>
+            <if test="isRepeat != null">
+                is_repeat,
+            </if>
+            <if test="diagnoseResult != null">
+                diagnose_result,
+            </if>
+            <if test="state != null">
+                state,
+            </if>
+            <if test="source != null">
+                source,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="reviewTime != null">
+                review_time,
+            </if>
+            <if test="refuseReason != null">
+                refuse_reason,
+            </if>
+            <if test="operator != null">
+                operator,
+            </if>
+            <if test="receiveDoctor !=null">
+                receive_doctor,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="departmentId != null">
+                #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="patientId != null">
+                #{patientId,jdbcType=BIGINT},
+            </if>
+            <if test="diagnoseDate != null">
+                #{diagnoseDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="mainDoctor != null">
+                #{mainDoctor,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                #{type,jdbcType=TINYINT},
+            </if>
+            <if test="isRepeat != null">
+                #{isRepeat,jdbcType=TINYINT},
+            </if>
+            <if test="diagnoseResult != null">
+                #{diagnoseResult,jdbcType=VARCHAR},
+            </if>
+            <if test="state != null">
+                #{state,jdbcType=TINYINT},
+            </if>
+            <if test="source != null">
+                #{source,jdbcType=TINYINT},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="reviewTime != null">
+                #{reviewTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="refuseReason != null">
+                #{refuseReason,jdbcType=VARCHAR},
+            </if>
+            <if test="operator != null">
+                #{operator,jdbcType=VARCHAR},
+            </if>
+            <if test="receiveDoctor !=null">
+                #{receiveDoctor,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yhyt.health.model.DeptPatientSign">
+        update dept_patient_sign
+        <set>
+            <if test="departmentId != null">
+                department_id = #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="patientId != null">
+                patient_id = #{patientId,jdbcType=BIGINT},
+            </if>
+            <if test="diagnoseDate != null">
+                diagnose_date = #{diagnoseDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="mainDoctor != null">
+                main_doctor = #{mainDoctor,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                type = #{type,jdbcType=TINYINT},
+            </if>
+            <if test="isRepeat != null">
+                is_repeat = #{isRepeat,jdbcType=TINYINT},
+            </if>
+            <if test="diagnoseResult != null">
+                diagnose_result = #{diagnoseResult,jdbcType=VARCHAR},
+            </if>
+            <if test="state != null">
+                state = #{state,jdbcType=TINYINT},
+            </if>
+            <if test="source != null">
+                source = #{source,jdbcType=TINYINT},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="reviewTime != null">
+                review_time = #{reviewTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="refuseReason != null">
+                refuse_reason = #{refuseReason,jdbcType=VARCHAR},
+            </if>
+            <if test="operator != null">
+                operator = #{operator,jdbcType=VARCHAR},
+            </if>
+            <if test="receiveDoctor !=null">
+                receive_doctor=#{receiveDoctor,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yhyt.health.model.DeptPatientSign">
+    update dept_patient_sign
+    set department_id = #{departmentId,jdbcType=BIGINT},
+      patient_id = #{patientId,jdbcType=BIGINT},
+      diagnose_date = #{diagnoseDate,jdbcType=TIMESTAMP},
+      main_doctor = #{mainDoctor,jdbcType=VARCHAR},
+      type = #{type,jdbcType=TINYINT},
+      is_repeat = #{isRepeat,jdbcType=TINYINT},
+      diagnose_result = #{diagnoseResult,jdbcType=VARCHAR},
+      state = #{state,jdbcType=TINYINT},
+      source = #{source,jdbcType=TINYINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      review_time = #{reviewTime,jdbcType=TIMESTAMP},
+      refuse_reason = #{refuseReason,jdbcType=VARCHAR},
+      operator = #{operator,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <select id="selectByPatientIdAndDeptId" resultMap="BaseResultMap">
+    select id,state from dept_patient_sign WHERE department_id = #{1,jdbcType=BIGINT} and
+      patient_id = #{0,jdbcType=BIGINT}
+  </select>
+    <select id="getSignApplyWithScanCode" parameterType="long" resultType="com.yhyt.health.model.vo.app.PatientAppVO">
+        SELECT
+        p.head_image headImage,
+        p.realname NAME,
+        p.id,
+        p.age,
+        p.sex,
+        p.birthday,
+        dps.create_time applyTime,
+        dps.diagnose_result mainDisease,
+        dps.id deptSignId,
+        dps.id requestPatientId,
+        dg.room_id roomId
+        FROM
+            dept_patient_sign dps
+        LEFT JOIN patient p ON dps.patient_id = p.id
+        LEFT JOIN dialog dg ON dps.patient_id = dg.patient_id
+        AND dg.department_id = dps.department_id
+        WHERE
+            dps.department_id=#{deptId}
+        AND dps.source = '3'
+        AND dps.state = '1'
+        ORDER BY
+            dps.create_time
+  </select>
+    <select id="getSignDetail" resultType="com.yhyt.health.model.vo.app.PatientAppVO">
+    select p.realname name,p.id ,p.age,p.sex,p.birthday,dps.diagnose_result diagnoseResult,dps.is_repeat isRepeat,dps.state,p.head_image as headImage,
+    dps.main_doctor mainDoctor,dps.diagnose_date as diagnoseDate,dps.type,p.idno cardNo,dps.id deptSignId ,dps.operator from dept_patient_sign dps join patient p on dps.patient_id=p.id
+    where dps.department_id=#{0}  and dps.patient_id=#{1}
+  </select>
+
+    <select id="getSignDetailBydeptSignId" resultType="com.yhyt.health.model.vo.app.PatientAppVO">
+       SELECT
+  d.room_id as roomId,
+  p.realname           name,
+  p.id,
+  p.age,
+  p.sex,
+  p.birthday,
+  dps.diagnose_result  diagnoseResult,
+  dps.is_repeat        isRepeat,
+  dps.state,
+  p.head_image      AS headImage,
+  dps.main_doctor      mainDoctor,
+  dps.diagnose_date AS diagnoseDate,
+  dps.type,
+  p.idno               cardNo,
+  dps.id               deptSignId,
+  dps.operator,dps.department_id departmentId
+FROM dept_patient_sign dps LEFT JOIN patient p ON dps.patient_id = p.id
+  LEFT JOIN dialog d
+    ON dps.department_id = d.department_id
+       AND dps.patient_id = d.patient_id
+WHERE dps.id = #{0}
+    </select>
+
+    <update id="agree">
+       update dept_patient_sign set state = 2,review_time=sysdate(), operator = #{1} where id = #{0}
+    </update>
+
+    <update id="refuse">
+       update dept_patient_sign set state = 3,review_time=sysdate(),operator = #{1}  where id = #{0}
+    </update>
+    <select id="getSignApplyWithScanCodeCount" parameterType="Long" resultType="Long">
+        SELECT
+            COUNT(dps.id)
+        FROM
+            dept_patient_sign dps
+        JOIN patient p ON dps.patient_id = p.id
+        WHERE
+            dps.department_id = #{departmentId}
+        AND dps.source = '3'
+        AND dps.state = '1'
+    </select>
+</mapper>

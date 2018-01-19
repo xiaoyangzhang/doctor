@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhyt.health.mapper.DeptDiseaseMapper">
+    <resultMap id="BaseResultMap" type="com.yhyt.health.model.DeptDisease">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="department_id" jdbcType="BIGINT" property="departmentId"/>
+        <result column="disease_id" jdbcType="BIGINT" property="diseaseId"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, department_id, disease_id, create_time
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from dept_disease
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from dept_disease
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.yhyt.health.model.DeptDisease">
+    insert into dept_disease (id, department_id, disease_id, 
+      create_time)
+    values (#{id,jdbcType=BIGINT}, #{departmentId,jdbcType=BIGINT}, #{diseaseId,jdbcType=BIGINT}, 
+      #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+    <insert id="insertSelective" parameterType="com.yhyt.health.model.DeptDisease">
+        insert into dept_disease
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="departmentId != null">
+                department_id,
+            </if>
+            <if test="diseaseId != null">
+                disease_id,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="departmentId != null">
+                #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="diseaseId != null">
+                #{diseaseId,jdbcType=BIGINT},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yhyt.health.model.DeptDisease">
+        update dept_disease
+        <set>
+            <if test="departmentId != null">
+                department_id = #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="diseaseId != null">
+                disease_id = #{diseaseId,jdbcType=BIGINT},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yhyt.health.model.DeptDisease">
+    update dept_disease
+    set department_id = #{departmentId,jdbcType=BIGINT},
+      disease_id = #{diseaseId,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <select id="getDepartDiseaseListPage" resultType="com.yhyt.health.model.vo.DeptDiseaseVO">
+        select dd.id ,dict.name diseaseName,dict.id diseaseId from dept_disease dd join dict_disease dict on
+        dd.disease_id = dict.id
+        WHERE 1=1
+        <if test="name != null and name != ''">
+            and name like concat('%',#{name},'%')
+        </if>
+        <if test="id != null">
+            and department_id=#{id}
+        </if>
+    </select>
+    <insert id="addDepartDiseaseBatch" parameterType="list">
+        insert into dept_disease ( department_id, disease_id,
+        create_time)
+        values
+        <foreach collection="list" item="item" index="i" separator=",">
+
+            ( #{item.departmentId,jdbcType=BIGINT}, #{item.diseaseId,jdbcType=BIGINT},
+            #{item.createTime,jdbcType=TIMESTAMP})
+        </foreach>
+    </insert>
+    <delete id="deleteBatch" parameterType="string">
+    delete from dept_disease where id in (${idArr})
+  </delete>
+    <delete id="deleteByDeptId" parameterType="long">
+    delete from dept_disease where department_id=#{deptId}
+  </delete>
+    <select id="selectByDeptIdAndDiseaseId" parameterType="map" resultMap="BaseResultMap">
+    SELECT id from dept_disease WHERE department_id = #{deptId,jdbcType=BIGINT} and
+      disease_id = #{diseaseId,jdbcType=BIGINT}
+  </select>
+    <select id="selectByDeptId" parameterType="long" resultMap="BaseResultMap">
+        SELECT * from dept_disease WHERE department_id = #{deptId,jdbcType=BIGINT}
+    </select>
+
+</mapper>

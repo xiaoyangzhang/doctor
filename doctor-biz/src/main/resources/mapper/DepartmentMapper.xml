@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhyt.health.mapper.DepartmentMapper">
+    <resultMap id="BaseResultMap" type="com.yhyt.health.model.Department">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="hospital_id" jdbcType="BIGINT" property="hospitalId"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="logo" jdbcType="VARCHAR" property="logo"/>
+        <result column="summary" jdbcType="VARCHAR" property="summary"/>
+        <result column="exhibit_url" jdbcType="VARCHAR" property="exhibitUrl"/>
+        <result column="health_url" jdbcType="VARCHAR" property="healthUrl"/>
+        <result column="notice" jdbcType="VARCHAR" property="notice"/>
+        <result column="operator" jdbcType="VARCHAR" property="operator"/>
+        <result column="typical_ill_url" jdbcType="VARCHAR" property="typicalIllUrl"/>
+        <result column="is_free" jdbcType="TINYINT" property="isFree"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="service_time" jdbcType="VARCHAR" property="serviceTime"/>
+    </resultMap>
+    <resultMap type="DepartmentHospitalVO" id="DepartmentHospitalVOResultMap">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="summary" jdbcType="VARCHAR" property="summary"/>
+        <result column="exhibit_url" jdbcType="VARCHAR" property="exhibitUrl"/>
+        <result column="health_url" jdbcType="VARCHAR" property="healthUrl"/>
+        <result column="notice" jdbcType="VARCHAR" property="notice"/>
+        <result column="operator" jdbcType="VARCHAR" property="operator"/>
+        <result column="typical_ill_url" jdbcType="VARCHAR" property="typicalIllUrl"/>
+        <result column="is_free" jdbcType="TINYINT" property="isFree"/>
+        <result column="hospital" jdbcType="VARCHAR" property="hospital"/>
+        <result column="hospital_logo" jdbcType="VARCHAR" property="hospitalLogo"/>
+        <result column="currect_pospital" jdbcType="VARCHAR" property="currectHospital"/>
+        <result column="admin" jdbcType="VARCHAR" property="admin"/>
+        <result column="hospital_id" jdbcType="BIGINT" property="hospitalId"/>
+        <result column="doctorCount" jdbcType="INTEGER" property="doctorCount"/>
+        <result column="level" jdbcType="VARCHAR" property="level"/>
+        <result column="logo" jdbcType="VARCHAR" property="logo"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, hospital_id, name, logo, summary, exhibit_url, health_url, typical_ill_url, is_free, 
+    create_time, update_time,service_time,notice,operator
+  </sql>
+    <select id="getDepartmentsByHospitalId" parameterType="long" resultType="com.yhyt.health.model.vo.DepartmentVO">
+    select id ,name, icon ,summary , ifnull(group_concat( DISTINCT doctorname separator ','),'') admin,ifnull(group_concat( DISTINCT child_name SEPARATOR ','),'') departmentCategory
+     from (
+    select dep.id ,name,logo as icon ,dep.summary ,doc.realname doctorname,d.child_name
+     from department dep
+    left join dept_doctor dd on dep.id=dd.department_id and dd.is_admin=2
+     left join doctor doc on dd.doctor_id = doc.id
+    left join (select child_name,ddd.department_id from  dept_dict_dept ddd join dict_department dd on ddd.dict_department_id=dd.id where ddd.dict_department_level=2) d on dep.id = d.department_id
+
+     WHERE hospital_id=#{hospitalId})tmp
+     group by name,id
+  </select>
+    <select id="vewDepartmentRelateInfo" parameterType="long" resultType="com.yhyt.health.model.vo.DepartmentVO">
+    select id ,name, icon ,summary ,ifnull(group_concat( DISTINCT doctorname separator ','),"") admin,hospital,group_concat(child_name SEPARATOR ',') departmentCategory,
+      exhibit_url exhibitUrl, health_url healthUrl, typical_ill_url typicalIllUrl, is_free isFree,operator,notice,update_time updateTime
+      from (
+    select dep.id ,dep.name,dep.logo as icon ,dep.summary ,dd.realname doctorname,d.child_name,
+     exhibit_url, health_url, typical_ill_url, is_free,notice,dep.operator,dep.update_time,h.name hospital
+     from department dep
+     left join (select ddoc.department_id,doc.realname from dept_doctor  ddoc join doctor doc on ddoc.doctor_id = doc.id where ddoc.is_admin=2 ) dd on dd.department_id=dep.id
+     left join (select child_name,ddd.department_id from dept_dict_dept ddd  join dict_department dic on ddd.dict_department_id=dic.id WHERE ddd.dict_department_level=2) d on dep.id = d.department_id
+    LEFT join hospital h on h.id=dep.hospital_id
+     WHERE dep.id=#{id})tmp
+     group by id
+  </select>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from department
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from department
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.yhyt.health.model.Department">
+    insert into department (id, hospital_id, name, 
+      logo, summary, exhibit_url, 
+      health_url, typical_ill_url, is_free, 
+      create_time, update_time)
+    values (#{id,jdbcType=BIGINT}, #{hospitalId,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, 
+      #{logo,jdbcType=VARCHAR}, #{summary,jdbcType=VARCHAR}, #{exhibitUrl,jdbcType=VARCHAR}, 
+      #{healthUrl,jdbcType=VARCHAR}, #{typicalIllUrl,jdbcType=VARCHAR}, #{isFree,jdbcType=TINYINT}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+    <insert id="insertSelective" parameterType="com.yhyt.health.model.Department" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into department
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="hospitalId != null">
+                hospital_id,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="logo != null">
+                logo,
+            </if>
+            <if test="summary != null">
+                summary,
+            </if>
+            <if test="exhibitUrl != null">
+                exhibit_url,
+            </if>
+            <if test="healthUrl != null">
+                health_url,
+            </if>
+            <if test="typicalIllUrl != null">
+                typical_ill_url,
+            </if>
+            <if test="isFree != null">
+                is_free,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="notice != null">
+                notice,
+            </if>
+            <if test="serviceTime != null">
+                service_time,
+            </if>
+            <if test="operator != null">
+                operator,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="hospitalId != null">
+                #{hospitalId,jdbcType=BIGINT},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="logo != null">
+                #{logo,jdbcType=VARCHAR},
+            </if>
+            <if test="summary != null">
+                #{summary,jdbcType=VARCHAR},
+            </if>
+            <if test="exhibitUrl != null">
+                #{exhibitUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="healthUrl != null">
+                #{healthUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="typicalIllUrl != null">
+                #{typicalIllUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="isFree != null">
+                #{isFree,jdbcType=TINYINT},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="notice != null">
+                #{notice},
+            </if>
+            <if test="serviceTime != null">
+                #{serviceTime},
+            </if>
+            <if test="operator != null">
+                #{operator},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yhyt.health.model.Department">
+        update department
+        <set>
+            <if test="hospitalId != null">
+                hospital_id = #{hospitalId,jdbcType=BIGINT},
+            </if>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="logo != null">
+                logo = #{logo,jdbcType=VARCHAR},
+            </if>
+            <if test="summary != null">
+                summary = #{summary,jdbcType=VARCHAR},
+            </if>
+            <if test="exhibitUrl != null">
+                exhibit_url = #{exhibitUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="healthUrl != null">
+                health_url = #{healthUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="typicalIllUrl != null">
+                typical_ill_url = #{typicalIllUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="isFree != null">
+                is_free = #{isFree,jdbcType=TINYINT},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="notice != null">
+                notice = #{notice},
+            </if>
+            <if test="serviceTime != null">
+                service_time = #{serviceTime},
+            </if>
+            <if test="operator != null">
+                operator = #{operator},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yhyt.health.model.Department">
+    update department
+    set hospital_id = #{hospitalId,jdbcType=BIGINT},
+      name = #{name,jdbcType=VARCHAR},
+      logo = #{logo,jdbcType=VARCHAR},
+      summary = #{summary,jdbcType=VARCHAR},
+      exhibit_url = #{exhibitUrl,jdbcType=VARCHAR},
+      health_url = #{healthUrl,jdbcType=VARCHAR},
+      typical_ill_url = #{typicalIllUrl,jdbcType=VARCHAR},
+      is_free = #{isFree,jdbcType=TINYINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <select id="getDepartmentList" parameterType="long" resultMap="BaseResultMap">
+    select id,name from department where hospital_id=#{id}
+  </select>
+    <select id="selectDoctorDepartment" parameterType="map" resultMap="DepartmentHospitalVOResultMap">
+        SELECT
+        CASE WHEN dp.id=dc.department_id THEN '1' ELSE '0' END currect_pospital,
+        dp.*,hp.name hospital,hp.logo hospitalLogo,dd.is_admin admin
+        FROM department dp
+        LEFT JOIN dept_doctor dd on dd.department_id = dp.id
+        LEFT JOIN doctor dc ON dd.doctor_id = dc.id
+        LEFT JOIN hospital hp ON dp.hospital_id = hp.id
+        where 1=1
+        <if test="doctorId != null">
+            and dd.doctor_id=#{doctorId,jdbcType=BIGINT}
+        </if>
+    </select>
+    <select id="selectByPrimaryKeyForApp" resultMap="DepartmentHospitalVOResultMap">
+	  SELECT
+        dp.*, hp. NAME hospital,
+        hp.logo hospitalLogo,
+        hp.id hospital_id,
+        d.item_name level
+        FROM
+            department dp
+        LEFT JOIN hospital hp ON dp.hospital_id = hp.id
+        LEFT JOIN dictionary d ON hp.dict_hospital_level_id = d.id
+        where dp.id = #{id,jdbcType=BIGINT}
+  </select>
+    <select id="getDeptListByName" parameterType="String" resultMap="BaseResultMap">
+    select * from department where name like concat ('%',#{name},'%')
+  </select>
+    <select id="getDepartmentTransfers" parameterType="map" resultMap="DepartmentHospitalVOResultMap">
+    SELECT 
+	  dp.*,hp.name hospital,hp.logo hospitalLogo,hp.id hospital_id 
+	  FROM department dp
+	  	LEFT JOIN hospital hp ON dp.hospital_id = hp.id
+        where hp.id =#{hospitalId,jdbcType=BIGINT}
+        and dp.id != #{departmentId,jdbcType=BIGINT}
+  </select>
+    <select id="selectDeptInfoForApp" parameterType="long" resultMap="DepartmentHospitalVOResultMap">
+    select id,name,hospital,count(doctor_id) doctorCount from
+    (select dep.id,dep.name ,h.name hospital,dd.doctor_id from department dep join hospital h on dep.hospital_id=h.id
+    JOIN dept_doctor dd on dep.id=dd.department_id
+    where dep.id=#{id}) tmp
+    group by id
+  </select>
+    <select id="getDepartmentByDoctorId" parameterType="long" resultType="com.yhyt.health.model.vo.DepartmentVO">
+     SELECT
+     dp.id,dp.name,hp.name hospital,hp.id hospitalId
+     FROM dept_doctor dd
+     JOIN department dp ON dd.department_id = dp.id
+     LEFT JOIN hospital hp ON dp.hospital_id = hp.id
+     WHERE dd.doctor_id =#{doctorId,jdbcType=BIGINT}
+    </select>
+
+    <select id="findDepartmentList" parameterType="map" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from department t
+        <include refid="search_patientcomplaint"></include>
+    </select>
+
+    <sql id="search_patientcomplaint">
+        <trim prefix="WHERE" prefixOverrides="AND|OR">
+            <if test="id!=null">and t.id = #{id,jdbcType=BIGINT}</if>
+            <if test="departments!=null">and t.id in
+                <foreach item="item" index="index" collection="departments"
+                         open="(" separator="," close=")">#{item}
+                </foreach>
+            </if>
+        </trim>
+    </sql>
+    <select id="findDoctorIdsByDoctorId" parameterType="long" resultType="long">
+        select dd.id from department dep join dept_doctor dd on dep.id=dd.department_id join doctor doc on dep.id=doc.department_id
+         WHERE doc.id=#{doctorId}
+    </select>
+    <select id="getDeptInfo" parameterType="long" resultType="com.yhyt.health.model.vo.DepartmentVO">
+        SELECT dp.id,dp.name,hp.name hospital
+     FROM  department dp
+     LEFT JOIN hospital hp ON dp.hospital_id = hp.id
+     where dp.id=#{id}
+    </select>
+</mapper>

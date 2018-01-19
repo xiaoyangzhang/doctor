@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhyt.health.mapper.PatientCasearchivesMapper">
+    <resultMap id="BaseResultMap" type="com.yhyt.health.model.PatientCasearchives">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="patient_id" jdbcType="BIGINT" property="patientId"/>
+        <result column="department_id" jdbcType="BIGINT" property="departmentId"/>
+        <result column="dialog_id" jdbcType="BIGINT" property="dialogId"/>
+        <result column="case_id" jdbcType="VARCHAR" property="caseId"/>
+        <result column="type" jdbcType="TINYINT" property="type"/>
+        <result column="suspectedcase" jdbcType="VARCHAR" property="suspectedcase"/>
+        <result column="mainsuit" jdbcType="VARCHAR" property="mainsuit"/>
+        <result column="diseasedescription" jdbcType="VARCHAR" property="diseasedescription"/>
+        <result column="remark" jdbcType="VARCHAR" property="remark"/>
+        <result column="create_time" jdbcType="DATE" property="createTime"/>
+        <result column="update_time" jdbcType="DATE" property="updateTime"/>
+    </resultMap>
+
+    <resultMap id="patientDetailVo" type="PatientDetailVo">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="patient_id" jdbcType="BIGINT" property="patientId"/>
+        <result column="dialog_id" jdbcType="BIGINT" property="dialogId"/>
+        <result column="case_id" jdbcType="VARCHAR" property="caseId"/>
+        <result column="mainsuit" jdbcType="VARCHAR" property="mainsuit"/>
+        <result column="patient_name" jdbcType="VARCHAR" property="patientName"/>
+        <result column="patient_head_image" jdbcType="VARCHAR" property="patientHeadImage"/>
+        <result column="sex" jdbcType="TINYINT" property="sex"/>
+        <result column="age" jdbcType="BIGINT" property="age"/>
+        <result column="type" jdbcType="TINYINT" property="type"/>
+        <result column="reside_location" jdbcType="VARCHAR" property="resideLocation"/>
+        <result column="insurance_location" jdbcType="VARCHAR" property="insuranceLocation"/>
+        <result column="suspectedcase" jdbcType="VARCHAR" property="suspectedcase"/>
+        <result column="diseasedescription" jdbcType="VARCHAR" property="diseasedescription"/>
+        <result column="room_id" jdbcType="VARCHAR" property="roomId"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+    id, patient_id, department_id, dialog_id, case_id, type, suspectedcase, mainsuit, 
+    diseasedescription, remark, create_time, update_time
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from patient_casearchives
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from patient_casearchives
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.yhyt.health.model.PatientCasearchives">
+    insert into patient_casearchives (id, patient_id, department_id, 
+      dialog_id, case_id, type, 
+      suspectedcase, mainsuit, diseasedescription, 
+      remark, create_time, update_time
+      )
+    values (#{id,jdbcType=BIGINT}, #{patientId,jdbcType=BIGINT}, #{departmentId,jdbcType=BIGINT}, 
+      #{dialogId,jdbcType=BIGINT}, #{caseId,jdbcType=VARCHAR}, #{type,jdbcType=TINYINT},
+      #{suspectedcase,jdbcType=VARCHAR}, #{mainsuit,jdbcType=VARCHAR}, #{diseasedescription,jdbcType=VARCHAR}, 
+      #{remark,jdbcType=VARCHAR}, #{createTime,jdbcType=DATE}, #{updateTime,jdbcType=DATE}
+      )
+  </insert>
+    <insert id="insertSelective" parameterType="com.yhyt.health.model.PatientCasearchives">
+        insert into patient_casearchives
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="patientId != null">
+                patient_id,
+            </if>
+            <if test="departmentId != null">
+                department_id,
+            </if>
+            <if test="dialogId != null">
+                dialog_id,
+            </if>
+            <if test="caseId != null">
+                case_id,
+            </if>
+            <if test="type != null">
+                type,
+            </if>
+            <if test="suspectedcase != null">
+                suspectedcase,
+            </if>
+            <if test="mainsuit != null">
+                mainsuit,
+            </if>
+            <if test="diseasedescription != null">
+                diseasedescription,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="patientId != null">
+                #{patientId,jdbcType=BIGINT},
+            </if>
+            <if test="departmentId != null">
+                #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="dialogId != null">
+                #{dialogId,jdbcType=BIGINT},
+            </if>
+            <if test="caseId != null">
+                #{caseId,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                #{type,jdbcType=TINYINT},
+            </if>
+            <if test="suspectedcase != null">
+                #{suspectedcase,jdbcType=VARCHAR},
+            </if>
+            <if test="mainsuit != null">
+                #{mainsuit,jdbcType=VARCHAR},
+            </if>
+            <if test="diseasedescription != null">
+                #{diseasedescription,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=DATE},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=DATE},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yhyt.health.model.PatientCasearchives">
+        update patient_casearchives
+        <set>
+            <if test="patientId != null">
+                patient_id = #{patientId,jdbcType=BIGINT},
+            </if>
+            <if test="departmentId != null">
+                department_id = #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="dialogId != null">
+                dialog_id = #{dialogId,jdbcType=BIGINT},
+            </if>
+            <if test="caseId != null">
+                case_id = #{caseId,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                type = #{type,jdbcType=TINYINT},
+            </if>
+            <if test="suspectedcase != null">
+                suspectedcase = #{suspectedcase,jdbcType=VARCHAR},
+            </if>
+            <if test="mainsuit != null">
+                mainsuit = #{mainsuit,jdbcType=VARCHAR},
+            </if>
+            <if test="diseasedescription != null">
+                diseasedescription = #{diseasedescription,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=DATE},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=DATE},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yhyt.health.model.PatientCasearchives">
+    update patient_casearchives
+    set patient_id = #{patientId,jdbcType=BIGINT},
+      department_id = #{departmentId,jdbcType=BIGINT},
+      dialog_id = #{dialogId,jdbcType=BIGINT},
+      case_id = #{caseId,jdbcType=VARCHAR},
+      type = #{type,jdbcType=TINYINT},
+      suspectedcase = #{suspectedcase,jdbcType=VARCHAR},
+      mainsuit = #{mainsuit,jdbcType=VARCHAR},
+      diseasedescription = #{diseasedescription,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=DATE},
+      update_time = #{updateTime,jdbcType=DATE}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <select id="selectPatientCasearchives" parameterType="map" resultMap="patientDetailVo">
+        SELECT
+        pc.id,
+        pc.patient_id,
+        pc.dialog_id,
+        pc.case_id,
+        pc.mainsuit,
+        p.realname patient_name,
+        p.head_image patient_head_image,
+        p.sex,
+        p.age,
+        pc.type,
+        p.reside_location,
+        p.insurance_location,
+        pc.suspectedcase,
+        pc.diseasedescription,
+        d.room_id
+        FROM
+        patient_casearchives pc
+        LEFT JOIN patient p ON pc.patient_id = p.id
+        LEFT JOIN dialog d ON d.department_id = pc.department_id AND d.patient_id = pc.patient_id
+        WHERE 1=1
+        <if test="departmentId != null">
+            AND pc.department_id = #{departmentId}
+        </if>
+        <if test="patientId != null">
+            AND pc.patient_id = #{patientId}
+        </if>
+        <if test="dialogId != null">
+            AND pc.dialog_id=#{dialogId}
+        </if>
+        <if test="type != null">
+            AND pc.type = #{type}
+        </if>
+    </select>
+    <select id="selectByPatientAndDept" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from patient_casearchives
+        where department_id=#{0}
+        AND patient_id = #{1}
+    </select>
+</mapper>

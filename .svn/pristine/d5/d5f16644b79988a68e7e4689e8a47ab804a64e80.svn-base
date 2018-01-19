@@ -1,0 +1,148 @@
+package com.yhyt.health.app.controller;
+
+import com.yhyt.health.model.dto.QuestionnaireItemAnswer;
+import com.yhyt.health.result.AppResult;
+import com.yhyt.health.service.api.QuestionnaireApi;
+import io.swagger.annotations.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+/**
+ * 问卷接口
+ * @author gsh
+ * @create 2017-11-16 13:51
+ **/
+@Api(value="",description ="问卷接口")
+@RestController
+public class QuestionnaireAppController {
+
+    @Autowired
+    private QuestionnaireApi questionnaireApi;
+
+    @ApiOperation(value = "问卷库（历史/全部问卷", notes = "问卷库（历史/全部问卷")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "用户token", paramType = "header", required = true, dataType = "Long"),
+            @ApiImplicitParam(name = "userId", value = "用户id", paramType = "query", required = false, dataType = "Long"),
+            @ApiImplicitParam(name = "type", value = "1：历史问卷 2：全部问卷", paramType = "path", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "moreFlag", value = "1：否（不填默认为1），2：是", paramType = "query", required = false, dataType = "String")
+    })
+    @GetMapping("/questionnaireRepertory/{type}")
+    public AppResult getQuestionnaireRepertory(
+            @RequestHeader HttpHeaders httpHeaders,
+            @RequestParam(required = false) Long userId,
+            @PathVariable String type,
+            @RequestParam(required = false) String moreFlag
+    ) {
+        String token = httpHeaders.getFirst("token");
+        return questionnaireApi.getQuestionnaireRepertory(token,userId,type,moreFlag);
+    }
+
+    @ApiOperation(value = "发送问卷卡片", notes = "发送问卷卡片")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "用户token", paramType = "header", required = true, dataType = "Long"),
+            @ApiImplicitParam(name = "roomId", value = "房间roomId", paramType = "query", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "questionnaireId", value = "问卷id", paramType = "query", required = true, dataType = "Long")
+    })
+    @PostMapping("/questionnaireDoctor")
+    public AppResult sendQuestionnaireDoctor(
+            @RequestHeader HttpHeaders httpHeaders,
+            @RequestParam String roomId,
+            @RequestParam Long questionnaireId
+    ) {
+        String token = httpHeaders.getFirst("token");
+        return questionnaireApi.sendQuestionnaireDoctor(token,roomId, questionnaireId);
+    }
+
+    @ApiOperation(value = "查看发送问卷卡片", notes = "查看发送问卷卡片")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "questionnaireDoctorPatientId", value = "卡片id", paramType = "query", required = false, dataType = "Long"),
+            @ApiImplicitParam(name = "questionnaireId", value = "问卷id", paramType = "query", required = false, dataType = "Long")
+    })
+    @GetMapping("/questionnaireDoctor")
+    public AppResult getSendQuestionnaireDoctor(
+            @RequestParam(required = false) Long questionnaireDoctorPatientId,
+            @RequestParam(required = false) Long questionnaireId
+    ) {
+        return questionnaireApi.getSendQuestionnaireDoctor(questionnaireDoctorPatientId, questionnaireId);
+    }
+
+    @ApiOperation(value = "提交问卷", notes = "提交问卷")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "questionnaireDoctorPatientId", value = "卡片id", paramType = "query", required = true, dataType = "Long"),
+            @ApiImplicitParam(name = "questionnaireId", value = "问卷id", paramType = "query", required = false, dataType = "Long")
+    })
+    @PostMapping("/questionnairePatient")
+    public AppResult submitQuestionnairePatient(
+            @RequestParam(required = true) Long questionnaireDoctorPatientId,
+            @RequestParam(required = false) Long questionnaireId,
+            @RequestParam(required = true) String questionnaireItems
+    ) {
+        return questionnaireApi.submitQuestionnairePatient(questionnaireDoctorPatientId, questionnaireId, questionnaireItems);
+    }
+
+    @ApiOperation(value = "查看问卷卡片(患者发送卡片)", notes = "查看问卷卡片(患者发送卡片)")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "questionnaireDoctorPatientId", value = "卡片id", paramType = "query", required = true, dataType = "Long")
+    })
+    @GetMapping("/questionnairePatient")
+    public AppResult getQuestionnairePatient(
+            @RequestParam(required = true) Long questionnaireDoctorPatientId
+    ) {
+        return questionnaireApi.getQuestionnairePatient(questionnaireDoctorPatientId);
+    }
+
+    @ApiOperation(value = "我的问卷", notes = "我的问卷")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "用户token", paramType = "header", required = true, dataType = "Long"),
+            @ApiImplicitParam(name = "userId",value = "用户id",paramType = "query",required = false,dataType = "Long"),
+            @ApiImplicitParam(name = "type",value = "1：未填写2：已填写，3：全部",paramType = "path",required = true,dataType = "String")
+    })
+    @PostMapping("/myQuestionnairePatient/{type}")
+    public AppResult myQuestionnairePatient(
+            @RequestHeader HttpHeaders httpHeaders,
+            @PathVariable String type,
+            @RequestParam(required = false) Long userId
+    ) {
+        String token = httpHeaders.getFirst("token");
+        return questionnaireApi.getMyQuestionnairePatient(token,userId,type);
+    }
+
+    @ApiOperation(value = "问卷搜索", notes = "问卷搜索")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "用户token", paramType = "header", required = true, dataType = "Long"),
+            @ApiImplicitParam(name = "keyWord",value = "关键字",paramType = "query",required = true,dataType = "String"),
+            @ApiImplicitParam(name = "userId",value = "用户id",paramType = "query",required = false,dataType = "Long")
+    })
+    @PostMapping("/searchQuestionnaire")
+    public AppResult searchQuestionnaire(
+            @RequestHeader HttpHeaders httpHeaders,
+            @RequestParam(required = true) String keyWord,
+            @RequestParam(required = false) Long userId
+    ) {
+        String token = httpHeaders.getFirst("token");
+        return questionnaireApi.searchQuestionnaire(token,keyWord,userId);
+    }
+
+    @ApiOperation(value = "我的问卷（患者端）", notes = "我的问卷（患者端）")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "token", paramType = "header", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "patientId", value = "患者Id", paramType = "query", required = true, dataType = "Long"),
+            @ApiImplicitParam(name = "type", value = "为空时为全部,1：未填写 2：已填写", paramType = "query", required = false, dataType = "String"),
+            @ApiImplicitParam(name = "pageIndex", value = "页码", paramType = "query", required = false, dataType = "Integer"),
+            @ApiImplicitParam(name = "pageSize", value = "页容量", paramType = "query", required = false, dataType = "Integer")
+    })
+    @GetMapping("/getMyPatientQuestionnaire")
+    public AppResult getMyPatientQuestionnaire(
+            @RequestHeader HttpHeaders httpHeaders,
+            @RequestParam Long patientId,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) Integer pageIndex,
+            @RequestParam(required = false)  Integer pageSize
+    ) {
+        String token = httpHeaders.getFirst("token");
+        return questionnaireApi.getMyPatientQuestionnaire(token,patientId,type,pageIndex,pageSize);
+    }
+}

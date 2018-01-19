@@ -1,0 +1,230 @@
+package com.yhyt.health.service;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.yhyt.health.constant.Constants;
+import com.yhyt.health.constant.DoctorConstant;
+import com.yhyt.health.constant.ResultCode;
+import com.yhyt.health.mapper.*;
+import com.yhyt.health.model.*;
+import com.yhyt.health.result.AppResult;
+import com.yhyt.health.util.HttpUtils;
+import com.yhyt.health.vo.EnumImToDoctor;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * localadmin 作者:
+ *
+ * @version 创建时间：2017年8月17日 下午4:14:42
+ * 类说明
+ */
+@Service
+public class ImServiceImpl implements ImService {
+    @Autowired
+    private ImMapper imMapper;
+    @Autowired
+    private PatientMapper patientMapper;
+    @Autowired
+    private DepartmentMapper departmentMapper;
+    @Autowired
+    private DoctorMapper doctorMapper;
+    @Autowired
+    private HospitalMapper hospitalMapper;
+    @Autowired
+    private DoctorConstant doctorConstant;
+    @Autowired
+    private RedisService redisService;
+    @Autowired
+    private DialogMapper dialogMapper;
+
+    @Autowired
+    private MessageService messageService;
+
+    @Autowired
+    private DialogAppointmentNoticeMapper dialogAppointmentNoticeMapper;
+
+    private static final Logger logger = LoggerFactory.getLogger(ImServiceImpl.class);
+
+    @Override
+    public AppResult addDialog(Dialog dialog) {
+
+        AppResult appResult = new AppResult();
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("patientid", dialog.getPatientId());
+        map.put("departmentid", dialog.getDepartmentId());
+        try {
+            imMapper.addDialog(map);
+            Patientl patientl = patientMapper.getPatientl(map);
+            Long id = dialog.getDepartmentId();
+            Department department = departmentMapper.selectByPrimaryKey(id);
+            Long deptId = id;
+            List<Doctor> doctor = doctorMapper.queryDoctorsByDeptId(deptId);
+            Hospital hospital = hospitalMapper.queryHospitalsBydeptid(map);
+            appResult.getBody().put("patient", patientl);
+            appResult.getBody().put("department", department);
+            appResult.getBody().put("doctor", doctor);
+            appResult.getBody().put("hospital", hospital);
+            appResult.setResultCode(ResultCode.SUCCESS);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            appResult.setResultCode(ResultCode.SYS_ERROR);
+        }
+
+        return appResult;
+    }
+
+    @Override
+    @Transactional
+    public AppResult sendGroupMessage(String token, String message, String roomIds) {
+        AppResult appResult = new AppResult();
+        try {
+            //获取当前医生信息
+            Doctor doctor = null;
+            if (null != token) {
+                doctor = (Doctor) redisService.get(doctorConstant.getRedis().get("global"), token);
+                Map<String, Object> map = new HashMap<String, Object>();
+                map.put("username", doctor.getUsername());
+                doctor = doctorMapper.getDoctor(map);
+            }
+            JSONArray roomIdss = JSONArray.parseArray(roomIds);
+            for (int i = 0; i < roomIdss.size(); i++) {
+                Map<String, String> map = new HashMap<String, String>();
+                if (null == doctor) {//im要求写的
+                    map.put("userId", "100666");
+                    map.put("passWord", "123456");
+                    map.put("roomId", roomIdss.getString(i));
+                    map.put("body", message);
+                    map.put("NickName", "100666");
+                } else {
+                    map.put("userId", "1" + doctor.getId());
+                    map.put("passWord", doctor.getImPassword());
+                    map.put("roomId", roomIdss.getString(i));
+                    map.put("body", message);
+                    map.put("NickName", doctor.getRealname());
+                }
+                logger.info("发送群消息请求:" + JSON.toJSONString(map));
+                String result = HttpUtils.sendGet(doctorConstant.getIm().get("imOperUrl") + "/groupSend", map);
+                logger.info("发送群消息返回:" + result);
+                if (!Constants.IM_REGIST.equals(JSONObject.parse(result))) {
+                    logger.info("发送失败");
+                    appResult.setResultCode(ResultCode.FAILED);
+                    appResult.getStatus().setMessage("信息发送失败");
+                    return appResult;
+                }
+            }
+            appResult.setResultCode(ResultCode.SUCCESS);
+            return appResult;
+        } catch (Exception ex) {
+            logger.error("群发 im 消息失败 : ", ex);
+            appResult.setResultCode(ResultCode.FAILED);
+            return appResult;
+        }
+    }
+
+
+    @Override
+    public AppResult getDialogRecord(String token, String roomId, String messageId) {
+        AppResult appResult = new AppResult();
+        appResult.setResultCode(ResultCode.SUCCESS);
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("roomId", roomId);
+        map.put("messageId", messageId);
+        String result = HttpUtils.sendGet(doctorConstant.getIm().get("imOperUrl") + "/mucHistory", map);
+        appResult.getBody().put("message", result);
+        /*if (null != result) {
+           JSONArray jsonArray = JSONArray.parseArray(StringEscapeUtils.unescapeJava(result));
+            appResult.getBody().put("message", jsonArray);
+        }{
+            appResult.getBody().put("message", new JSONArray());
+        }*/
+        return appResult;
+    }
+
+    @Override
+    public List<DialogAppointmentNotice> selectByUserId(int rows, int userType, String roomId, String token) {
+
+        if (userType == 1) {//医生
+            Doctor doctor = (Doctor) redisService.get(doctorConstant.getRedis().get("global"), token);
+            return dialogAppointmentNoticeMapper.selectByUserIdForDoctor(doctor.getId(), roomId, rows);
+        }
+        if (userType == 2) {//患者
+            return dialogAppointmentNoticeMapper.selectByUserIdForPatient(roomId, rows);
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
+    public int updateDialogNotice(DialogAppointmentNotice dialogAppointmentNotice) {
+        return dialogAppointmentNoticeMapper.updateByPrimaryKeySelective(dialogAppointmentNotice);
+    }
+
+    @Override
+    public AppResult doctorPushMessageToPatients(final String roomId,final String type) {
+
+        //返回app成功信息
+        AppResult appResult=new AppResult();
+
+        //接口必填项校验   --> 参数错误
+        if(StringUtils.isEmpty(roomId) || StringUtils.isEmpty(type)){
+            appResult.getStatus().setCode(ResultCode.PARAMS_ERROR.val());
+            appResult.getStatus().setMessage(ResultCode.PARAMS_ERROR.msg());
+            return appResult;
+        }
+
+        try {
+            Map<String, Object> map = new HashMap<>();
+            map.put("field","room_id");
+            map.put("val",roomId);
+
+            Dialog dialog = dialogMapper.findDialogByAppointFiel(map);
+            Long patientId; //患者id
+            if(null != dialog){
+                patientId = dialog.getPatientId();
+                String message = "";
+                message = EnumImToDoctor.getEnumImToDoctor(Byte.parseByte(type)).getMessage();
+                /**
+                 * 推送给谁(接收人)id          receiverId
+                 * 接收人类型   是推送给医生端的 为1  推送给患者的 为2
+                 * 标题
+                 * 消息内容
+                 * 消息类型 如果是新的推送 不要和以前的推送编号重复  目前系统有从1- 8的推送号  此处设置为9
+                 */
+                    messageService.sendMessage(patientId,"2",message,message,"9");
+
+                appResult.getStatus().setCode(ResultCode.SUCCESS.val());
+                appResult.getStatus().setMessage(ResultCode.SUCCESS.msg());
+                return appResult;
+
+            }else{
+                appResult.getStatus().setCode(ResultCode.SYS_ERROR.val());
+                appResult.getStatus().setMessage(ResultCode.SYS_ERROR.msg());
+                return appResult;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            appResult.getStatus().setCode(ResultCode.SYS_ERROR.val());
+            appResult.getStatus().setMessage(ResultCode.SYS_ERROR.msg());
+            return appResult;
+        }
+    }
+
+
+    // TODO: 2017/9/27   存诊断记录(patient_diagnose_records)
+    //2、发送系统消息：确诊为“XXX”（XXX＝主诊断疾病名）
+    //         3、向患者发送推送“医生已为您确诊”
+    //       4、若确诊医生未关注该患者，打开“关注”该患者
+//5、更新对话导航栏疾病名
+// 6、更新诊断记录
+}

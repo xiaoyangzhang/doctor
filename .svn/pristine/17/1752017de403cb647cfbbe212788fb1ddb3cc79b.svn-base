@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhyt.health.mapper.PatientDiagnosePicsMapper">
+    <resultMap id="BaseResultMap" type="com.yhyt.health.model.PatientDiagnosePics">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="case_id" jdbcType="VARCHAR" property="caseId"/>
+        <result column="dept_patient_sign_id" jdbcType="BIGINT" property="deptPatientSignId"/>
+        <result column="dialog_id" jdbcType="BIGINT" property="dialogId"/>
+        <result column="type" jdbcType="BIGINT" property="type"/>
+        <result column="pic_url" jdbcType="VARCHAR" property="picUrl"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+    <resultMap id="PatientDiagnosePicsVo" type="PatientDiagnosePicsVo">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="pic_url" jdbcType="VARCHAR" property="picUrl"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+    <resultMap id="patientDiagnosePicsCaseVo" type="PatientDiagnosePicsCaseVo">
+        <result column="create_date" jdbcType="TIMESTAMP" property="createDate"/>
+        <collection property="patientDiagnosePicsVos" ofType="PatientDiagnosePicsVo" resultMap="PatientDiagnosePicsVo"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, case_id, dept_patient_sign_id, dialog_id, type, pic_url, create_time
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from patient_diagnose_pics
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from patient_diagnose_pics
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.yhyt.health.model.PatientDiagnosePics">
+    insert into patient_diagnose_pics (id, case_id, dept_patient_sign_id, 
+      dialog_id, type, pic_url, 
+      create_time)
+    values (#{id,jdbcType=BIGINT}, #{caseId,jdbcType=VARCHAR}, #{deptPatientSignId,jdbcType=BIGINT},
+      #{dialogId,jdbcType=BIGINT}, #{type,jdbcType=BIGINT}, #{picUrl,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+    <insert id="insertSelective" parameterType="com.yhyt.health.model.PatientDiagnosePics">
+        insert into patient_diagnose_pics
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="caseId != null">
+                case_id,
+            </if>
+            <if test="deptPatientSignId != null">
+                dept_patient_sign_id,
+            </if>
+            <if test="dialogId != null">
+                dialog_id,
+            </if>
+            <if test="type != null">
+                type,
+            </if>
+            <if test="picUrl != null">
+                pic_url,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="caseId != null">
+                #{caseId,jdbcType=VARCHAR},
+            </if>
+            <if test="deptPatientSignId != null">
+                #{deptPatientSignId,jdbcType=BIGINT},
+            </if>
+            <if test="dialogId != null">
+                #{dialogId,jdbcType=BIGINT},
+            </if>
+            <if test="type != null">
+                #{type,jdbcType=BIGINT},
+            </if>
+            <if test="picUrl != null">
+                #{picUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yhyt.health.model.PatientDiagnosePics">
+        update patient_diagnose_pics
+        <set>
+            <if test="caseId != null">
+                case_id = #{caseId,jdbcType=VARCHAR},
+            </if>
+            <if test="deptPatientSignId != null">
+                dept_patient_sign_id = #{deptPatientSignId,jdbcType=BIGINT},
+            </if>
+            <if test="dialogId != null">
+                dialog_id = #{dialogId,jdbcType=BIGINT},
+            </if>
+            <if test="type != null">
+                type = #{type,jdbcType=BIGINT},
+            </if>
+            <if test="picUrl != null">
+                pic_url = #{picUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yhyt.health.model.PatientDiagnosePics">
+    update patient_diagnose_pics
+    set case_id = #{caseId,jdbcType=VARCHAR},
+      dept_patient_sign_id = #{deptPatientSignId,jdbcType=BIGINT},
+      dialog_id = #{dialogId,jdbcType=BIGINT},
+      type = #{type,jdbcType=BIGINT},
+      pic_url = #{picUrl,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <select id="selectBySignId" parameterType="long" resultMap="BaseResultMap">
+    select id,pic_url,create_time from patient_diagnose_pics where dept_patient_sign_id=#{signId} ORDER  BY create_time DESC
+  </select>
+    <select id="selectByCaseIdAndType" resultMap="patientDiagnosePicsCaseVo">
+    SELECT
+    self.create_date,pdp.id,pdp.pic_url,pdp.create_time
+    FROM
+    (
+    SELECT
+    DATE_FORMAT(pd.create_time,"%Y-%m-%d") create_date
+    FROM
+        patient_diagnose_pics pd
+    WHERE
+        case_id = #{0,jdbcType=VARCHAR} AND  type = #{1,jdbcType=BIGINT}
+    GROUP BY create_date) self LEFT JOIN patient_diagnose_pics pdp ON self.create_date =DATE_FORMAT(pdp.create_time,"%Y-%m-%d")
+    WHERE
+	pdp.case_id = #{0,jdbcType=VARCHAR} AND  pdp.type = #{1,jdbcType=BIGINT}
+  </select>
+    <select id="selectCasePicsByCaseIdAndType" resultMap="patientDiagnosePicsCaseVo">
+        SELECT
+        self.create_date,pdp.id,pdp.pic_url,pdp.create_time
+        FROM
+        (
+        SELECT
+        DATE_FORMAT(pd.case_time,"%Y-%m-%d") create_date
+        FROM
+        patient_diagnose_pics pd
+        WHERE
+        case_id = #{0,jdbcType=VARCHAR} AND  type = #{1,jdbcType=BIGINT}
+        GROUP BY create_date) self LEFT JOIN patient_diagnose_pics pdp ON self.create_date =DATE_FORMAT(pdp.case_time,"%Y-%m-%d")
+        WHERE
+        pdp.case_id = #{0,jdbcType=VARCHAR} AND  pdp.type = #{1,jdbcType=BIGINT}
+    </select>
+    <select id="selectByDepartmentIdPatientId" parameterType="map" resultMap="BaseResultMap">
+        SELECT
+            pdp.id,
+            pdp.pic_url,
+            pdp.create_time
+        FROM
+            patient_diagnose_pics pdp
+        LEFT JOIN patient_casearchives pc ON pdp.case_id = pc.case_id
+        where pc.department_id =#{departmentId} AND pc.patient_id = #{departmentId}
+        ORDER  BY pdp.create_time DESC
+    </select>
+    <select id="selectByDialogId" parameterType="Long" resultMap="BaseResultMap">
+         SELECT
+            pdp.id,
+            pdp.pic_url,
+            pdp.create_time
+        FROM
+            patient_diagnose_pics pdp
+            WHERE  pdp.dialog_id = #{dialogId}
+    </select>
+</mapper>

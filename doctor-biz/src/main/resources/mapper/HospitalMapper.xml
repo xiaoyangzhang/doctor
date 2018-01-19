@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhyt.health.mapper.HospitalMapper">
+    <resultMap id="BaseResultMap" type="com.yhyt.health.model.Hospital">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="dict_city_id_province" jdbcType="VARCHAR" property="dictCityIdProvince"/>
+        <result column="dict_city_id_city" jdbcType="VARCHAR" property="dictCityIdCity"/>
+        <result column="logo" jdbcType="VARCHAR" property="logo"/>
+        <result column="dict_hospital_level_id" jdbcType="BIGINT" property="dictHospitalLevelId"/>
+        <result column="dict_hospital_category_id" jdbcType="BIGINT" property="dictHospitalCategoryId"/>
+        <result column="summary" jdbcType="VARCHAR" property="summary"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="operator" jdbcType="VARCHAR" property="operator"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, name, dict_city_id_province, dict_city_id_city, logo, dict_hospital_level_id, 
+    dict_hospital_category_id, summary, create_time, update_time, operator
+  </sql>
+    <select id="getHospitalListPage" parameterType="com.yhyt.health.model.query.HospitalQuery"
+            resultType="com.yhyt.health.model.vo.HospitalVO">
+        select name, summary,logo,p.province,c.city,dic.item_name level,h.id from hospital h
+        left join (select abbr_name province,id from dict_city dc where level=1 ) p on p.id=h.dict_city_id_province
+        left join (select abbr_name city,id from dict_city dc where level=2) c on c.id=h.dict_city_id_city
+        left join dictionary dic on dic.id=dict_hospital_level_id
+        where 1=1
+        <if test="name != null and name != ''">
+            and h.name like concat ('%',#{name},'%')
+        </if>
+        <if test=" cityCode != null and cityCode!=''">
+            and c.id= #{cityCode}
+        </if>
+        <if test="provinceCode != null and provinceCode != '' and (cityCode == null or cityCode=='')">
+            and p.id= #{provinceCode}
+
+        </if>
+        order by h.update_time DESC
+    </select>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from hospital
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from hospital
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.yhyt.health.model.Hospital">
+    insert into hospital (id, name, dict_city_id_province, 
+      dict_city_id_city, logo, dict_hospital_level_id, 
+      dict_hospital_category_id, summary, create_time, 
+      update_time, operator)
+    values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{dictCityIdProvince,jdbcType=VARCHAR}, 
+      #{dictCityIdCity,jdbcType=VARCHAR}, #{logo,jdbcType=VARCHAR}, #{dictHospitalLevelId,jdbcType=BIGINT}, 
+      #{dictHospitalCategoryId,jdbcType=BIGINT}, #{summary,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP}, #{operator})
+  </insert>
+    <insert id="insertSelective" parameterType="com.yhyt.health.model.Hospital">
+        insert into hospital
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="dictCityIdProvince != null">
+                dict_city_id_province,
+            </if>
+            <if test="dictCityIdCity != null">
+                dict_city_id_city,
+            </if>
+            <if test="logo != null">
+                logo,
+            </if>
+            <if test="dictHospitalLevelId != null">
+                dict_hospital_level_id,
+            </if>
+            <if test="dictHospitalCategoryId != null">
+                dict_hospital_category_id,
+            </if>
+            <if test="summary != null">
+                summary,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="operator != null">
+                operator,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="dictCityIdProvince != null">
+                #{dictCityIdProvince,jdbcType=VARCHAR},
+            </if>
+            <if test="dictCityIdCity != null">
+                #{dictCityIdCity,jdbcType=VARCHAR},
+            </if>
+            <if test="logo != null">
+                #{logo,jdbcType=VARCHAR},
+            </if>
+            <if test="dictHospitalLevelId != null">
+                #{dictHospitalLevelId,jdbcType=BIGINT},
+            </if>
+            <if test="dictHospitalCategoryId != null">
+                #{dictHospitalCategoryId,jdbcType=BIGINT},
+            </if>
+            <if test="summary != null">
+                #{summary,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="operator != null">
+                #{operator},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yhyt.health.model.Hospital">
+        update hospital
+        <set>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="dictCityIdProvince != null">
+                dict_city_id_province = #{dictCityIdProvince,jdbcType=VARCHAR},
+            </if>
+            <if test="dictCityIdCity != null">
+                dict_city_id_city = #{dictCityIdCity,jdbcType=VARCHAR},
+            </if>
+            <if test="logo != null">
+                logo = #{logo,jdbcType=VARCHAR},
+            </if>
+            <if test="dictHospitalLevelId != null">
+                dict_hospital_level_id = #{dictHospitalLevelId,jdbcType=BIGINT},
+            </if>
+            <if test="dictHospitalCategoryId != null">
+                dict_hospital_category_id = #{dictHospitalCategoryId,jdbcType=BIGINT},
+            </if>
+            <if test="summary != null">
+                summary = #{summary,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="operator != null">
+                operator = #{operator},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yhyt.health.model.Hospital">
+    update hospital
+    set name = #{name,jdbcType=VARCHAR},
+      dict_city_id_province = #{dictCityIdProvince,jdbcType=VARCHAR},
+      dict_city_id_city = #{dictCityIdCity,jdbcType=VARCHAR},
+      logo = #{logo,jdbcType=VARCHAR},
+      dict_hospital_level_id = #{dictHospitalLevelId,jdbcType=BIGINT},
+      dict_hospital_category_id = #{dictHospitalCategoryId,jdbcType=BIGINT},
+      summary = #{summary,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      operator = #{operator}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <select id="queryHospitals" parameterType="Hospital" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from hospital
+        where 1=1
+        <if test="id != null">
+            and id = #{id,jdbcType=BIGINT}
+        </if>
+        <if test="name != null and '' != name">
+            and name = #{name,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+
+    <select id="queryHospitalsBydeptid" parameterType="map" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from hospital
+        where id=(select hospital_id from department where id=#{departmentid})
+    </select>
+
+    <select id="findHospitalList" parameterType="map" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from hospital t
+        <include refid="search_hospitalcomplaint"></include>
+    </select>
+
+    <sql id="search_hospitalcomplaint">
+        <trim prefix="WHERE" prefixOverrides="AND|OR">
+            <if test="id!=null">and t.id = #{id,jdbcType=BIGINT}</if>
+            <if test="hospitals!=null">and t.id in
+                <foreach item="item" index="index" collection="hospitals"
+                         open="(" separator="," close=")">#{item}
+                </foreach>
+            </if>
+        </trim>
+    </sql>
+
+</mapper>

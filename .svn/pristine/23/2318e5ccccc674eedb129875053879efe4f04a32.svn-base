@@ -1,0 +1,205 @@
+package com.yhyt.health.service;
+
+import java.util.*;
+
+import com.yhyt.health.constant.DoctorConstant;
+import com.yhyt.health.mapper.*;
+import com.yhyt.health.model.*;
+import com.yhyt.health.model.vo.PatientVisited;
+import com.yhyt.health.model.vo.WorkStationCount;
+import com.yhyt.health.model.vo.app.ArticleTypeCountVo;
+import com.yhyt.health.service.api.ArticleApi;
+import com.yhyt.health.util.DateUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.yhyt.health.constant.ResultCode;
+import com.yhyt.health.result.AppResult;
+
+/**
+ * localadmin 作者:
+ *
+ * @version 创建时间：2017年8月18日 下午4:09:09
+ * 类说明
+ */
+@Service
+public class PatientDiagnoseServiceImpl implements PatientDiagnoseService {
+    @Autowired
+    private PatientDiagnoseRecordsMapper patientDiagnoseRecordsMapper;
+    @Autowired
+    private DeptPatientSignMapper deptPatientSignMapper;
+    @Autowired
+    private DialogAppointmentMapper dialogAppointmentMapper;
+    @Autowired
+    private DoctorRequestpatientMapper doctorRequestpatientMapper;
+    @Autowired
+    private DialogAppointmentTransferMapper dialogAppointmentTransferMapper;
+    @Autowired
+    private DoctorConstant doctorConstant;
+    @Autowired
+    private RedisService redisService;
+    @Autowired
+    private DoctorSettingMapper doctorSettingMapper;
+
+    @Autowired
+    private ArticleMapper articleMapper;
+
+    @Autowired
+    private DoctorMapper doctorMapper;
+
+    private static final Logger logger = LoggerFactory.getLogger(PatientDiagnoseServiceImpl.class);
+
+
+    @Override
+    public AppResult updatePatinetDiagnose(String token, long id, String mainDiagnose) {
+        //根据token取出当前用户
+//		Doctor doctor=(Doctor) redisService.get("doctors", token);
+        AppResult appResult = new AppResult();
+        PatientDiagnoseRecords patientDiagnoseRecords = new PatientDiagnoseRecords();
+        patientDiagnoseRecords.setId(id);
+        patientDiagnoseRecords.setMainDiagnose(mainDiagnose);
+        patientDiagnoseRecords.setUpdateTime(new Date());
+        patientDiagnoseRecordsMapper.updateByPrimaryKeySelective(patientDiagnoseRecords);
+        //结果返回
+        appResult.setResultCode(ResultCode.SUCCESS);
+        return appResult;
+    }
+
+    @Override
+    public List<PatientVisited> getDepartPatientsVisited(long departId) {
+        return patientDiagnoseRecordsMapper.getDepartPatientsVisited(departId);
+    }
+
+    @Override
+    public AppResult getWorkStationCount(String token, Long departmentId, Long doctorId) {
+        AppResult appResult = new AppResult();
+        appResult.setResultCode(ResultCode.SUCCESS);
+        Doctor doctor = (Doctor) redisService.get(doctorConstant.getRedis().get("global"), token);
+        if (departmentId == null) {
+            departmentId = doctor.getDepartmentId();
+        }
+        if (null == doctorId) {
+            doctorId = doctor.getId();
+        }
+        //查询诊后咨询人数
+        Long patientsVisitedCount = patientDiagnoseRecordsMapper.getDepartPatientsVisitedCount(departmentId);
+
+        //查询诊后扫码签到人数
+        Long signCount = deptPatientSignMapper.getSignApplyWithScanCodeCount(departmentId);
+        //全部待诊人数
+        Map<String, Object> mapAppointment = new HashMap<String,Object>();
+        mapAppointment.put("departmentId", departmentId);
+        mapAppointment.put("state", (byte) 2);
+        mapAppointment.put("appointmentTime", DateUtil.setStartDay(new Date()));
+        Long appointCount = dialogAppointmentMapper.queryUndiagnoseListCountAll(mapAppointment);
+        //今日待诊
+        int todayAppointCount =dialogAppointmentMapper.queryUndiagnoseListCount(mapAppointment);
+        //新求诊
+        Long requestPatientCount = doctorRequestpatientMapper.getNewRequestPatientListCount(departmentId);
+        //转诊
+        Long transferCount= dialogAppointmentTransferMapper.transferpatientListCount (departmentId);
+        //处理中
+        Map<String, Object> requestMap = new HashMap<String, Object>();
+        requestMap.put("departmentId", departmentId);
+        requestMap.put("state", (byte) 2);
+        Long dealingCount = doctorRequestpatientMapper.getDealingPatientListCount(requestMap);
+
+        Map<String,Date> mapa = new HashMap<>();
+        mapa = this.getTypeIssueTime(departmentId);
+
+        /*//已拒绝
+        requestMap.put("state", (byte) 4);
+        Long refuseCount = doctorRequestpatientMapper.getDealingPatientListCount(requestMap);*/
+
+        //组装返回VO
+        WorkStationCount workStationCount = new WorkStationCount();
+        workStationCount.setPatientsVisitedCount(patientsVisitedCount);
+        workStationCount.setPatientSignCount(signCount);
+        workStationCount.setTodayAppointCount(Long.valueOf(todayAppointCount));
+        workStationCount.setAppointCount(Long.valueOf(appointCount));
+        workStationCount.setRequestPatientCount(requestPatientCount);
+        workStationCount.setTransferCount(transferCount);
+        workStationCount.setDealingCount(dealingCount);
+        workStationCount.setArticleTrainDate(mapa.get("1"));
+        workStationCount.setArticleTopicDate(mapa.get("2"));
+        //查询工作站设置
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("doctorId", doctorId);
+        map.put("departmentId", departmentId);
+        List<DoctorSetting> doctorSettings =  doctorSettingMapper.findPersistableList(map);
+        appResult.getBody().put("count", workStationCount);
+        if (null != doctorSettings && doctorSettings.size() > 0) {
+            appResult.getBody().put("setting", doctorSettings.get(0));
+        } else {
+            appResult.getBody().put("setting", new DoctorSetting());
+        }
+        return appResult;
+    }
+
+    /**
+     * 获取当前医生能看到的文章和课题的最新发布时间
+     * @param departmentId
+     * @return
+     */
+    public Map<String,Date> getTypeIssueTime(Long departmentId){
+        String cityId =doctorMapper.getCityIdBydepartmentId(departmentId);  //当前所在科室的医院对应的城市id
+
+        /**
+         * type = 1 表示从发布范围全国全科室中获取最新的发布时间
+         * type = 2 表示从发布范围全国当前科室中获取最新的发布时间
+         * type = 3 表示从发布范围非全国全科室中获取最新的发布时间
+         * type = 4 表示从发布范围全国当前科室中获取最新的发布时间
+         */
+        return returnMapDate(   getTimeMap(this.articleMapper.getTypeIssueTimeByType("1",cityId,departmentId)),
+                getTimeMap(this.articleMapper.getTypeIssueTimeByTypea("2",cityId,departmentId)),
+                getTimeMap(this.articleMapper.getTypeIssueTimeByTypeb("3",cityId,departmentId)),
+                getTimeMap(this.articleMapper.getTypeIssueTimeByTypec("4",cityId,departmentId)));
+    }
+
+    public Map<String,Date> getTimeMap(List<Article> list){
+        Map<String,Date> map = new HashMap<>();
+        if(null != list && list.size()>0){
+            for(Article vo  : list){
+                if (null == map.get(String.valueOf(vo.getType()))){
+                    map.put(String.valueOf(vo.getType()),vo.getIssueTime());
+                }else{
+                    continue;
+                }
+            }
+        }
+        return map;
+    }
+
+    public Map<String,Date> returnMapDate(Map<String,Date> map1,Map<String,Date> map2,Map<String,Date> map3,Map<String,Date> map4){
+
+        List<Date> lista = new ArrayList<>();
+        List<Date> listb = new ArrayList<>();
+        if(null != map1 && null!=map1.get("1")){
+            lista.add(map1.get("1"));
+            if(null!=map1.get("2")){
+                listb.add(map1.get("2"));
+            }
+        }if(null != map2 && null!=map2.get("1")){
+            lista.add(map2.get("1"));
+            if(null!=map2.get("2")){
+                listb.add(map2.get("2"));
+            }
+        }if(null != map3 && null!=map3.get("1")){
+            lista.add(map3.get("1"));
+            if(null!=map3.get("2")){
+                listb.add(map3.get("2"));
+            }
+        }if(null != map4 && null!=map4.get("1")){
+            lista.add(map4.get("1"));
+            if(null!=map4.get("2")){
+                listb.add(map4.get("2"));
+            }
+        }
+        Map<String,Date> map = new HashMap<>();
+        map.put("1",Collections.max(lista));
+        map.put("2",Collections.max(listb));
+        return map;
+    }
+}

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhyt.health.mapper.DeptDoctorMapper">
+    <resultMap id="BaseResultMap" type="com.yhyt.health.model.DeptDoctor">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="department_id" jdbcType="BIGINT" property="departmentId"/>
+        <result column="doctor_id" jdbcType="BIGINT" property="doctorId"/>
+        <result column="is_admin" jdbcType="TINYINT" property="isAdmin"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, department_id, doctor_id, is_admin, create_time
+  </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from dept_doctor
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from dept_doctor
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.yhyt.health.model.DeptDoctor">
+    insert into dept_doctor (id, department_id, doctor_id, 
+      is_admin, create_time)
+    values (#{id,jdbcType=BIGINT}, #{departmentId,jdbcType=BIGINT}, #{doctorId,jdbcType=BIGINT}, 
+      #{isAdmin,jdbcType=TINYINT}, #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+    <insert id="insertSelective" parameterType="com.yhyt.health.model.DeptDoctor">
+        insert into dept_doctor
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="departmentId != null">
+                department_id,
+            </if>
+            <if test="doctorId != null">
+                doctor_id,
+            </if>
+            <if test="isAdmin != null">
+                is_admin,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="departmentId != null">
+                #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="doctorId != null">
+                #{doctorId,jdbcType=BIGINT},
+            </if>
+            <if test="isAdmin != null">
+                #{isAdmin,jdbcType=TINYINT},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yhyt.health.model.DeptDoctor">
+        update dept_doctor
+        <set>
+            <if test="departmentId != null">
+                department_id = #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="doctorId != null">
+                doctor_id = #{doctorId,jdbcType=BIGINT},
+            </if>
+            <if test="isAdmin != null">
+                is_admin = #{isAdmin,jdbcType=TINYINT},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yhyt.health.model.DeptDoctor">
+    update dept_doctor
+    set department_id = #{departmentId,jdbcType=BIGINT},
+      doctor_id = #{doctorId,jdbcType=BIGINT},
+      is_admin = #{isAdmin,jdbcType=TINYINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <select id="getDepartAdminByDepartId" parameterType="long" resultType="com.yhyt.health.model.Doctor">
+    select doc.id, doc.name from dept_doctor dd join doctor doc on dd.doctor_id=doc.id where dd.department_id = #{departId}
+  </select>
+    <select id="getDepartDoctorListPage" resultType="com.yhyt.health.model.vo.DoctorVO">
+        select doc.id ,dd.id departDoctorId, doc.username,doc.realname,doc.sex,doc.title,doc.duty,dd.create_time
+        createTime,dd.is_admin isAdmin
+        from doctor doc join dept_doctor dd on doc.id = dd.doctor_id
+        WHERE 1=1
+        <if test="departId != null">
+            and dd.department_id=#{departId}
+        </if>
+        <if test="doctorName != null and doctorName != ''">
+            and d.realname like concat('%',#{doctorName},'%')
+        </if>
+    </select>
+
+    <insert id="addDepartDoctorBatch" parameterType="list">
+        insert into dept_doctor (department_id, doctor_id, create_time)
+        values
+        <foreach collection="list" item="item" separator=",">
+
+            (#{item.departmentId,jdbcType=BIGINT}, #{item.doctorId,jdbcType=BIGINT},
+            #{item.createTime,jdbcType=TIMESTAMP})
+        </foreach>
+
+    </insert>
+    <!--<select id="getDoctorsByDepartId"  resultType="com.yhyt.health.model.vo.DoctorAppVO">
+      select dd.id departDoctorId,d.id,d.username,d.realname,d.sex,d.birthday,d.create_time  from dept_doctor dd join doctor d on dd.doctor_id=d.id
+      where 1=1
+      <if test="doctorName != null and doctorName != ''">
+        and d.realname like concat('%',#{doctorName},'%')
+      </if>
+    </select>-->
+    <delete id="deleteBatch" parameterType="string">
+    delete from dept_doctor where id in (${idArr})
+  </delete>
+    <delete id="deleteByDoctorId" parameterType="long">
+    delete from dept_doctor where doctor_id={doctorId}
+  </delete>
+    <select id="getDeptDoctorByDepartIdAndDoctorId" parameterType="map" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from dept_doctor where 1=1
+        <if test="departmentId != null">
+            and department_id = #{departmentId,jdbcType=BIGINT}
+        </if>
+        <if test="doctorId != null">
+            and doctor_id = #{doctorId,jdbcType=BIGINT}
+        </if>
+
+    </select>
+    <delete id="deleteDeptDoctorByDoctorIdAndDeptId" parameterType="map">
+        delete from dept_doctor
+        where department_id=#{departmentId,jdbcType=BIGINT}
+        and doctor_id in
+        <foreach item="item" index="index" collection="doctorIds"
+                 open="(" separator="," close=")">
+            #{item,jdbcType=BIGINT}
+        </foreach>
+    </delete>
+    <select id="getDepartDoctorList" resultMap="BaseResultMap">
+    select * from dept_doctor WHERE department_id=#{deptId}
+  </select>
+    <delete id="deleteByDeptId" parameterType="long">
+    DELETE from dept_doctor where department_id=#{deptId}
+  </delete>
+    <select id="selectByDeptID" parameterType="long" resultType="long">
+        SELECT doctor_id
+        from dept_doctor
+        where department_id=#{deptId,jdbcType=BIGINT}
+    </select>
+    <select id="selectByDoctorId" parameterType="long" resultType="long">
+        select department_id from dept_doctor where doctor_id=#{doctorId} order by create_time limit 1
+    </select>
+    <select id="getDepartDoctorListByDoctorId" resultMap="BaseResultMap">
+        select * from dept_doctor WHERE doctor_id=#{doctorId}
+    </select>
+</mapper>

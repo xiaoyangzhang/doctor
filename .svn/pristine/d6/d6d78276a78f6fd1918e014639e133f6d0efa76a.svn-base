@@ -1,0 +1,50 @@
+package com.yhyt.health.service;
+
+import com.github.pagehelper.PageInfo;
+import com.yhyt.health.mapper.ArticleAreaMapper;
+import com.yhyt.health.mapper.ArticleDepartmentMapper;
+import com.yhyt.health.mapper.ArticleLogMapper;
+import com.yhyt.health.mapper.ArticleMapper;
+import com.yhyt.health.model.ArticleDTO;
+import com.yhyt.health.model.ArticleLogDTO;
+import com.yhyt.health.model.query.ArticleQuery;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class ArticleServiceImpl implements ArticleService {
+
+    @Autowired
+    private ArticleMapper articleMapper;
+    @Autowired
+    private ArticleDepartmentMapper articleDepartmentMapper;
+
+    @Autowired
+    private ArticleAreaMapper articleAreaMapper;
+
+    @Autowired
+    private ArticleLogMapper articleLogMapper;
+    @Override
+    @Transactional
+    public int addArticle(ArticleDTO articleDTO) {
+        return 0;
+    }
+
+    @Override
+    @Transactional
+    public int editArticle(ArticleDTO articleDTO) {
+        return 0;
+    }
+
+    @Override
+    @Transactional
+    public int updateArticleState(ArticleLogDTO articleLogDTO) {
+        return 0;
+    }
+
+    @Override
+    public PageInfo<ArticleDTO> queryArticleListPage(ArticleQuery articleQuery) {
+        return null;
+    }
+}

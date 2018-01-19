@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhyt.health.mapper.DeptEvaluateLogMapper">
+    <resultMap id="BaseResultMap" type="com.yhyt.health.model.DeptEvaluateLog">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="department_id" jdbcType="BIGINT" property="departmentId"/>
+        <result column="speed_score" jdbcType="REAL" property="speedScore"/>
+        <result column="attitude_score" jdbcType="REAL" property="attitudeScore"/>
+        <result column="satisfy_score" jdbcType="REAL" property="satisfyScore"/>
+        <result column="patient_id" jdbcType="BIGINT" property="patientId"/>
+        <result column="content" jdbcType="VARCHAR" property="content"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, department_id, speed_score, attitude_score, satisfy_score, patient_id, content, 
+    create_time
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from dept_evaluate_log
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from dept_evaluate_log
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.yhyt.health.model.DeptEvaluateLog">
+    insert into dept_evaluate_log (id, department_id, speed_score, 
+      attitude_score, satisfy_score, patient_id, 
+      content, create_time)
+    values (#{id,jdbcType=BIGINT}, #{departmentId,jdbcType=BIGINT}, #{speedScore,jdbcType=REAL}, 
+      #{attitudeScore,jdbcType=REAL}, #{satisfyScore,jdbcType=REAL}, #{patientId,jdbcType=BIGINT}, 
+      #{content,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+    <insert id="insertSelective" parameterType="com.yhyt.health.model.DeptEvaluateLog">
+        insert into dept_evaluate_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="departmentId != null">
+                department_id,
+            </if>
+            <if test="speedScore != null">
+                speed_score,
+            </if>
+            <if test="attitudeScore != null">
+                attitude_score,
+            </if>
+            <if test="satisfyScore != null">
+                satisfy_score,
+            </if>
+            <if test="patientId != null">
+                patient_id,
+            </if>
+            <if test="content != null">
+                content,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="departmentId != null">
+                #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="speedScore != null">
+                #{speedScore,jdbcType=REAL},
+            </if>
+            <if test="attitudeScore != null">
+                #{attitudeScore,jdbcType=REAL},
+            </if>
+            <if test="satisfyScore != null">
+                #{satisfyScore,jdbcType=REAL},
+            </if>
+            <if test="patientId != null">
+                #{patientId,jdbcType=BIGINT},
+            </if>
+            <if test="content != null">
+                #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yhyt.health.model.DeptEvaluateLog">
+        update dept_evaluate_log
+        <set>
+            <if test="departmentId != null">
+                department_id = #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="speedScore != null">
+                speed_score = #{speedScore,jdbcType=REAL},
+            </if>
+            <if test="attitudeScore != null">
+                attitude_score = #{attitudeScore,jdbcType=REAL},
+            </if>
+            <if test="satisfyScore != null">
+                satisfy_score = #{satisfyScore,jdbcType=REAL},
+            </if>
+            <if test="patientId != null">
+                patient_id = #{patientId,jdbcType=BIGINT},
+            </if>
+            <if test="content != null">
+                content = #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yhyt.health.model.DeptEvaluateLog">
+    update dept_evaluate_log
+    set department_id = #{departmentId,jdbcType=BIGINT},
+      speed_score = #{speedScore,jdbcType=REAL},
+      attitude_score = #{attitudeScore,jdbcType=REAL},
+      satisfy_score = #{satisfyScore,jdbcType=REAL},
+      patient_id = #{patientId,jdbcType=BIGINT},
+      content = #{content,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

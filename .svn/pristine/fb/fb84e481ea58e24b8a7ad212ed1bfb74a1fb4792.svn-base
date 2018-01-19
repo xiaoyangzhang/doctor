@@ -1,0 +1,65 @@
+package com.yhyt.health.model;
+
+import java.io.Serializable;
+import java.util.List;
+
+public class ArticleDTO implements Serializable {
+
+    private static final long serialVersionUID = -9017990299881906955L;
+    private Article article;
+    private List<ArticleDepartment> articleDepartments;
+    private List<ArticleArea> articleAreas;
+
+    private List<ArticleLog> articleLogs;
+
+    private String publishDept;//发布对象
+    private String publishArea;//发布地区
+
+    public String getPublishDept() {
+        return publishDept;
+    }
+
+    public void setPublishDept(String publishDept) {
+        this.publishDept = publishDept;
+    }
+
+    public String getPublishArea() {
+        return publishArea;
+    }
+
+    public void setPublishArea(String publishArea) {
+        this.publishArea = publishArea;
+    }
+
+    public List<ArticleLog> getArticleLogs() {
+        return articleLogs;
+    }
+
+    public void setArticleLogs(List<ArticleLog> articleLogs) {
+        this.articleLogs = articleLogs;
+    }
+
+    public Article getArticle() {
+        return article;
+    }
+
+    public void setArticle(Article article) {
+        this.article = article;
+    }
+
+    public List<ArticleDepartment> getArticleDepartments() {
+        return articleDepartments;
+    }
+
+    public void setArticleDepartments(List<ArticleDepartment> articleDepartments) {
+        this.articleDepartments = articleDepartments;
+    }
+
+    public List<ArticleArea> getArticleAreas() {
+        return articleAreas;
+    }
+
+    public void setArticleAreas(List<ArticleArea> articleAreas) {
+        this.articleAreas = articleAreas;
+    }
+}

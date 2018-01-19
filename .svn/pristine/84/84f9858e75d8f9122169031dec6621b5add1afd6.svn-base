@@ -1,0 +1,84 @@
+package com.yhyt.health.mapper;
+
+import com.yhyt.health.model.DialogAppointment;
+import com.yhyt.health.model.vo.*;
+import com.yhyt.health.model.vo.app.AppointmentVo;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+@Repository
+public interface DialogAppointmentMapper {
+    int deleteByPrimaryKey(Long id);
+
+    int insert(DialogAppointment record);
+
+    int insertSelective(DialogAppointment record);
+
+    DialogAppointment selectByPrimaryKey(Long id);
+
+    int updateByPrimaryKeySelective(DialogAppointment record);
+
+    int updateByPrimaryKey(DialogAppointment record);
+
+    List<DialogAppointment> queryDialogAppointmentList(long id);
+
+    List<DialogAppointment> queryDialogAppointment(@Param("departmentId") Long departmentId,@Param("patientId") Long patientId);
+
+    List<DialogAppointment> selectDialogAppointment(@Param("departmentId") Long departmentId, @Param("patientId") Long patientId
+            , @Param("appointmentTime")Date appointmentTime,@Param("ampm") Byte ampm);
+
+    List<DialogAppointment> queryDialogAppointmentTransferList(long id);
+
+    DialogAppointmentVo getDialogAppointment(Map<String, Object> map);
+
+    List<doctorAppointmentsVo> getDoctorAppointments(Map<String, Object> map);
+
+    List<DialogAppointmentMapper> appointmentexpire(Map<String, Object> map);
+
+    void triageconfirm(Map<String, Object> map);
+
+    void dismissAssignDoctor(Map<String, Object> map);
+
+    /**
+     * 未分诊患者数量
+     *
+     * @param map
+     * @return
+     */
+    int queryPatientNumNoAssignDoctor(Map<String, Object> map);
+
+    List<AppointmentPatientVo> queryUndiagnoseList(Map<String, Object> map);
+
+    List<AppointmentPatientVo> queryUndiagnoseListByDoctor(Map<String, Object> map);
+
+    List<OverdueUndiagnoseVo> queryOverdueUndiagnoseList(Map<String, Object> map);
+
+    int queryUndiagnoseListCount(Map<String, Object> map);
+
+    List<AppointCountsVo> queryAppointsCountByDate(Map<String, Object> map);
+
+    int queryUndiagnoseByDoctorListCount(Map<String, Object> map);
+    int queryDiagnoseByDoctorListCountAll(Map<String, Object> map);
+
+    List<AppointmentPatientVo> searchyUndiagnoseAllpatient(Map<String, Object> map);
+
+    Long queryUndiagnoseListCountAll(Map<String, Object> map);
+
+    List<PatientDialogVo> getMyPatientDialog(@Param("patientId") Long patientId,@Param("states") List<Byte> states
+            ,@Param("signState")Byte signState,@Param("appointmentTimeBegin") Date appointmentTimeBegin,@Param("appointmentTimeEnd") Date appointmentTimeEnd);
+
+    /**
+     * 获取患者预约医生列表
+     * @param timeInterval 时间段（距离预约时间24小时内）
+     * @param state 状态  查询2 成功预约的
+     * @return
+     */
+    List<AppointmentVo> getAppointmentVo(final @Param("timeInterval") Integer timeInterval,
+                                         final @Param("state") byte state);
+
+    List<ItemDialogVo> getItemDialogAppointmentVosByRoomId(@Param("roomId") String roomId);
+}

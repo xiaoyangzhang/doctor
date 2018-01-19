@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhyt.health.mapper.PatientDiagnoseRecordsMapper">
+    <resultMap id="BaseResultMap" type="com.yhyt.health.model.PatientDiagnoseRecords">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="doctor_id" jdbcType="BIGINT" property="doctorId"/>
+        <result column="dialog_id" jdbcType="BIGINT" property="dialogId"/>
+        <result column="main_diagnose" jdbcType="VARCHAR" property="mainDiagnose"/>
+        <result column="sub_diagnose" jdbcType="VARCHAR" property="subDiagnose"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <resultMap id="patientVisited" type="com.yhyt.health.model.vo.PatientVisited">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="realname" jdbcType="VARCHAR" property="name"/>
+        <result column="sex" jdbcType="TINYINT" property="sex"/>
+        <result column="birthday" jdbcType="TIMESTAMP" property="birthDay"/>
+        <result column="age" jdbcType="BIGINT" property="age"/>
+        <result column="flag" jdbcType="TINYINT" property="flag"/>
+        <result column="head_image" jdbcType="VARCHAR" property="avatar"/>
+        <result column="room_id" jdbcType="VARCHAR" property="roomId"/>
+        <result column="dialog_id" jdbcType="VARCHAR" property="dialogId"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, doctor_id, dialog_id, main_diagnose, sub_diagnose, create_time, update_time
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from patient_diagnose_records
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from patient_diagnose_records
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.yhyt.health.model.PatientDiagnoseRecords">
+    insert into patient_diagnose_records (id, doctor_id, dialog_id, 
+      main_diagnose, sub_diagnose, create_time, 
+      update_time)
+    values (#{id,jdbcType=BIGINT}, #{doctorId,jdbcType=BIGINT}, #{dialogId,jdbcType=BIGINT}, 
+      #{mainDiagnose,jdbcType=VARCHAR}, #{subDiagnose,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+    <insert id="insertSelective" parameterType="com.yhyt.health.model.PatientDiagnoseRecords">
+        insert into patient_diagnose_records
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="doctorId != null">
+                doctor_id,
+            </if>
+            <if test="dialogId != null">
+                dialog_id,
+            </if>
+            <if test="mainDiagnose != null">
+                main_diagnose,
+            </if>
+            <if test="subDiagnose != null">
+                sub_diagnose,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="doctorId != null">
+                #{doctorId,jdbcType=BIGINT},
+            </if>
+            <if test="dialogId != null">
+                #{dialogId,jdbcType=BIGINT},
+            </if>
+            <if test="mainDiagnose != null">
+                #{mainDiagnose,jdbcType=VARCHAR},
+            </if>
+            <if test="subDiagnose != null">
+                #{subDiagnose,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yhyt.health.model.PatientDiagnoseRecords">
+        update patient_diagnose_records
+        <set>
+            <if test="doctorId != null">
+                doctor_id = #{doctorId,jdbcType=BIGINT},
+            </if>
+            <if test="dialogId != null">
+                dialog_id = #{dialogId,jdbcType=BIGINT},
+            </if>
+            <if test="mainDiagnose != null">
+                main_diagnose = #{mainDiagnose,jdbcType=VARCHAR},
+            </if>
+            <if test="subDiagnose != null">
+                sub_diagnose = #{subDiagnose,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yhyt.health.model.PatientDiagnoseRecords">
+    update patient_diagnose_records
+    set doctor_id = #{doctorId,jdbcType=BIGINT},
+      dialog_id = #{dialogId,jdbcType=BIGINT},
+      main_diagnose = #{mainDiagnose,jdbcType=VARCHAR},
+      sub_diagnose = #{subDiagnose,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <select id="getDepartPatientsVisited" parameterType="long" resultMap="patientVisited">
+      SELECT
+        p.id,
+        realname,
+        head_image,
+        sex,
+        birthday,
+        age,
+        dggp.flag,
+        d.room_id,
+        d.id dialog_id
+    FROM
+        patient p
+    LEFT JOIN dept_patient_sign dps ON dps.patient_id = p.id
+    LEFT JOIN order_detail od ON od.patient_id = p.id AND od.department_id = dps.department_id
+    LEFT JOIN dialog d ON p.id = d.patient_id AND dps.department_id = d.department_id
+    LEFT JOIN (select dgp.flag,dg.department_id,dgp.patient_id from dept_group_patient dgp
+                       JOIN dept_group dg ON dg.id = dgp.dept_group_id) dggp ON dggp.department_id = dps.department_id AND dggp.patient_id = dps.patient_id
+    WHERE dps.department_id =  #{departId,jdbcType=BIGINT} AND dps.state = '2'  AND od.type = '2'
+    ORDER BY
+	review_time DESC
+  </select>
+    <select id="getDepartPatientsVisitedByPatient" parameterType="long" resultMap="patientVisited">
+        SELECT
+        p.id,
+        realname,
+        head_image,
+        sex,
+        birthday,
+        age,
+        dgp.flag,
+        d.room_id
+        FROM
+        patient p
+        LEFT JOIN dept_patient_sign dps ON dps.patient_id = p.id
+        LEFT JOIN order_detail od ON od.patient_id = p.id AND od.department_id = dps.department_id
+        LEFT JOIN dialog d ON p.id = d.patient_id AND dps.department_id = d.department_id
+        LEFT JOIN dept_group_patient dgp ON dgp.patient_id = dps.patient_id
+        JOIN dept_group dg ON dg.id = dgp.dept_group_id AND dg.department_id = dps.department_id
+        WHERE dps.department_id =#{departmentId} AND dps.patient_id =  #{patientId,jdbcType=BIGINT} AND dps.state = '2'  AND od.type = '2'
+        ORDER BY
+        review_time DESC
+    </select>
+    <select id="getDepartPatientsVisitedCount" parameterType="long" resultType="Long">
+        SELECT DISTINCT
+        count(dps.id)
+        FROM dept_patient_sign dps JOIN  order_detail od ON od.patient_id = dps.patient_id AND od.department_id = dps.department_id
+        WHERE dps.department_id = #{departId,jdbcType=BIGINT}
+        AND dps.state = '2'  AND od.type = '2'
+        ORDER BY review_time DESC
+    </select>
+</mapper>

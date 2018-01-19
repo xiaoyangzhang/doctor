@@ -1,0 +1,285 @@
+package com.yhyt.health.service;
+/**
+ * 作者: gsh
+ *
+ * @version 创建时间：2017年8月15日 下午4:12:50
+ * 类说明
+ */
+
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.yhyt.health.constant.Constants;
+import com.yhyt.health.constant.DoctorConstant;
+import com.yhyt.health.constant.ResultCode;
+import com.yhyt.health.mapper.DepartmentMapper;
+import com.yhyt.health.mapper.DeptCooperationMapper;
+import com.yhyt.health.mapper.DeptCooperationReviewMapper;
+import com.yhyt.health.mapper.DeptDoctorMapper;
+import com.yhyt.health.model.*;
+import com.yhyt.health.model.vo.CooperationsMessage;
+import com.yhyt.health.model.vo.DepartmentHospitalVO;
+import com.yhyt.health.model.vo.DeptCooperationReviewAppVo;
+import com.yhyt.health.result.AppResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+
+@Service
+public class DeptCooperationServiceImpl implements DeptCooperationService {
+    @Autowired
+    private DeptCooperationMapper deptCooperationMapper;
+    @Autowired
+    private DeptCooperationReviewMapper deptCooperationReviewMapper;
+    @Autowired
+    private DeptDoctorMapper deptDoctorMapper;
+    @Autowired
+    private RedisService redisService;
+    @Autowired
+    private DepartmentMapper departmentMapper;
+    @Autowired
+    private DoctorConstant doctorConstant;
+    @Autowired
+    private MessageService messageService;
+
+    private static Logger logger = LoggerFactory.getLogger(DeptCooperationServiceImpl.class);
+//    private static String global = "doctors";
+
+    @Override
+    @Transactional
+    public AppResult addDeptCooperation(DeptCooperation deptCooperation, String token) {
+        AppResult appResult = new AppResult();
+        appResult.setResultCode(ResultCode.SUCCESS);
+        //从redis获取当前操作用户
+        Doctor doctor = (Doctor) redisService.get(doctorConstant.getRedis().get("global"), token);
+        deptCooperation.setDoctorIdOriginator(doctor.getId());
+        deptCooperation.setDoctorIdCooperation(deptCooperation.getDoctorIdCooperation());
+        if (doctor.getDepartmentId().longValue() == deptCooperation.getDeparmentIdCooperation().longValue()) {
+            appResult.setResultCode(ResultCode.FAILED);
+            appResult.getStatus().setMessage("不能添加自己所在科室");
+            return appResult;
+        }
+
+        if (null == deptCooperation.getDeparmentIdOriginator()) {
+            deptCooperation.setDeparmentIdOriginator(doctor.getDepartmentId());
+        }
+        if (null == deptCooperation.getHospitalIdOriginator()) {
+            Department department = departmentMapper.selectByPrimaryKey(doctor.getDepartmentId());
+            deptCooperation.setHospitalIdOriginator(department.getHospitalId());
+        }
+        if (null == deptCooperation.getHospitalIdCooperation()) {
+            Department department = departmentMapper.selectByPrimaryKey(deptCooperation.getDeparmentIdCooperation());
+            deptCooperation.setHospitalIdCooperation(department.getHospitalId());
+        }
+
+        //查询发起方医生科室细信息
+        Map<String, Object> map = new HashMap<>();
+        map.put("departmentId", doctor.getDepartmentId());
+        map.put("doctorId", doctor.getId());
+        DeptDoctor deptDoctor = deptDoctorMapper.getDeptDoctorByDepartIdAndDoctorId(map);
+        if (null != deptCooperationMapper.selectByDeptAndDeptCooper(doctor.getDepartmentId(), deptCooperation.getDeparmentIdCooperation())) {
+            appResult.setResultCode(ResultCode.SUCCESS);
+            appResult.getStatus().setMessage("添加成功，可向合作科室转诊患者啦");
+            return appResult;
+        }
+        //查询合作方医生科室信息
+        //DepartmentHospitalVO departmentHospitalVO = departmentMapper.selectByPrimaryKeyForApp(deptCooperation.getDeparmentIdCooperation());
+        Map<String, Object> mapCooperation = new HashMap<String, Object>();
+        mapCooperation.put("departmentId", deptCooperation.getDeparmentIdCooperation());
+        mapCooperation.put("doctorId", deptCooperation.getDoctorIdCooperation());
+        DeptDoctor deptDoctorCooperation = deptDoctorMapper.getDeptDoctorByDepartIdAndDoctorId(mapCooperation);
+
+        deptCooperation.setCreateTime(new Date());
+        deptCooperation.setState((byte) 1);
+        //组装科室合作审核表(发起方)
+        DeptCooperationReview cooperationReview = new DeptCooperationReview();
+
+        cooperationReview.setHospitalId(deptCooperation.getHospitalIdOriginator());
+        cooperationReview.setDeparmentId(deptCooperation.getDeparmentIdOriginator());
+        cooperationReview.setType((byte) 2);//发起方
+        cooperationReview.setState((byte) 1);//未审核
+        cooperationReview.setCreateTime(new Date());
+        //组装科室合作审核表(合作方)
+        DeptCooperationReview cooperationReviewH = new DeptCooperationReview();
+
+        cooperationReviewH.setHospitalId(deptCooperation.getHospitalIdCooperation());
+        cooperationReviewH.setDeparmentId(deptCooperation.getDeparmentIdCooperation());
+        cooperationReviewH.setType((byte) 1);//合作方
+        cooperationReviewH.setState((byte) 1);//未审核
+        cooperationReviewH.setCreateTime(new Date());
+
+        //双方都是管理员
+        if (new Byte("2").equals(deptDoctor.getIsAdmin()) && new Byte("2").equals(deptDoctorCooperation.getIsAdmin())) {
+            deptCooperation.setState((byte) 3);
+            deptCooperationMapper.insert(deptCooperation);//保存科室合作信息
+            //发起方改为已审核通过
+            cooperationReview.setState((byte) 2);
+            cooperationReview.setDeptCooperationId(deptCooperation.getId());
+            cooperationReview.setDoctorIdReview(deptDoctor.getDoctorId());
+            deptCooperationReviewMapper.insert(cooperationReview);
+            //合作方改为已审核通过
+            cooperationReviewH.setState((byte) 2);
+            cooperationReviewH.setDeptCooperationId(deptCooperation.getId());
+            cooperationReviewH.setDoctorIdReview(deptDoctorCooperation.getDoctorId());
+            deptCooperationReviewMapper.insert(cooperationReviewH);
+            appResult.getStatus().setMessage("添加成功，可向合作科室转诊患者啦");
+        } else if (new Byte("2").equals(deptDoctor.getIsAdmin())) {//发起方是管理员
+            deptCooperation.setState((byte) 2);//审核中
+            deptCooperationMapper.insert(deptCooperation);//保存科室合作信息
+            //发起方改为已审核通过
+            cooperationReview.setState((byte) 2);
+            cooperationReview.setDeptCooperationId(deptCooperation.getId());
+            cooperationReview.setDoctorIdReview(deptDoctor.getDoctorId());
+            deptCooperationReviewMapper.insert(cooperationReview);
+            //合作方改为待审核
+            cooperationReviewH.setDeptCooperationId(deptCooperation.getId());
+            deptCooperationReviewMapper.insert(cooperationReviewH);
+            appResult.getStatus().setMessage("申请成功，请等待对方科室管理员确认");
+        } else if (new Byte("2").equals(deptDoctorCooperation.getIsAdmin())) {//如果合作方是管理员
+            deptCooperation.setState((byte) 2);//审核中
+            deptCooperationMapper.insert(deptCooperation);//保存科室合作信息
+
+            //发起方改为待审核
+            cooperationReview.setDeptCooperationId(deptCooperation.getId());
+            deptCooperationReviewMapper.insert(cooperationReview);
+            //合作方改为已审核通过
+            cooperationReviewH.setDeptCooperationId(deptCooperation.getId());
+            cooperationReviewH.setState((byte) 2);
+            cooperationReviewH.setDoctorIdReview(deptDoctorCooperation.getDoctorId());
+            deptCooperationReviewMapper.insert(cooperationReviewH);
+            appResult.getStatus().setMessage("申请成功，请等待本科室管理员确认");
+        } else {
+            deptCooperationMapper.insert(deptCooperation);//保存科室合作信息
+            cooperationReview.setDeptCooperationId(deptCooperation.getId());
+            deptCooperationReviewMapper.insert(cooperationReview);
+            cooperationReviewH.setDeptCooperationId(deptCooperation.getId());
+            deptCooperationReviewMapper.insert(cooperationReviewH);
+            appResult.getStatus().setMessage("申请成功，请等待双方科室管理员确认");
+        }
+        return appResult;
+    }
+
+    @Override
+    public AppResult getDeptCooperationReviewByid(String token, Long id) {
+        AppResult appResult = new AppResult();
+        appResult.setResultCode(ResultCode.SUCCESS);
+        //查询审核信息表
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("deptCooperationId", id);
+        List<DeptCooperationReviewAppVo> cooperationReviewAppVos = deptCooperationReviewMapper.selectDeptCooperationReiewForApp(map);
+        if (null == cooperationReviewAppVos || cooperationReviewAppVos.size() <= 0) {
+            appResult.setResultCode(ResultCode.EXCEPTION);
+            return appResult;
+        }
+        Map<String, Object> deptMap = new HashMap<String, Object>();
+        deptMap.put("id", id);
+        appResult.getBody().put("list", cooperationReviewAppVos);
+        appResult.getBody().put("deptCooperation", deptCooperationMapper.getDeptCooperationInfo(deptMap));
+        return appResult;
+    }
+
+    @Override
+    @Transactional
+    public AppResult auditDeptCooperationReviews(String token, Long id, String state) {
+        AppResult appResult = new AppResult();
+        //从redis获取当前操作用户
+        Doctor doctor = (Doctor) redisService.get(doctorConstant.getRedis().get("global"), token);
+        DeptCooperationReview deptCooperationReviewAudit = deptCooperationReviewMapper.selectByPrimaryKey(id);
+
+        //如果不是同意,即为此次添加不同意
+        if (!"2".equals(state)) {
+            //关于此合作表的审核记录改为不同意
+            Map<String, Object> map = new HashMap<String, Object>();
+            map.put("id", id);
+            map.put("state", new Byte(state));
+            map.put("doctorIdReview", doctor.getId());
+            map.put("reviewTime", new Date());
+            deptCooperationReviewMapper.auditDeptCooperationReview(map);
+            //修改审核信息表 拒绝
+            DeptCooperation deptCooperation = new DeptCooperation();
+            deptCooperation.setState((byte) 4);//拒绝
+            deptCooperation.setId(deptCooperationReviewAudit.getDeptCooperationId());
+            deptCooperationMapper.updateByPrimaryKeySelective(deptCooperation);
+            //返回app
+            appResult.setResultCode(ResultCode.SUCCESS);
+            return appResult;
+
+        }
+        //修改合作科室审核表
+        deptCooperationReviewAudit.setId(id);
+        deptCooperationReviewAudit.setState(new Byte(state));
+        deptCooperationReviewAudit.setDoctorIdReview(doctor.getId());
+        deptCooperationReviewAudit.setReviewTime(new Date());
+        deptCooperationReviewMapper.updateByPrimaryKeySelective(deptCooperationReviewAudit);
+        //查询是否未审核数据
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("deptCooperationId", deptCooperationReviewAudit.getDeptCooperationId());
+        mapQuery.put("state", (byte) 1);
+        List<DeptCooperationReview> cooperationReviews = deptCooperationReviewMapper.selectDeptCooperationReiew(mapQuery);
+        //如果不存在未审核，则合作科室审核通过
+        if (null == cooperationReviews || cooperationReviews.size() == 0) {
+            //修改审核信息表 通过
+            DeptCooperation deptCooperation = new DeptCooperation();
+            deptCooperation.setState((byte) 3);//合作
+            deptCooperation.setId(deptCooperationReviewAudit.getDeptCooperationId());
+            deptCooperationMapper.updateByPrimaryKeySelective(deptCooperation);
+            logger.info("审核通过，合作科室表id:" + deptCooperationReviewAudit.getDeptCooperationId());
+
+            //发消息 本科室及对方科室发消息
+            DeptCooperation deptCooperation1 = deptCooperationMapper.selectByPrimaryKey(deptCooperationReviewAudit.getDeptCooperationId());
+            DepartmentHospitalVO cooperaDepart = departmentMapper.selectByPrimaryKeyForApp(deptCooperation1.getDeparmentIdCooperation());
+            DepartmentHospitalVO originatorDepart = departmentMapper.selectByPrimaryKeyForApp(deptCooperation1.getDeparmentIdOriginator());
+            messageService.sendToDeptDoctorsMsg(deptCooperation1.getDeparmentIdOriginator(), "新医疗", "已和" + cooperaDepart.getHospital() + cooperaDepart.getName() + "成功建立合作关系");
+            messageService.sendToDeptDoctorsMsg(deptCooperation1.getDeparmentIdCooperation(), "新医疗", "已和" + originatorDepart.getHospital() + originatorDepart.getName() + "成功建立合作关系");
+        } else {
+            //修改审核信息表 审核中
+            DeptCooperation deptCooperation = new DeptCooperation();
+            deptCooperation.setState((byte) 2);//审核中
+            deptCooperation.setId(deptCooperationReviewAudit.getDeptCooperationId());
+            deptCooperationMapper.updateByPrimaryKeySelective(deptCooperation);
+        }
+        //返回app
+        appResult.setResultCode(ResultCode.SUCCESS);
+        return appResult;
+    }
+
+    @Override
+    public List<DeptCooperation> getDeptCooperations(Map<String, Object> map) {
+        // TODO Auto-generated method stub
+        return deptCooperationMapper.getDeptCooperations(map);
+    }
+
+    @Override
+    public AppResult getCooperationsMessages(String token, Integer pageIndex, Integer pageSize) {
+        AppResult appResult = new AppResult();
+        //返回app
+        appResult.setResultCode(ResultCode.SUCCESS);
+
+        Doctor doctor = (Doctor) redisService.get(doctorConstant.getRedis().get("global"), token);
+        if (null == pageIndex || pageIndex == 0) {
+            pageIndex = Constants.PAGEINDEX;
+        }
+        if (null == pageSize || pageSize == 0) {
+            pageSize = Constants.PAGESIZE;
+        }
+        //校验当前用户是否为管理员，不是则返回空
+        Map<String, Object> mapCooperation = new HashMap<String, Object>();
+        mapCooperation.put("departmentId", doctor.getDepartmentId());
+        mapCooperation.put("doctorId", doctor.getId());
+        DeptDoctor deptDoctorCooperation = deptDoctorMapper.getDeptDoctorByDepartIdAndDoctorId(mapCooperation);
+        if (null == deptDoctorCooperation || deptDoctorCooperation.getIsAdmin() != (byte) 2) {
+           appResult.getBody().put("data", new ArrayList<CooperationsMessage>());
+           return appResult;
+        }
+        Map map = new HashMap();
+        map.put("departmentId", doctor.getDepartmentId());
+        PageHelper.startPage(pageIndex, pageSize);
+        PageInfo<CooperationsMessage> pageInfo = new PageInfo<CooperationsMessage>(deptCooperationMapper.getCooperationsMessages(map));
+        appResult.getBody().put("data", pageInfo.getList());
+
+        return appResult;
+    }
+}

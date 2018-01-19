@@ -1,0 +1,531 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhyt.health.mapper.ArticleMapper">
+  <resultMap id="BaseResultMap" type="com.yhyt.health.model.Article">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="type" jdbcType="TINYINT" property="type" />
+    <result column="source" jdbcType="TINYINT" property="source" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="guide_pic" jdbcType="VARCHAR" property="guidePic" />
+    <result column="is_top" jdbcType="TINYINT" property="isTop" />
+    <result column="is_all_department" jdbcType="TINYINT" property="isAllDepartment" />
+    <result column="is_all_area" jdbcType="TINYINT" property="isAllArea" />
+    <result column="is_quote" jdbcType="TINYINT" property="isQuote" />
+    <result column="quote_url" jdbcType="VARCHAR" property="quoteUrl" />
+    <result column="h5_url" jdbcType="VARCHAR" property="h5Url" />
+    <result column="state" jdbcType="TINYINT" property="state" />
+    <result column="click_count" jdbcType="INTEGER" property="clickCount" />
+    <result column="online_day" jdbcType="TIMESTAMP" property="onlineDay" />
+    <result column="offline_day" jdbcType="TIMESTAMP" property="offlineDay" />
+    <result column="review_time" jdbcType="TIMESTAMP" property="reviewTime" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="issue_time" jdbcType="TIMESTAMP" property="issueTime" />
+    <result column="title_pic" jdbcType="VARCHAR" property="titlePic" />
+    <result column="subtitle" jdbcType="VARCHAR" property="subtitle" />
+    <result column="issue_time" jdbcType="TIMESTAMP" property="issueTime" />
+  </resultMap>
+    <resultMap id="articleVO" type="com.yhyt.health.model.vo.ArticleVO">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="type" jdbcType="TINYINT" property="type" />
+    <result column="source" jdbcType="TINYINT" property="source" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="guide_pic" jdbcType="VARCHAR" property="guidePic" />
+    <result column="is_top" jdbcType="TINYINT" property="isTop" />
+    <result column="is_all_department" jdbcType="TINYINT" property="isAllDepartment" />
+    <result column="is_all_area" jdbcType="TINYINT" property="isAllArea" />
+    <result column="is_quote" jdbcType="TINYINT" property="isQuote" />
+    <result column="quote_url" jdbcType="VARCHAR" property="quoteUrl" />
+    <result column="h5_url" jdbcType="VARCHAR" property="h5Url" />
+    <result column="state" jdbcType="TINYINT" property="state" />
+    <result column="click_count" jdbcType="INTEGER" property="clickCount" />
+    <result column="online_day" jdbcType="TIMESTAMP" property="onlineDay" />
+    <result column="offline_day" jdbcType="TIMESTAMP" property="offlineDay" />
+    <result column="review_time" jdbcType="TIMESTAMP" property="reviewTime" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+        <result column="depts" property="publishDept"/>
+        <result column="areas" property="publishArea"/>
+      <result column="title_pic" jdbcType="VARCHAR" property="titlePic" />
+      <result column="subtitle" jdbcType="VARCHAR" property="subtitle" />
+  </resultMap>
+  <resultMap id="articleDTO" type="com.yhyt.health.model.ArticleDTO">
+    <result column="depts" property="publishDept"/>
+    <result column="areas" property="publishArea"/>
+    <association property="article" resultMap="BaseResultMap"/>
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.yhyt.health.model.Article">
+    <result column="body" jdbcType="LONGVARCHAR" property="body" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, type, source, title, guide_pic, is_top, is_all_department, is_all_area, is_quote, 
+    quote_url, h5_url, state, click_count, online_day, offline_day, review_time, create_time, 
+    update_time,title_pic,subtitle,issue_time
+  </sql>
+  <sql id="Blob_Column_List">
+    body
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from article
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from article
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yhyt.health.model.Article">
+    insert into article (id, type, source, 
+      title, guide_pic, is_top, 
+      is_all_department, is_all_area, is_quote, 
+      quote_url, h5_url, state, 
+      click_count, online_day, offline_day, 
+      review_time, create_time, update_time, 
+      body)
+    values (#{id,jdbcType=BIGINT}, #{type,jdbcType=TINYINT}, #{source,jdbcType=TINYINT}, 
+      #{title,jdbcType=VARCHAR}, #{guidePic,jdbcType=VARCHAR}, #{isTop,jdbcType=TINYINT}, 
+      #{isAllDepartment,jdbcType=TINYINT}, #{isAllArea,jdbcType=TINYINT}, #{isQuote,jdbcType=TINYINT}, 
+      #{quoteUrl,jdbcType=VARCHAR}, #{h5Url,jdbcType=VARCHAR}, #{state,jdbcType=TINYINT}, 
+      #{clickCount,jdbcType=INTEGER}, #{onlineDay,jdbcType=TIMESTAMP}, #{offlineDay,jdbcType=TIMESTAMP}, 
+      #{reviewTime,jdbcType=TIMESTAMP}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
+      #{body,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yhyt.health.model.Article" useGeneratedKeys="true" keyProperty="id">
+    insert into article
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="type != null">
+        type,
+      </if>
+      <if test="source != null">
+        source,
+      </if>
+      <if test="title != null">
+        title,
+      </if>
+      <if test="guidePic != null">
+        guide_pic,
+      </if>
+      <if test="isTop != null">
+        is_top,
+      </if>
+      <if test="isAllDepartment != null">
+        is_all_department,
+      </if>
+      <if test="isAllArea != null">
+        is_all_area,
+      </if>
+      <if test="isQuote != null">
+        is_quote,
+      </if>
+      <if test="quoteUrl != null">
+        quote_url,
+      </if>
+      <if test="h5Url != null">
+        h5_url,
+      </if>
+      <if test="state != null">
+        state,
+      </if>
+      <if test="clickCount != null">
+        click_count,
+      </if>
+      <if test="onlineDay != null">
+        online_day,
+      </if>
+      <if test="offlineDay != null">
+        offline_day,
+      </if>
+      <if test="reviewTime != null">
+        review_time,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="body != null">
+        body,
+      </if>
+      <if test="titlePic != null">
+        title_pic,
+      </if>
+      <if test="subtitle != null">
+        subtitle,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=TINYINT},
+      </if>
+      <if test="source != null">
+        #{source,jdbcType=TINYINT},
+      </if>
+      <if test="title != null">
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="guidePic != null">
+        #{guidePic,jdbcType=VARCHAR},
+      </if>
+      <if test="isTop != null">
+        #{isTop,jdbcType=TINYINT},
+      </if>
+      <if test="isAllDepartment != null">
+        #{isAllDepartment,jdbcType=TINYINT},
+      </if>
+      <if test="isAllArea != null">
+        #{isAllArea,jdbcType=TINYINT},
+      </if>
+      <if test="isQuote != null">
+        #{isQuote,jdbcType=TINYINT},
+      </if>
+      <if test="quoteUrl != null">
+        #{quoteUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="h5Url != null">
+        #{h5Url,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null">
+        #{state,jdbcType=TINYINT},
+      </if>
+      <if test="clickCount != null">
+        #{clickCount,jdbcType=INTEGER},
+      </if>
+      <if test="onlineDay != null">
+        #{onlineDay,jdbcType=TIMESTAMP},
+      </if>
+      <if test="offlineDay != null">
+        #{offlineDay,jdbcType=TIMESTAMP},
+      </if>
+      <if test="reviewTime != null">
+        #{reviewTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="body != null">
+        #{body,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="titlePic != null">
+        #{titlePic},
+      </if>
+      <if test="subtitle != null">
+        #{subtitle},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yhyt.health.model.Article">
+    update article
+    <set>
+      <if test="type != null">
+        type = #{type,jdbcType=TINYINT},
+      </if>
+      <if test="source != null">
+        source = #{source,jdbcType=TINYINT},
+      </if>
+      <if test="title != null">
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="guidePic != null">
+        guide_pic = #{guidePic,jdbcType=VARCHAR},
+      </if>
+      <if test="isTop != null">
+        is_top = #{isTop,jdbcType=TINYINT},
+      </if>
+      <if test="isAllDepartment != null">
+        is_all_department = #{isAllDepartment,jdbcType=TINYINT},
+      </if>
+      <if test="isAllArea != null">
+        is_all_area = #{isAllArea,jdbcType=TINYINT},
+      </if>
+      <if test="isQuote != null">
+        is_quote = #{isQuote,jdbcType=TINYINT},
+      </if>
+      <if test="quoteUrl != null">
+        quote_url = #{quoteUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="h5Url != null">
+        h5_url = #{h5Url,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null">
+        state = #{state,jdbcType=TINYINT},
+      </if>
+      <if test="clickCount != null">
+        click_count = #{clickCount,jdbcType=INTEGER},
+      </if>
+      <if test="onlineDay != null">
+        online_day = #{onlineDay,jdbcType=TIMESTAMP},
+      </if>
+      <if test="offlineDay != null">
+        offline_day = #{offlineDay,jdbcType=TIMESTAMP},
+      </if>
+      <if test="reviewTime != null">
+        review_time = #{reviewTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="body != null">
+        body = #{body,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="titlePic != null">
+        title_pic= #{titlePic},
+      </if>
+      <if test="subtitle != null">
+        subtitle=#{subtitle}
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.yhyt.health.model.Article">
+    update article
+    set type = #{type,jdbcType=TINYINT},
+      source = #{source,jdbcType=TINYINT},
+      title = #{title,jdbcType=VARCHAR},
+      guide_pic = #{guidePic,jdbcType=VARCHAR},
+      is_top = #{isTop,jdbcType=TINYINT},
+      is_all_department = #{isAllDepartment,jdbcType=TINYINT},
+      is_all_area = #{isAllArea,jdbcType=TINYINT},
+      is_quote = #{isQuote,jdbcType=TINYINT},
+      quote_url = #{quoteUrl,jdbcType=VARCHAR},
+      h5_url = #{h5Url,jdbcType=VARCHAR},
+      state = #{state,jdbcType=TINYINT},
+      click_count = #{clickCount,jdbcType=INTEGER},
+      online_day = #{onlineDay,jdbcType=TIMESTAMP},
+      offline_day = #{offlineDay,jdbcType=TIMESTAMP},
+      review_time = #{reviewTime,jdbcType=TIMESTAMP},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      body = #{body,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yhyt.health.model.Article">
+    update article
+    set type = #{type,jdbcType=TINYINT},
+      source = #{source,jdbcType=TINYINT},
+      title = #{title,jdbcType=VARCHAR},
+      guide_pic = #{guidePic,jdbcType=VARCHAR},
+      is_top = #{isTop,jdbcType=TINYINT},
+      is_all_department = #{isAllDepartment,jdbcType=TINYINT},
+      is_all_area = #{isAllArea,jdbcType=TINYINT},
+      is_quote = #{isQuote,jdbcType=TINYINT},
+      quote_url = #{quoteUrl,jdbcType=VARCHAR},
+    <if test="h5Url != null">
+      h5_url = #{h5Url,jdbcType=VARCHAR},
+    </if>
+
+          title_pic = #{titlePic,jdbcType=VARCHAR},
+      subtitle = #{subtitle,jdbcType=VARCHAR},
+      <if test="state != null">
+          state = #{state,jdbcType=TINYINT},
+      </if>
+      <if test="clickCount != null">
+      click_count = #{clickCount,jdbcType=INTEGER},
+    </if>      online_day = #{onlineDay,jdbcType=TIMESTAMP},
+      offline_day = #{offlineDay,jdbcType=TIMESTAMP},
+      review_time = #{reviewTime,jdbcType=TIMESTAMP},
+    <if test="updateTime != null">
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+    </if>
+                body = #{body,jdbcType=LONGVARCHAR}
+
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="queryArticleListPage" parameterType="com.yhyt.health.model.query.ArticleQuery" resultMap="articleVO">
+    select id, title, is_top, is_all_department, is_all_area, state, click_count, online_day, offline_day, review_time,
+    update_time ,if(is_all_department=1,'全科',group_concat( DISTINCT child_name separator ',')) depts ,
+    if(is_all_area=1,'全国',GROUP_concat(DISTINCT  abbr_name separator ',')) areas from (
+    select ac.id, title, is_top, is_all_department, is_all_area, state, click_count, online_day, offline_day,
+    review_time,
+    update_time ,dd.child_name ,dc.abbr_name
+    from article ac left join article_department ad on ac.id=ad.article_id
+    left join dict_department dd on ad.dict_department_id=dd.id
+    LEFT join article_area aa on aa.article_id=ac.id
+    LEFT join dict_city dc on aa.dict_city_firstlevel_id = dc.id
+    where 1=1
+    <if test="title!=null and title!=''">
+      and ac.title=#{title}
+    </if>
+    <if test="state !=null">
+      and ac.state=#{state}
+    </if>
+    <if test="type!=null">
+      and ac.type=#{type}
+    </if>) tmp group by id
+    order by update_time DESC
+  </select>
+<update id="onForSchedule" parameterType="String" >
+    update article set state=4,issue_time=now() where online_day <![CDATA[<=]]> #{now} and  offline_day <![CDATA[>=]]> #{now} and state=3
+</update>
+    <update id="offForSchedule" parameterType="String" >
+    update article set state=6 where offline_day <![CDATA[<=]]> #{now} and state=3
+</update>
+    <update id="outForSchedule" parameterType="String" >
+    update article set state=7 where offline_day <![CDATA[<=]]> #{now} and state in (1,2)
+</update>
+
+
+  <sql id="articl_Column_List">
+    a.id,a.type,a.source,a.title,a.is_top as isTop,IFNULL(a.is_quote,"") as isQuote,IFNULL(h5_url,"") as url,a.state,a.click_count as clickCount,a.online_day as onlineDay,ifnull(a.issue_time,a.online_day) as issueTime,a.is_top
+  </sql>
+  <select id="getArticleAppVoLista" parameterType="java.util.Map" resultType="com.yhyt.health.model.vo.ArticleAppVo">
+
+    select DISTINCT  v.* from (
+    select
+    *
+    from
+    (select id,type,source,title,is_top as isTop,IFNULL(is_quote,"") as isQuote,IFNULL(h5_url,"") as url,state,click_count as clickCount,online_day as onlineDay,ifnull(issue_time,online_day) as issueTime,is_top
+    from article
+    where state = 4
+    and is_all_department = 1
+    and is_all_area = 1
+    and type = #{type})a
+    union all
+    select
+    <include refid="articl_Column_List" />
+    from article a
+    left join article_area aa
+    on  aa.article_id = a.id
+    and a.state = 4
+    and a.is_all_department = 1
+    and a.is_all_area = 2
+    and a.type = #{type}
+    where aa.dict_city_firstlevel_id = #{cityId}
+    union all
+    select
+    <include refid="articl_Column_List" />
+    from article a
+    left join article_department adt
+    on  a.id = adt.article_id
+    and a. state = 4
+    and a.is_all_department = 2
+    and a.is_all_area = 1
+    and type = #{type}
+    where adt.dict_department_id = #{departmentId}
+    union all
+    select
+    <include refid="articl_Column_List" />
+    from article a
+    left join article_department adt
+    on a.id = adt.article_id
+    and a.state = 4
+    and a.is_all_department = 2
+    and a.is_all_area = 2
+    and a.type = #{type}
+    left join article_area aa
+    on aa.article_id = a.id
+    where adt.dict_department_id =#{departmentId}
+    and aa.dict_city_firstlevel_id = #{cityId}
+    )v order by v.isTop desc,onlineDay asc
+
+
+  </select>
+    <select id="getArticleClickCountVo" resultType="com.yhyt.health.model.vo.app.ArticleClickCountVo">
+
+        select id,type,click_count as clickCount  from article where id = #{id};
+
+    </select>
+    <select id="getArticleCount" resultType="com.yhyt.health.model.vo.app.ArticleTypeCountVo">
+
+        select type,count(1) as count from article where state = #{state} group by type;
+
+    </select>
+  <select id="getTypeIssueTimeByType" resultType="com.yhyt.health.model.Article">
+    <!-- type = 1 表示从发布范围全国全科室中获取最新的发布时间-->
+        select type,ifnull(issue_time,'') as issueTime from article a
+        where state = 4
+        and is_all_department = 1
+        and is_all_area = 1
+    <!--
+    </if>
+    <if test=" type == '2'">
+      left join article_department adt
+      on  a.id = adt.article_id
+      and a. state = 4
+      and a.is_all_department = 2
+      and a.is_all_area = 1
+      where adt.dict_department_id = #{departmentId}
+    </if>
+    <if test=" type == '3'">
+      left join article_area aa
+      on  aa.article_id = a.id
+      and a.state = 4
+      and a.is_all_department = 1
+      and a.is_all_area = 2
+      where aa.dict_city_firstlevel_id = #{areaId}
+    </if>
+    <if test=" type == '4'">
+      left join article_department adt
+      on a.id = adt.article_id
+      and a.state = 4
+      and a.is_all_department = 2
+      and a.is_all_area = 2
+      left join article_area aa
+      on aa.article_id = a.id
+      where adt.dict_department_id =#{departmentId}
+      and aa.dict_city_firstlevel_id =#{areaId}
+    </if>
+    -->
+        group by type,issue_time
+        order by issue_time desc
+
+  </select>
+  <select id="getTypeIssueTimeByTypea" resultType="com.yhyt.health.model.Article">
+    select type,ifnull(issue_time,'') as issueTime from article a
+      left join article_department adt
+      on  a.id = adt.article_id
+      and a. state = 4
+      and a.is_all_department = 2
+      and a.is_all_area = 1
+      where adt.dict_department_id = #{departmentId}
+    group by type,issue_time
+    order by issue_time desc
+  </select>
+  <select id="getTypeIssueTimeByTypeb" resultType="com.yhyt.health.model.Article">
+    select type,ifnull(issue_time,'') as issueTime from article a
+      left join article_area aa
+      on  aa.article_id = a.id
+      and a.state = 4
+      and a.is_all_department = 1
+      and a.is_all_area = 2
+      where aa.dict_city_firstlevel_id = #{areaId}
+    group by type,issue_time
+    order by issue_time desc
+  </select>
+  <select id="getTypeIssueTimeByTypec" resultType="com.yhyt.health.model.Article">
+    select type,ifnull(issue_time,'') as issueTime from article a
+      left join article_department adt
+      on a.id = adt.article_id
+      and a.state = 4
+      and a.is_all_department = 2
+      and a.is_all_area = 2
+      left join article_area aa
+      on aa.article_id = a.id
+      where adt.dict_department_id =#{departmentId}
+      and aa.dict_city_firstlevel_id =#{areaId}
+    group by type,issue_time
+    order by issue_time desc
+  </select>
+  <update id="updateClickCountById">
+
+        update article set click_count = click_count+#{count},update_time =#{updateTime} where id=#{id}
+
+    </update>
+
+</mapper>

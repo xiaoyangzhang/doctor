@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhyt.health.mapper.DepartmentObstetricsMapper">
+  <resultMap id="BaseResultMap" type="com.yhyt.health.model.DepartmentObstetrics">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="dept_patient_sign_id" jdbcType="BIGINT" property="deptPatientSignId" />
+    <result column="husband_name" jdbcType="VARCHAR" property="husbandName" />
+    <result column="husband_mobile" jdbcType="VARCHAR" property="husbandMobile" />
+    <result column="birth_place" jdbcType="VARCHAR" property="birthPlace" />
+    <result column="reside_adress" jdbcType="VARCHAR" property="resideAdress" />
+    <result column="expect_birth_date" jdbcType="DATE" property="expectBirthDate" />
+    <result column="pregnant_week" jdbcType="TINYINT" property="pregnantWeek" />
+    <result column="pregnant_time" jdbcType="TINYINT" property="pregnantTime" />
+    <result column="produce_time" jdbcType="TINYINT" property="produceTime" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+    <resultMap id="BaseResultMapList" type="com.yhyt.health.model.PatientlObstetrics">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="id" jdbcType="BIGINT" property="id" />
+    <result column="realname" jdbcType="VARCHAR" property="realname" />
+    <result column="age" jdbcType="VARCHAR" property="age" />
+        <result column="username" jdbcType="VARCHAR" property="username" />
+            <result column="birthday" jdbcType="VARCHAR" property="birthday" />
+                <result column="sex" jdbcType="VARCHAR" property="sex" />
+    <result column="idno" jdbcType="VARCHAR" property="idno" />
+    <result column="hospital" jdbcType="VARCHAR" property="hospital" />
+    <result column="insuranceLocation" jdbcType="VARCHAR" property="insuranceLocation" />
+    <result column="hasinsurance" jdbcType="VARCHAR" property="hasinsurance" />
+  </resultMap>
+  
+    <resultMap id="BaseResultMapMulti" type="com.yhyt.health.model.DepartmentObstetricsPatient">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="dept_patient_sign_id" jdbcType="BIGINT" property="deptPatientSignId" />
+    <result column="husband_name" jdbcType="VARCHAR" property="husbandName" />
+    <result column="husband_mobile" jdbcType="VARCHAR" property="husbandMobile" />
+    <result column="birth_place" jdbcType="VARCHAR" property="birthPlace" />
+    <result column="reside_adress" jdbcType="VARCHAR" property="resideAdress" />
+    <result column="expect_birth_date" jdbcType="DATE" property="expectBirthDate" />
+    <result column="pregnant_week" jdbcType="TINYINT" property="pregnantWeek" />
+    <result column="pregnant_time" jdbcType="TINYINT" property="pregnantTime" />
+    <result column="produce_time" jdbcType="TINYINT" property="produceTime" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+     <result column="realname" jdbcType="VARCHAR" property="realname" />
+    <result column="age" jdbcType="VARCHAR" property="age" />
+        <result column="username" jdbcType="VARCHAR" property="username" />
+            <result column="birthday" jdbcType="VARCHAR" property="birthday" />
+                <result column="sex" jdbcType="VARCHAR" property="sex" />
+    <result column="idno" jdbcType="VARCHAR" property="idno" />
+    <result column="hospital" jdbcType="VARCHAR" property="hospital" />
+    <result column="insuranceLocation" jdbcType="VARCHAR" property="insuranceLocation" />
+    <result column="hasinsurance" jdbcType="VARCHAR" property="hasinsurance" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, dept_patient_sign_id, husband_name, husband_mobile, birth_place, reside_adress, 
+    expect_birth_date, pregnant_week, pregnant_time, produce_time, remark, create_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from department_obstetrics
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from department_obstetrics
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yhyt.health.model.DepartmentObstetrics">
+    insert into department_obstetrics (id, dept_patient_sign_id, husband_name, 
+      husband_mobile, birth_place, reside_adress, 
+      expect_birth_date, pregnant_week, pregnant_time, 
+      produce_time, remark, create_time
+      )
+    values (#{id,jdbcType=BIGINT}, #{deptPatientSignId,jdbcType=BIGINT}, #{husbandName,jdbcType=VARCHAR}, 
+      #{husbandMobile,jdbcType=VARCHAR}, #{birthPlace,jdbcType=VARCHAR}, #{resideAdress,jdbcType=VARCHAR}, 
+      #{expectBirthDate,jdbcType=DATE}, #{pregnantWeek,jdbcType=TINYINT}, #{pregnantTime,jdbcType=TINYINT}, 
+      #{produceTime,jdbcType=TINYINT}, #{remark,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.yhyt.health.model.DepartmentObstetrics">
+    insert into department_obstetrics
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="deptPatientSignId != null">
+        dept_patient_sign_id,
+      </if>
+      <if test="husbandName != null">
+        husband_name,
+      </if>
+      <if test="husbandMobile != null">
+        husband_mobile,
+      </if>
+      <if test="birthPlace != null">
+        birth_place,
+      </if>
+      <if test="resideAdress != null">
+        reside_adress,
+      </if>
+      <if test="expectBirthDate != null">
+        expect_birth_date,
+      </if>
+      <if test="pregnantWeek != null">
+        pregnant_week,
+      </if>
+      <if test="pregnantTime != null">
+        pregnant_time,
+      </if>
+      <if test="produceTime != null">
+        produce_time,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="deptPatientSignId != null">
+        #{deptPatientSignId,jdbcType=BIGINT},
+      </if>
+      <if test="husbandName != null">
+        #{husbandName,jdbcType=VARCHAR},
+      </if>
+      <if test="husbandMobile != null">
+        #{husbandMobile,jdbcType=VARCHAR},
+      </if>
+      <if test="birthPlace != null">
+        #{birthPlace,jdbcType=VARCHAR},
+      </if>
+      <if test="resideAdress != null">
+        #{resideAdress,jdbcType=VARCHAR},
+      </if>
+      <if test="expectBirthDate != null">
+        #{expectBirthDate,jdbcType=DATE},
+      </if>
+      <if test="pregnantWeek != null">
+        #{pregnantWeek,jdbcType=TINYINT},
+      </if>
+      <if test="pregnantTime != null">
+        #{pregnantTime,jdbcType=TINYINT},
+      </if>
+      <if test="produceTime != null">
+        #{produceTime,jdbcType=TINYINT},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yhyt.health.model.DepartmentObstetrics">
+    update department_obstetrics
+    <set>
+      <if test="deptPatientSignId != null">
+        dept_patient_sign_id = #{deptPatientSignId,jdbcType=BIGINT},
+      </if>
+      <if test="husbandName != null">
+        husband_name = #{husbandName,jdbcType=VARCHAR},
+      </if>
+      <if test="husbandMobile != null">
+        husband_mobile = #{husbandMobile,jdbcType=VARCHAR},
+      </if>
+      <if test="birthPlace != null">
+        birth_place = #{birthPlace,jdbcType=VARCHAR},
+      </if>
+      <if test="resideAdress != null">
+        reside_adress = #{resideAdress,jdbcType=VARCHAR},
+      </if>
+      <if test="expectBirthDate != null">
+        expect_birth_date = #{expectBirthDate,jdbcType=DATE},
+      </if>
+      <if test="pregnantWeek != null">
+        pregnant_week = #{pregnantWeek,jdbcType=TINYINT},
+      </if>
+      <if test="pregnantTime != null">
+        pregnant_time = #{pregnantTime,jdbcType=TINYINT},
+      </if>
+      <if test="produceTime != null">
+        produce_time = #{produceTime,jdbcType=TINYINT},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yhyt.health.model.DepartmentObstetrics">
+    update department_obstetrics
+    set dept_patient_sign_id = #{deptPatientSignId,jdbcType=BIGINT},
+      husband_name = #{husbandName,jdbcType=VARCHAR},
+      husband_mobile = #{husbandMobile,jdbcType=VARCHAR},
+      birth_place = #{birthPlace,jdbcType=VARCHAR},
+      reside_adress = #{resideAdress,jdbcType=VARCHAR},
+      expect_birth_date = #{expectBirthDate,jdbcType=DATE},
+      pregnant_week = #{pregnantWeek,jdbcType=TINYINT},
+      pregnant_time = #{pregnantTime,jdbcType=TINYINT},
+      produce_time = #{produceTime,jdbcType=TINYINT},
+      remark = #{remark,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  
+    <select id="getObstetricsList" parameterType="map"  resultMap="BaseResultMapList">
+  select f.id as id,a.realname as realname,a.username as username,a.birthday as birthday,a.sex as sex,a.age as age,a.idno as idno,c.`name` as hospital,a.insurance_location as insuranceLocation, a.has_insurance as hasinsurance from patient a,department b,hospital c,department_obstetrics d,dept_patient_sign f,department_obstetrics_dangers e
+left join dictionary g on e.dictionary_id=g.id
+where b.hospital_id=c.id and b.id=f.department_id and a.id=f.patient_id and f.id=d.dept_patient_sign_id and d.id=e.department_obstetrics_id
+
+      <if test="realname != null and realname != ''">
+         and a.realname like concat('%',#{realname},'%')
+      </if>
+       <if test="username != null and username != ''">
+         and a.username like concat('%',#{username},'%')
+      </if>
+       <if test="isDangerous != null and isDangerous != ''">
+      and  g.dict_name like concat('%',#{isDangerous},'%')
+      </if>
+       <if test="birthTimeStart != null and birthTimeStart != ''">
+         and d.expect_birth_date <![CDATA[>=]]>DATE( #{birthTimeStart,jdbcType=DATE})
+      </if>
+       <if test="birthTimeEnd != null and birthTimeEnd != ''">
+        and d.expect_birth_date <![CDATA[<=]]> DATE(#{birthTimeEnd,jdbcType=DATE})
+      </if>
+      
+      order by d.create_time desc
+  </select>
+  
+     <select id="getObstetricsListSingle" parameterType="map"  resultMap="BaseResultMapList">
+  select f.id as id,a.realname as realname,a.username as username,a.birthday as birthday,a.sex as sex,a.age as age,a.idno as idno,c.`name` as hospital,a.insurance_location as insuranceLocation, a.has_insurance as hasinsurance from patient a,department b,hospital c,department_obstetrics d,dept_patient_sign f,department_obstetrics_dangers e
+left join dictionary g on e.dictionary_id=g.id
+where b.hospital_id=c.id and b.id=f.department_id and a.id=f.patient_id and f.id=d.dept_patient_sign_id and d.id=e.department_obstetrics_id
+
+       <if test="username != null and username != ''">
+         and f.id=#{username}
+      </if>
+      
+      order by d.create_time desc
+  </select>
+  
+   <select id="getObstetricsListExport" parameterType="map"  resultMap="BaseResultMapList">
+  select a.id as id,a.realname as realname,a.username as username,a.birthday as birthday,a.sex as sex,a.age as age,a.idno as idno,c.`name` as hospital,a.insurance_location as insuranceLocation, a.has_insurance as hasinsurance from patient a,department b,hospital c,department_obstetrics d,dept_patient_sign f,department_obstetrics_dangers e
+left join dictionary g on e.dictionary_id=g.id
+where b.hospital_id=c.id and b.id=f.department_id and a.id=f.patient_id and f.id=d.dept_patient_sign_id and d.id=e.department_obstetrics_id
+and f.id=#{username}
+  </select>
+  
+      <select id="getObstetricsDetailList" parameterType="com.yhyt.health.model.query.ObstetricsQuery" resultMap="BaseResultMapMulti">
+
+select a.id as id,a.realname as realname,a.username as username,a.birthday as birthday,a.sex as sex,a.age as age,a.idno as idno,e.`name` as hospital,a.insurance_location as insuranceLocation, a.has_insurance as hasinsurance,b.* from patient a,department_obstetrics b,dept_patient_sign c ,department d,hospital e
+where a.id=c.patient_id and c.id=b.dept_patient_sign_id and c.department_id=d.id and d.hospital_id=e.id
+<if test="id != null and id != ''">
+         and c.id=#{id}
+      </if>
+  </select>
+   <select id="getPatientlObsterics" parameterType="map" resultType="PatientObstetricInfoVo">
+    SELECT
+    deo.id obstericsId
+    ,deo.husband_name husbandName
+    ,deo.husband_mobile husbandMobile
+    ,deo.birth_place birthPlace
+    ,deo.reside_adress resideAdress
+    ,deo.expect_birth_date expectDirthDate
+    ,deo.pregnant_week pregnantWeek
+    ,deo.pregnant_time pregnantTime
+    ,deo.produce_time produceTime
+    ,deo.dept_patient_sign_id deptPatientSignId
+    ,deo.remark
+    FROM department_obstetrics deo
+    WHERE deo.dept_patient_sign_id = #{deptPatientSignId}
+  </select>
+        <select id="getObstetricsDetailListMail" parameterType="map" resultMap="BaseResultMapMulti">
+
+select a.id as id,a.realname as realname,a.username as username,a.birthday as birthday,a.sex as sex,a.age as age,a.idno as idno,e.`name` as hospital,a.insurance_location as insuranceLocation, a.has_insurance as hasinsurance,b.* from patient a,department_obstetrics b,dept_patient_sign c ,department d,hospital e
+where a.id=c.patient_id and c.id=b.dept_patient_sign_id and c.department_id=d.id and d.hospital_id=e.id and a.sex=2  and b.expect_birth_date <![CDATA[<]]>  DATE(#{date,jdbcType=VARCHAR}) and b.expect_birth_date <![CDATA[>]]> DATE(#{date,jdbcType=VARCHAR})-8
+  </select>
+</mapper>

@@ -1,0 +1,74 @@
+package com.yhyt.health.mapper;
+
+import com.yhyt.health.model.Article;
+import com.yhyt.health.model.query.ArticleQuery;
+import com.yhyt.health.model.vo.ArticleAppVo;
+import com.yhyt.health.model.vo.ArticleVO;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+
+import com.yhyt.health.model.query.ArticleQuery;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+@Repository
+public interface ArticleMapper {
+    int deleteByPrimaryKey(Long id);
+
+    int insert(Article record);
+
+    int insertSelective(Article record);
+
+    Article selectByPrimaryKey(Long id);
+
+    int updateByPrimaryKeySelective(Article record);
+
+    int updateByPrimaryKeyWithBLOBs(Article record);
+
+    int updateByPrimaryKey(Article record);
+
+    List<ArticleVO> queryArticleListPage(ArticleQuery articleQuery);
+    /**
+     * 分页查询医师培训&参与课提列表
+     * @return
+     */
+    List<ArticleAppVo> getArticleAppVoLista(Map<String,Object> map);
+
+    /**
+     * 更新文章查看次数
+     * @param id
+     * @param count
+     * @param updateTime
+     */
+    void updateClickCountById(final @Param("id") Long id,
+                              final @Param("count") Long count,
+                              final @Param("updateTime") Date updateTime);
+
+
+
+
+    /**
+     * 上架
+     * @param now
+     * @return
+     */
+    int onForSchedule(@Param("now") String now);
+
+    /**
+     * 下架
+     * @param now
+     * @return
+     */
+    int offForSchedule(@Param("now") String now);
+
+    /**
+     * 过期
+     * @param now
+     * @return
+     */
+    int outForSchedule(@Param("now") String now);
+
+
+}

@@ -1,0 +1,363 @@
+package com.yhyt.health.service;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.yhyt.health.constant.DoctorConstant;
+import com.yhyt.health.constant.ResultCode;
+import com.yhyt.health.mapper.*;
+import com.yhyt.health.model.*;
+import com.yhyt.health.model.dto.DepartCoopDTO;
+import com.yhyt.health.model.dto.DepartmentDTO;
+import com.yhyt.health.model.dto.DeptCooperationReviewDTO;
+import com.yhyt.health.model.query.DepartCoopQuery;
+import com.yhyt.health.model.query.DiseaseQuery;
+import com.yhyt.health.model.vo.*;
+import com.yhyt.health.result.AppResult;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+
+import java.util.*;
+
+@Service
+public class DepartmentServiceImpl implements DepartmentService {
+
+    @Autowired
+    private DepartmentMapper departmentMapper;
+    @Autowired
+    private DeptCooperationReviewMapper deptCooperationReviewMapper;
+    @Autowired
+    private DeptDiseaseMapper deptDiseaseMapper;
+    @Autowired
+    private DeptDoctorMapper deptDoctorMapper;
+    @Autowired
+    private DeptDictDeptMapper deptDictDeptMapper;
+    @Autowired
+    private DialogAppointmentTransferMapper dialogAppointmentTransferMapper;
+    @Autowired
+    private DoctorMapper doctorMapper;
+    @Autowired
+    private RedisService redisService;
+    @Autowired
+    private DoctorConstant doctorConstant;
+    @Autowired
+    private DeptGroupMapper deptGroupMapper;
+    @Autowired
+    private MessageService messageService;
+
+    private static Logger logger = LoggerFactory.getLogger(DepartmentServiceImpl.class);
+    public static final String HEALTH_URL="https://h.95132.com/app/hospital/nocontent/index.html";
+    public static final String EXHIBIT_URL="https://h.95132.com/app/hospital/nocontent/index2.html";
+    public static final String TYPICALILL_URL="https://h.95132.com/app/hospital/nocontent/index3.html";
+
+    @Override
+    @Transactional
+    public int addDepartment(DepartmentDTO departmentDTO) {
+        Department department = departmentDTO.getDepartment();
+        department.setCreateTime(new Date());
+        department.setUpdateTime(new Date());
+        if (StringUtils.isEmpty(department.getExhibitUrl())){
+            department.setExhibitUrl(EXHIBIT_URL);
+        }
+        if (StringUtils.isEmpty(department.getHealthUrl())){
+            department.setHealthUrl(HEALTH_URL);
+        }
+         if (StringUtils.isEmpty(department.getTypicalIllUrl())){
+            department.setTypicalIllUrl(TYPICALILL_URL);
+        }
+        //TODO 服务时间
+        department.setServiceTime("");
+
+        departmentMapper.insertSelective(department);
+        DeptGroup deptGroup = new DeptGroup();
+        deptGroup.setDepartmentId(department.getId());
+        deptGroup.setUpdateTime(new Date());
+        deptGroup.setCreateTime(new Date());
+        deptGroup.setIsDefault((byte) 1);
+        deptGroup.setName("未分组");
+        deptGroupMapper.insertSelective(deptGroup);
+        List<DeptDictDept> deptDictDepts = departmentDTO.getDeptDictDepts();
+        if (!CollectionUtils.isEmpty(deptDictDepts)) {
+
+            for (DeptDictDept ddd : deptDictDepts) {
+                ddd.setCreateTime(new Date());
+                ddd.setDepartmentId(department.getId());
+                deptDictDeptMapper.insertSelective(ddd);
+            }
+        }
+        return 0;
+    }
+
+    @Override
+    @Transactional
+    public int updateDepartment(DepartmentDTO departmentDTO) {
+        Department department = departmentDTO.getDepartment();
+        department.setUpdateTime(new Date());
+        departmentMapper.updateByPrimaryKeySelective(department);
+        List<DeptDictDept> deptDictDepts = departmentDTO.getDeptDictDepts();
+        if (!CollectionUtils.isEmpty(deptDictDepts)) {
+
+            deptDictDeptMapper.deleteByDeptId(department.getId());
+            for (DeptDictDept ddd : deptDictDepts) {
+                ddd.setCreateTime(new Date());
+                ddd.setDepartmentId(department.getId());
+                deptDictDeptMapper.insertSelective(ddd);
+            }
+        }
+        return 0;
+    }
+
+    @Override
+    public List<DepartmentVO> getDepartmentsByHospitalId(long hospitalId) {
+        return departmentMapper.getDepartmentsByHospitalId(hospitalId);
+    }
+
+    @Override
+    public DepartmentVO viewDepartmentRelateInfo(long departmentId) {
+        DepartmentVO departmentVO = departmentMapper.vewDepartmentRelateInfo(departmentId);
+        DepartCoopQuery query = new DepartCoopQuery();
+        query.setDepartId(departmentId);
+        query.setLocal((byte) 1);
+        query.setInitiator((byte) 2);
+        query.setType((byte) 1);
+        List<DeptCooperationReviewDTO> departCoops = deptCooperationReviewMapper.getDepartCoopsByDepartId(query);
+        if (!CollectionUtils.isEmpty(departCoops)) {
+            departmentVO.setDepartCoopList(departCoops);
+        }
+        query.setType((byte) 2);
+        List<DeptCooperationReviewDTO> departCoopsOris = deptCooperationReviewMapper.getDepartCoopsOriByDepartId(query);
+        if (!CollectionUtils.isEmpty(departCoopsOris)) {
+            departmentVO.setDepartCoopOriList(departCoopsOris);
+        }
+        List<DepartCoopDTO> departCoopDTOList = dialogAppointmentTransferMapper.getLocalHospitalByDeptId(query.getDepartId());
+        if (!CollectionUtils.isEmpty(departCoopDTOList)) {
+
+            departmentVO.setDepartCoopDTOList(departCoopDTOList);
+        }
+        return departmentVO;
+    }
+
+    @Override
+    public DepartmentVO getDeptInfo(long departmentId) {
+
+        return departmentMapper.getDeptInfo(departmentId);
+    }
+
+    @Override
+    @Transactional
+    public int relateDepartWithDisease(List<DeptDisease> list) {
+        if (CollectionUtils.isEmpty(list)) {
+            return -1;
+        }
+        /*List<DeptDiseaseVO> departDiseaseListPage = deptDiseaseMapper.getDepartDiseaseListPage(null, list.get(0).getDepartmentId());
+        List<Long> idList = new ArrayList<>();
+        for (DeptDiseaseVO vo:departDiseaseListPage) {
+            idList.add(vo.getDepartDiseaseId());
+        }
+        List<Long> newidList = new ArrayList<>();
+        List<DeptDisease> addList = new ArrayList<>();
+        for (DeptDisease dd:list) {
+            newidList.add(dd.getId());
+            if (dd.getId()==null) {
+                dd.setCreateTime(new Date());
+                addList.add(dd);
+            }
+        }
+        idList.removeAll(newidList);
+        String idArr = idList.toArray().toString();
+        deptDiseaseMapper.deleteBatch(idArr.substring(1,idArr.length()-1));*/
+        deptDiseaseMapper.deleteByDeptId(list.get(0).getDepartmentId());
+        deptDiseaseMapper.addDepartDiseaseBatch(list);
+        return 0;
+    }
+
+
+    @Override
+    @Transactional
+    public int relateDepartWithDoctor(List<DeptDoctor> list) {
+        if (CollectionUtils.isEmpty(list)) {
+            return -1;
+        }
+//         deptDoctorMapper.deleteByDeptId(list.get(0).getDepartmentId());
+        List<Long> doctorIds = deptDoctorMapper.selectByDeptID(list.get(0).getDepartmentId());
+        ArrayList<DeptDoctor> deptDoctors = new ArrayList<>();
+        for (DeptDoctor dd : list) {
+            if (!doctorIds.contains(dd.getDoctorId())){
+                dd.setCreateTime(new Date());
+                deptDoctors.add(dd);
+            }
+            Doctor doctor = doctorMapper.selectByPrimaryKey(dd.getDoctorId());
+            if (doctor!= null && doctor.getDepartmentId()==null){
+                Doctor doctor1 = new Doctor();
+                doctor1.setId(doctor.getId());
+                doctor1.setDepartmentId(dd.getDepartmentId());
+                doctorMapper.updateByPrimaryKeySelective(doctor1);
+            }
+        }
+        if (!CollectionUtils.isEmpty(deptDoctors)){
+
+            deptDoctorMapper.addDepartDoctorBatch(deptDoctors);
+        }
+            DepartmentHospitalVO departmentHospitalVO = departmentMapper.selectDeptInfoForApp(list.get(0).getDepartmentId());
+        for (DeptDoctor dd:deptDoctors){
+            messageService.sendMessage(dd.getDoctorId(),"1","新医疗","您已成为"+departmentHospitalVO.getHospital()+departmentHospitalVO.getName()+"的成员");
+        }
+
+        return 0;
+    }
+
+    @Override
+    public PageInfo<DoctorVO> getDoctorListPage(String name, Integer page, Integer pageSize, long departId) {
+        Page page1 = PageHelper.startPage(page, pageSize);
+        List<DoctorVO> doctorVOList = deptDoctorMapper.getDepartDoctorListPage(name, departId);
+        PageInfo<DoctorVO> pageInfo = new PageInfo<>(doctorVOList);
+
+        return pageInfo;
+    }
+
+
+    @Override
+    public PageInfo<DeptDiseaseVO> getDepartDiseaseListPage(DiseaseQuery deptDiseaseQuery) {
+        Page page1 = PageHelper.startPage(deptDiseaseQuery.getPageIndex(), deptDiseaseQuery.getPageSize());
+        List<DeptDiseaseVO> departDiseaseListPage = deptDiseaseMapper.getDepartDiseaseListPage(deptDiseaseQuery);
+        PageInfo<DeptDiseaseVO> pageInfo = new PageInfo<>(departDiseaseListPage);
+        return pageInfo;
+    }
+
+    @Override
+    public int deleteByDoctorId(long doctorId) {
+        return deptDoctorMapper.deleteByDoctorId(doctorId);
+    }
+
+    @Override
+    public DepartmentDTO selectDeptById(long id) {
+        DepartmentDTO departmentDTO = new DepartmentDTO();
+        Department department = departmentMapper.selectByPrimaryKey(id);
+        departmentDTO.setDepartment(department);
+        List<DeptDictDept> deptDictDepts = deptDictDeptMapper.selectByDeptId(id);
+        departmentDTO.setDeptDictDepts(deptDictDepts);
+        return departmentDTO;
+    }
+
+    @Override
+    public AppResult addDisease2Dept(DeptDisease deptDisease) {
+        AppResult appResult = new AppResult();
+        DeptDisease deptDisease1 = deptDiseaseMapper.selectByDeptIdAndDiseaseId(deptDisease.getDepartmentId(), deptDisease.getDiseaseId());
+        if (deptDisease1 != null) {
+            appResult.setResultCode(ResultCode.DEPT_DISEASE_EXIST);
+            return appResult;
+        }
+        deptDisease.setCreateTime(new Date());
+        deptDiseaseMapper.insertSelective(deptDisease);
+        appResult.setResultCode(ResultCode.SUCCESS);
+        return appResult;
+    }
+
+    @Override
+    public int deleteDeptDiseaseById(long id) {
+        return deptDiseaseMapper.deleteByPrimaryKey(id);
+    }
+
+    @Override
+    public List<DepartmentHospitalVO> selectDoctorDepartment(Map<String, Object> map) {
+        return departmentMapper.selectDoctorDepartment(map);
+    }
+
+    @Override
+    public AppResult practiceDepartments(String token, Long doctorId) {
+
+        AppResult appResult = new AppResult();
+        //查询医生的执业单位
+        Map<String, Object> map = new HashMap<>();
+        //没有传医生id，则取token的医生id
+        if (null == doctorId) {
+            Doctor doctor = (Doctor) redisService.get(doctorConstant.getRedis().get("global"), token);
+            map.put("doctorId", doctor.getId());
+        } else {
+            map.put("doctorId", doctorId);
+        }
+
+        List<DepartmentHospitalVO> departmentHospitalVOs = departmentMapper.selectDoctorDepartment(map);
+        //寻找当前的执业单位
+        for (int i = 0; i < departmentHospitalVOs.size(); i++) {
+            //找出当前执业单位
+            if ("1".equals(departmentHospitalVOs.get(i).getCurrectHospital())) {
+                appResult.getBody().put("departmentHospitalVO", departmentHospitalVOs.get(i));
+                departmentHospitalVOs.remove(i);
+                i--;
+            }
+        }
+        appResult.getBody().put("list", departmentHospitalVOs);
+        //返回app成功信息
+        appResult.setResultCode(ResultCode.SUCCESS);
+        return appResult;
+    }
+
+    @Override
+    public int updateDeptServiceState(long id, byte isFree,String operator) {
+        Department department = new Department();
+        department.setId(id);
+        department.setIsFree(isFree);
+        department.setOperator(operator);
+        department.setUpdateTime(new Date());
+        return departmentMapper.updateByPrimaryKeySelective(department);
+    }
+
+    @Override
+    public int updateDeptNotice(Department department) {
+        department.setUpdateTime(new Date());
+        return departmentMapper.updateByPrimaryKeySelective(department);
+    }
+
+    @Override
+    public int deleteDeptCategory(long categoryId, long deptId) {
+        return deptDictDeptMapper.deleteDeptCategory(categoryId, deptId);
+    }
+
+    @Override
+    public AppResult updateDoctorDepartments(String token, Long departmentId) {
+        //获取当前医生信息
+        Doctor doctor = (Doctor) redisService.get(doctorConstant.getRedis().get("global"), token);
+        doctor.setDepartmentId(departmentId);
+        doctorMapper.updateByPrimaryKeySelective(doctor);
+        redisService.put(doctorConstant.getRedis().get("global"), token, doctor, -1);
+        AppResult appResult = new AppResult();
+        appResult.setResultCode(ResultCode.SUCCESS);
+        return appResult;
+    }
+
+    @Override
+    public DeptCategoryVO getDeptCategoryByDeptId(long id) {
+        DeptCategoryVO categoryVO = deptDictDeptMapper.getDeptCategoryByDeptId(id);
+        int diseaseCount = deptDictDeptMapper.selectDiseaseCountByDeptId(id);
+        if (categoryVO!=null){
+
+            categoryVO.setCount(diseaseCount);
+        }
+        return categoryVO;
+    }
+
+    @Override
+    @Transactional
+    public int oneKeyAddDisease(long deptId) {
+        List<DeptCategoryVO> categoryVOList = deptDictDeptMapper.getDiseaseIdsByDeptId(deptId);
+        ArrayList<DeptDisease> deptDiseases = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(categoryVOList)){
+
+        for (DeptCategoryVO deptCategoryVO:categoryVOList){
+            DeptDisease deptDisease = new DeptDisease();
+            deptDisease.setDiseaseId(deptCategoryVO.getDiseaseId());
+            deptDisease.setDepartmentId(deptId);
+            deptDisease.setCreateTime(new Date());
+            deptDiseases.add(deptDisease);
+        }
+        deptDiseaseMapper.addDepartDiseaseBatch(deptDiseases);
+        }
+        return 0;
+    }
+}

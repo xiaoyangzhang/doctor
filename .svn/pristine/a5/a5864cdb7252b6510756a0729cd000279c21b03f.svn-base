@@ -1,0 +1,34 @@
+package com.yhyt.health.service;
+
+import com.yhyt.health.model.Dialog;
+import com.yhyt.health.model.DialogAppointmentNotice;
+import com.yhyt.health.result.AppResult;
+
+import java.util.List;
+
+/**
+ * localadmin 作者:
+ *
+ * @version 创建时间：2017年8月17日 下午4:14:15
+ * 类说明
+ */
+public interface ImService {
+
+    AppResult addDialog(Dialog dialog);
+
+    AppResult sendGroupMessage(String token, String message, String roomIds);
+
+    AppResult getDialogRecord(String token, String roomId, String messageId);
+
+    List<DialogAppointmentNotice> selectByUserId(int rows, int userType, String roomId, String token);
+
+    int updateDialogNotice(DialogAppointmentNotice dialogAppointmentNotice);
+
+    /**
+     * 医生向患者推送信息，包括文字、图片、语音
+     * @param roomId 房间id
+     * @param type 推送类型 1－>文字 2－>图片 3－>语音
+     * @return
+     */
+    AppResult doctorPushMessageToPatients(final String roomId,final String type);
+}

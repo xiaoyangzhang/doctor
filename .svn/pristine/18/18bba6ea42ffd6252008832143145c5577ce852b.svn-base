@@ -1,0 +1,65 @@
+package com.yhyt.health.model;
+
+import java.util.Date;
+
+public class ArticleLog {
+    private Long id;
+
+    private Long articleId;
+
+    private Byte type;
+
+    private String operator;
+
+    private String coentent;
+
+    private Date createTime;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getArticleId() {
+        return articleId;
+    }
+
+    public void setArticleId(Long articleId) {
+        this.articleId = articleId;
+    }
+
+    public Byte getType() {
+        return type;
+    }
+
+    public void setType(Byte type) {
+        this.type = type;
+    }
+
+    public String getOperator() {
+        return operator;
+    }
+
+    public void setOperator(String operator) {
+        this.operator = operator == null ? null : operator.trim();
+    }
+
+    public String getCoentent() {
+        return coentent;
+    }
+
+    public void setCoentent(String coentent) {
+        this.coentent = coentent == null ? null : coentent.trim();
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+}

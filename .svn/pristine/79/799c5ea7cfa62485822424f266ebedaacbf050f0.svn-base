@@ -1,0 +1,188 @@
+package com.yhyt.health.service;
+
+import com.github.pagehelper.PageInfo;
+import com.yhyt.health.model.*;
+import com.yhyt.health.model.dto.SysBlacklistDTO;
+import com.yhyt.health.model.query.*;
+import com.yhyt.health.model.vo.*;
+import com.yhyt.health.result.AppResult;
+
+import java.util.List;
+import java.util.Map;
+
+public interface DoctorService {
+
+    int insert(Doctor doctor);
+
+    int update(Doctor doctor);
+
+    Doctor getDoctorById(long id);
+
+    DoctorVO getDoctorInfoById(long id);
+
+    DoctorExtVO getDoctorExtInfo(long id);
+
+
+    PageInfo<DoctorVO> getDoctorListPage(DoctorQuery doctorQuery);
+    PageInfo<DoctorDiseaseVO> getDiseaseDoctorListPage(DoctorQuery doctorQuery);
+
+    int updatePassword(Doctor doctor);
+
+    DoctorReviewVO viewDoctorApplyInfo(long id,String operator);
+
+    PageInfo<DoctorReviewVO> getDoctorReviewListPage(DoctorReviewQuery query);
+
+    int updateReviewState(long id);
+
+    int releaseTaskByOperator(String operator);
+
+    int updateDoctorReview(DoctorReview doctorReview);
+
+    /**
+     * @param id     审核表 id
+     * @param reason
+     * @return
+     */
+    int refuseApply(long id, String reason);
+
+    /**
+     * @param id 审核表 id
+     * @return
+     */
+    int agreeApply(long id);
+
+    /**
+     * 某疾病关联医生
+     *
+     * @param list
+     * @return
+     */
+    int relateDoctorWithDisease(List<DoctorDisease> list);
+
+    /**
+     * 医生对应的疾病列表
+     *
+     * @param doctorQuery
+     * @return
+     */
+    PageInfo<DoctorExtVO> getDoctorDiseaseListPage(DoctorQuery doctorQuery);
+
+    /**
+     * 某医生关联疾病
+     *
+     * @param list
+     * @return
+     */
+
+    int relateDiseaseWithDoctor(List<DoctorDisease> list);
+
+    int updateDoctorDisease(List<DoctorDisease> doctorDiseaseList);
+
+    /**
+     * 关联医生和疾病
+     *
+     * @param doctorDisease
+     * @return
+     */
+    String addOneDiseaseDoctor(DoctorDisease doctorDisease);
+
+    List<DoctorExtVO> getDoctorsByDiseaseId(long id);
+
+    /**
+     * 疾病对应的医生列表
+     *
+     * @param doctorDiseaseQuery
+     * @return
+     */
+    PageInfo<DoctorDiseaseVO> getDoctorDiseaseListPage(DoctorDiseaseQuery doctorDiseaseQuery);
+
+    int deleteDoctorDisease(long id);
+
+    /**
+     * 查询医生已关联疾病
+     *
+     * @param doctorQuery
+     * @return
+     */
+    PageInfo<DoctorDiseaseVO> queryAddedDiseaseByDoctorId(DoctorDiseaseQuery doctorDiseaseQuery);
+
+    int addDepartDoctor(Doctor doctor) throws Exception;
+
+    PageInfo<DoctorBlacklistVO> getDoctorBlacklistPage(DoctorBlackQuery doctorBlackQuery);
+
+    PageInfo<DoctorVO> getDeptDoctorListPage(DeptDoctorQuery deptDoctorQuery);
+
+    List<DoctorVO> getDeptDoctorList(long deptId);
+
+    int deleteDeptDoctorById(long id);
+
+    /**
+     * 取消管理员
+     *
+     * @param id
+     * @return
+     */
+    int dismisssAdmin(long id);
+
+    /**
+     * 指定管理员
+     *
+     * @param id
+     * @return
+     */
+    int appointAdmin(long id);
+
+    /**
+     * 根据条件查询医生表
+     *
+     * @param map
+     * @return
+     */
+    Doctor getDoctor(Map<String, Object> map);
+
+    /**
+     * 插入医生数据
+     *
+     * @param doctor
+     * @return
+     */
+    int insertSelective(Doctor doctor);
+
+    /**
+     * app登陆接口
+     *
+     * @param doctor
+     * @return
+     */
+    AppResult login(Device device, Doctor doctor);
+
+    /**
+     * app注册
+     *
+     * @param doctor
+     * @return
+     */
+    AppResult regists(Device device,Doctor doctor);
+
+    /**
+     * app忘记密码
+     *
+     * @return
+     */
+    AppResult forgetPassWord(Doctor doctor,String verificationCode);
+
+
+    AppResult joinDepartment(String token, DeptDoctor deptDoctor);
+
+
+    AppResult quitDepartment(String token, DeptDoctor deptDoctor, List<Long> doctorIds);
+
+    /**
+     * 加入或移除黑名单
+     *
+     * @param sysBlacklistDTO
+     * @return
+     */
+    int operateBlacklist(SysBlacklistDTO sysBlacklistDTO);
+    Doctor queryDoctorByName(String name);
+}

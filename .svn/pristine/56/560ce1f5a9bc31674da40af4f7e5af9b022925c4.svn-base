@@ -1,0 +1,54 @@
+package com.yhyt.health.mapper;
+
+import com.yhyt.health.model.DialogAppointmentTransfer;
+import com.yhyt.health.model.dto.DepartCoopDTO;
+import com.yhyt.health.model.vo.DialogAppointmentTransferVo;
+import com.yhyt.health.model.vo.app.AppointmentTransferPatientVO;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Map;
+
+@Repository
+public interface DialogAppointmentTransferMapper {
+    int deleteByPrimaryKey(Long id);
+
+    int insert(DialogAppointmentTransfer record);
+
+    int insertSelective(DialogAppointmentTransfer record);
+
+    DialogAppointmentTransfer selectByPrimaryKey(Long id);
+
+    int updateByPrimaryKeySelective(DialogAppointmentTransfer record);
+
+    int updateByPrimaryKey(DialogAppointmentTransfer record);
+
+    /**
+     * 根据科室 id 查看本科室在本院的合作科室
+     *
+     * @param deptId
+     * @return
+     */
+    List<DepartCoopDTO> getLocalHospitalByDeptId(long deptId);
+
+    /**
+     * 获取转诊信息
+     *
+     * @param map
+     * @return
+     */
+    DialogAppointmentTransferVo getDialogAppointmentTransfers(Map<String, Object> map);
+
+    /**
+     * 转诊患者列表
+     *
+     * @param map
+     * @return
+     */
+    List<AppointmentTransferPatientVO> transferpatientList(Map<String, Object> map);
+
+    Long transferpatientListCount(Long departmentId);
+
+    List<DialogAppointmentTransfer>  getDialogTransferByDeptIdAndPatientId(@Param("departmentId") Long departmentId,@Param("patientId") Long patientId,@Param("launchDepartmentId") Long launchDepartmentId);
+}

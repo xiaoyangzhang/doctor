@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhyt.health.mapper.DeptDictDeptMapper">
+    <resultMap id="BaseResultMap" type="com.yhyt.health.model.DeptDictDept">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="department_id" jdbcType="BIGINT" property="departmentId"/>
+        <result column="dict_department_id" jdbcType="BIGINT" property="dictDepartmentId"/>
+        <result column="dict_department_level" jdbcType="TINYINT" property="dictDepartmentLevel"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, department_id, dict_department_id, dict_department_level, create_time
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from dept_dict_dept
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from dept_dict_dept
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.yhyt.health.model.DeptDictDept">
+    insert into dept_dict_dept (id, department_id, dict_department_id, 
+      dict_department_level, create_time)
+    values (#{id,jdbcType=BIGINT}, #{departmentId,jdbcType=BIGINT}, #{dictDepartmentId,jdbcType=BIGINT}, 
+      #{dictDepartmentLevel,jdbcType=TINYINT}, #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+    <insert id="insertSelective" parameterType="com.yhyt.health.model.DeptDictDept">
+        insert into dept_dict_dept
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="departmentId != null">
+                department_id,
+            </if>
+            <if test="dictDepartmentId != null">
+                dict_department_id,
+            </if>
+            <if test="dictDepartmentLevel != null">
+                dict_department_level,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="departmentId != null">
+                #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="dictDepartmentId != null">
+                #{dictDepartmentId,jdbcType=BIGINT},
+            </if>
+            <if test="dictDepartmentLevel != null">
+                #{dictDepartmentLevel,jdbcType=TINYINT},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yhyt.health.model.DeptDictDept">
+        update dept_dict_dept
+        <set>
+            <if test="departmentId != null">
+                department_id = #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="dictDepartmentId != null">
+                dict_department_id = #{dictDepartmentId,jdbcType=BIGINT},
+            </if>
+            <if test="dictDepartmentLevel != null">
+                dict_department_level = #{dictDepartmentLevel,jdbcType=TINYINT},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yhyt.health.model.DeptDictDept">
+    update dept_dict_dept
+    set department_id = #{departmentId,jdbcType=BIGINT},
+      dict_department_id = #{dictDepartmentId,jdbcType=BIGINT},
+      dict_department_level = #{dictDepartmentLevel,jdbcType=TINYINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <select id="getDepartCagegoryByDepartId" parameterType="long" resultType="com.yhyt.health.model.vo.DepartmentVO">
+    select dd.child_name,dd.id categoryId,ddd.dict_department_level departLevel departmentCategory from dept_dict_dept ddd join dict_department dd on ddd.dict_department_id = dd.id where
+    ddd.department_id = #{departId}
+  </select>
+    <delete id="deleteByDeptId" parameterType="long">
+    delete from dept_dict_dept WHERE department_id=#{deptId}
+  </delete>
+    <delete id="deleteDeptCategory">
+    delete from dept_dict_dept where dict_department_id=#{categoryId} and department_id=#{deptId}
+  </delete>
+    <select id="selectByDeptId" parameterType="long" resultMap="BaseResultMap">
+    select * from dept_dict_dept WHERE  department_id = #{deptId,jdbcType=BIGINT} and dict_department_level=2
+
+  </select>
+    <select id="getDeptCategoryByDeptId" parameterType="long" resultType="com.yhyt.health.model.vo.DeptCategoryVO">
+        select GROUP_CONCAT(child_name  separator ',') categories from dept_dict_dept ddd join dict_department dd on ddd.dict_department_id=dd.id
+        where ddd.department_id=#{deptId} and dict_department_level=2
+         group by ddd.department_id
+    </select>
+    <select id="getDiseaseIdsByDeptId" parameterType="long" resultType="com.yhyt.health.model.vo.DeptCategoryVO">
+        select dcd.disease_id diseaseId from dept_dict_dept ddd join dept_category_disease dcd on ddd.dict_department_id=dcd.dept_category_id
+        where ddd.department_id=#{deptId} and dict_department_level=2
+    </select>
+    <select id="selectDiseaseCountByDeptId" parameterType="long" resultType="int">
+        select count(*) from dept_dict_dept ddd join dept_category_disease dcd on ddd.dict_department_id=dept_category_id
+        where ddd.department_id=#{deptId}
+    </select>
+
+</mapper>

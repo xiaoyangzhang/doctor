@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhyt.health.mapper.DoctorDiseaseMapper">
+    <resultMap id="BaseResultMap" type="com.yhyt.health.model.DoctorDisease">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="disease_id" jdbcType="BIGINT" property="diseaseId"/>
+        <result column="doctor_id" jdbcType="BIGINT" property="doctorId"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="seq" jdbcType="INTEGER" property="seq"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, disease_id, doctor_id, create_time,seq
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from doctor_disease
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from doctor_disease
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.yhyt.health.model.DoctorDisease">
+    insert into doctor_disease (id, disease_id, doctor_id, 
+      create_time)
+    values (#{id,jdbcType=BIGINT}, #{diseaseId,jdbcType=BIGINT}, #{doctorId,jdbcType=BIGINT}, 
+      #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+    <insert id="insertSelective" parameterType="com.yhyt.health.model.DoctorDisease">
+        insert into doctor_disease
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="diseaseId != null">
+                disease_id,
+            </if>
+            <if test="doctorId != null">
+                doctor_id,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="seq!=null">
+                seq,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="diseaseId != null">
+                #{diseaseId,jdbcType=BIGINT},
+            </if>
+            <if test="doctorId != null">
+                #{doctorId,jdbcType=BIGINT},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="seq!=null">
+                #{seq}
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yhyt.health.model.DoctorDisease">
+        update doctor_disease
+        <set>
+            <if test="diseaseId != null">
+                disease_id = #{diseaseId,jdbcType=BIGINT},
+            </if>
+            <if test="doctorId != null">
+                doctor_id = #{doctorId,jdbcType=BIGINT},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="seq!=null">
+                seq=#{seq}
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yhyt.health.model.DoctorDisease">
+    update doctor_disease
+    set disease_id = #{diseaseId,jdbcType=BIGINT},
+      doctor_id = #{doctorId,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <select id="getDoctorDiseaseListPage" parameterType="com.yhyt.health.model.query.DoctorDiseaseQuery"
+            resultType="com.yhyt.health.model.vo.DoctorDiseaseVO">
+        select id,diseaseName,group_concat(doctorName order by seq separator ',') doctors from (
+        select dd.seq, dict.id ,dict.name diseaseName ,doc.realname doctorName from doctor_disease dd join dict_disease dict on
+        dd.disease_id=dict.id
+        join doctor doc on doc.id = dd.doctor_id
+        where 1=1
+        <if test="diseaseName != null and diseaseName!= ''">
+            and dict.name like concat('%',#{diseaseName},'%')
+        </if>
+        <if test="diseaseIds != null">
+            and dd.disease_id IN
+            <foreach collection="diseaseIds" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </if>
+
+        <!--<if test="doctor != null and doctor!= ''">
+            and doc.realname like concat('%',#{doctor},'%')
+        </if>-->) tmp
+        group by diseaseName,id
+
+    </select>
+    <select id="getDiseaseListByDoctorId" resultType="com.yhyt.health.model.vo.DoctorDiseaseVO">
+        select dd.id,dict.name diseaseName,dict.id diseaseId from doctor_disease dd join dict_disease dict on
+        dd.disease_id=dict.id
+        where 1=1
+        <if test="doctorId!=null">
+
+            and dd.doctor_id=#{doctorId}
+        </if>
+        <if test="diseaseName != null and diseaseName!=''">
+            and dict.name like concat('%',#{diseaseName},'%')
+        </if>
+    </select>
+    <!--<select id="getDiseaseListByDoctorId" parameterType="long" resultType="com.yhyt.health.model.vo.DoctorDiseaseVO">-->
+    <!--select dd.id,dict.name diseaseName,dict.id diseaseId from  doctor_disease dd join dict_disease dict on-->
+    <!--dd.disease_id=dict.id-->
+    <!--where dd.disease_id=#{diseaseId}-->
+    <!--where dd.disease_id=#{diseaseId}-->
+    <!--</select>-->
+    <insert id="addDoctorDiseaseBatch" parameterType="list">
+        insert into doctor_disease ( disease_id, doctor_id,
+        create_time)
+        values
+        <foreach collection="list" item="item" separator=",">
+
+
+            ( #{item.diseaseId,jdbcType=BIGINT}, #{item.doctorId,jdbcType=BIGINT},
+            #{item.createTime,jdbcType=TIMESTAMP})
+        </foreach>
+
+    </insert>
+    <delete id="removeDoctorDiseaseByDiseaeId" parameterType="long">
+    delete from doctor_disease where disease_id=#{diseaseId}
+  </delete>
+    <delete id="removeDoctorDiseaseByDoctorId" parameterType="long">
+    delete from doctor_disease where doctor_id =#{doctorId}
+  </delete>
+    <delete id="deleteBatch" parameterType="string">
+    delete from  doctor_disease where id in (${idArr})
+  </delete>
+    <select id="getDoctorsByDiseaseId" parameterType="long" resultType="com.yhyt.health.model.vo.DoctorExtVO">
+    select username,realname, title,doc.id,dep.name departmentName,h.name hospitalName,dd.id doctorDiseaseId
+    ,dd.seq
+    from doctor doc
+    join department dep on doc.department_id = dep.id
+    join hospital h on h.id = dep.hospital_id
+    join doctor_disease dd on dd.doctor_id=doc.id
+    where dd.disease_id=#{diseaseId}
+    order by seq
+  </select>
+    <select id="getDiseasesByDoctorId" parameterType="long" resultType="com.yhyt.health.model.vo.DeptDiseaseVO">
+    select dict.name diseaseName,dict.id diseaseId from doctor_disease dd on doc.id = dd.doctor_id
+    join dict_disease dict on dd.disease_id=dict.id where doc.id=#{doctorId}
+  </select>
+    <select id="selectByDoctorIdAndDiseaseId" resultMap="BaseResultMap">
+    select id,seq from doctor_disease WHERE 1=1
+     <if test="diseaseId!=null">
+
+     and disease_id = #{diseaseId,jdbcType=BIGINT}
+     </if>
+        <if test="doctorId!=null">
+
+      and doctor_id = #{doctorId,jdbcType=BIGINT}
+        </if>
+        order by create_time DESC
+        limit 1
+  </select>
+    <select id="selectDoctorDiseaseIdSByDoctorName" parameterType="String" resultType="long">
+        select dd.disease_id from doctor_disease dd join doctor d on dd.doctor_id=d.id where d.realname like concat('%',#{name},'%')
+    </select>
+</mapper>

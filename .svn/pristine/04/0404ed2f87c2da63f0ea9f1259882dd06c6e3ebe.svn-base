@@ -1,0 +1,222 @@
+package com.yhyt.health.model.vo;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.io.Serializable;
+import java.util.Date;
+
+public class ArticleVO implements Serializable {
+    private static final long serialVersionUID = -8297891220233923071L;
+    private Long id;
+
+    private Byte type;
+
+    private Byte source;
+
+    private String title;
+
+    private String guidePic;
+
+    private Byte isTop;
+
+    private Byte isAllDepartment;
+
+    private Byte isAllArea;
+
+    private Byte isQuote;
+
+    private String quoteUrl;
+
+    private String h5Url;
+
+    private Byte state;
+
+    private Integer clickCount;
+
+    private Date onlineDay;
+
+    private Date offlineDay;
+
+    private Date reviewTime;
+
+    private Date createTime;
+
+    private Date updateTime;
+
+    private String body;
+
+    private String publishDept;//发布对象
+    private String publishArea;//发布地区
+
+    public String getPublishDept() {
+        return publishDept;
+    }
+
+    public void setPublishDept(String publishDept) {
+        this.publishDept = publishDept;
+    }
+
+    public String getPublishArea() {
+        return publishArea;
+    }
+
+    public void setPublishArea(String publishArea) {
+        this.publishArea = publishArea;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Byte getType() {
+        return type;
+    }
+
+    public void setType(Byte type) {
+        this.type = type;
+    }
+
+    public Byte getSource() {
+        return source;
+    }
+
+    public void setSource(Byte source) {
+        this.source = source;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title == null ? null : title.trim();
+    }
+
+    public String getGuidePic() {
+        return guidePic;
+    }
+
+    public void setGuidePic(String guidePic) {
+        this.guidePic = guidePic == null ? null : guidePic.trim();
+    }
+
+    public Byte getIsTop() {
+        return isTop;
+    }
+
+    public void setIsTop(Byte isTop) {
+        this.isTop = isTop;
+    }
+
+    public Byte getIsAllDepartment() {
+        return isAllDepartment;
+    }
+
+    public void setIsAllDepartment(Byte isAllDepartment) {
+        this.isAllDepartment = isAllDepartment;
+    }
+
+    public Byte getIsAllArea() {
+        return isAllArea;
+    }
+
+    public void setIsAllArea(Byte isAllArea) {
+        this.isAllArea = isAllArea;
+    }
+
+    public Byte getIsQuote() {
+        return isQuote;
+    }
+
+    public void setIsQuote(Byte isQuote) {
+        this.isQuote = isQuote;
+    }
+
+    public String getQuoteUrl() {
+        return quoteUrl;
+    }
+
+    public void setQuoteUrl(String quoteUrl) {
+        this.quoteUrl = quoteUrl == null ? null : quoteUrl.trim();
+    }
+
+    public String getH5Url() {
+        return h5Url;
+    }
+
+    public void setH5Url(String h5Url) {
+        this.h5Url = h5Url == null ? null : h5Url.trim();
+    }
+
+    public Byte getState() {
+        return state;
+    }
+
+    public void setState(Byte state) {
+        this.state = state;
+    }
+
+    public Integer getClickCount() {
+        return clickCount;
+    }
+
+    public void setClickCount(Integer clickCount) {
+        this.clickCount = clickCount;
+    }
+    @JsonFormat(pattern = "yyyy-MM-dd 00:00:00",timezone = "GMT+8")
+
+    public Date getOnlineDay() {
+        return onlineDay;
+    }
+
+    public void setOnlineDay(Date onlineDay) {
+        this.onlineDay = onlineDay;
+    }
+    @JsonFormat(pattern = "yyyy-MM-dd 23:59:59",timezone = "GMT+8")
+
+    public Date getOfflineDay() {
+        return offlineDay;
+    }
+
+    public void setOfflineDay(Date offlineDay) {
+        this.offlineDay = offlineDay;
+    }
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+
+    public Date getReviewTime() {
+        return reviewTime;
+    }
+
+    public void setReviewTime(Date reviewTime) {
+        this.reviewTime = reviewTime;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    public String getBody() {
+        return body;
+    }
+
+    public void setBody(String body) {
+        this.body = body == null ? null : body.trim();
+    }
+}

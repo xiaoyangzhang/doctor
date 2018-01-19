@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhyt.health.mapper.DoctorReviewMapper">
+    <resultMap id="BaseResultMap" type="com.yhyt.health.model.DoctorReview">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="doctor_id" jdbcType="BIGINT" property="doctorId"/>
+        <result column="sex" jdbcType="TINYINT" property="sex"/>
+        <result column="realname" jdbcType="VARCHAR" property="realname"/>
+        <result column="reason" jdbcType="VARCHAR" property="reason"/>
+        <result column="mobile_number" jdbcType="VARCHAR" property="mobileNumber"/>
+        <result column="department_id" jdbcType="BIGINT" property="departmentId"/>
+        <result column="practice_certificate" jdbcType="VARCHAR" property="practiceCertificate"/>
+        <result column="qualification_certificate" jdbcType="VARCHAR" property="qualificationCertificate"/>
+        <result column="state" jdbcType="TINYINT" property="state"/>
+        <result column="apply_time" jdbcType="TIMESTAMP" property="applyTime"/>
+        <result column="review_time" jdbcType="TIMESTAMP" property="reviewTime"/>
+        <result column="operator" jdbcType="VARCHAR" property="operator"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="is_lock" jdbcType="TINYINT" property="isLock"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, doctor_id, sex, realname, reason, mobile_number, department_id, practice_certificate, 
+    qualification_certificate, state, apply_time, review_time, operator,is_lock,title
+  </sql>
+  <select id="getDoctorReviewListPage" parameterType="com.yhyt.health.model.query.DoctorReviewQuery" resultType="com.yhyt.health.model.vo.DoctorReviewVO">
+    select dr.id, realname, reason, mobile_number mobileNumber, dr.state, apply_time applyTime, review_time reviewTime,h.name hospitalName,dr.operator
+     ,case dr.state WHEN 1 then 1
+      when 4 then 2
+      else 3 end sort
+      from doctor_review dr LEFT join department dep on dr.department_id=dep.id left  join  hospital h on
+    dep.hospital_id = h.id
+    WHERE 1=1
+    <if test="mobileNumber != null and mobileNumber != ''">
+      and mobile_number like concat('%',#{mobileNumber},'%')
+    </if>
+    <if test="realname != null and realname != ''">
+      and realname like concat('%',#{realname},'%')
+    </if>
+    <if test="hospitalName != null and hospitalName != ''">
+      and h.name like concat('%',#{hospitalName},'%')
+    </if>
+    <if test="reviewState != null and reviewState !=0 ">
+      and state =#{reviewState}
+    </if>
+    order by sort , dr.apply_time DESC
+  </select>
+
+    <select id="viewDoctorApplyInfo" parameterType="long" resultType="com.yhyt.health.model.vo.DoctorReviewVO">
+    select dr.id, dr.sex, dr.realname, reason, dr.mobile_number mobileNumber, dr.practice_certificate practiceCertificate,dr.title,
+    dr.qualification_certificate qualificationCertificate, dr.state, apply_time applyTime,
+    review_time reviewTime,dr.operator,h.name hospitalName,dep.name departmentName,ifnull(doc.summary,'') summary,
+    ifnull(doc.strongpoint,'')  strongpoint,doc.birthday
+     from doctor_review dr LEFT join department dep on dr.department_id = dep.id
+     left join hospital h on
+    dep.hospital_id = h.id
+    join doctor doc on doc.id=dr.doctor_id
+    where dr.id=#{id}
+  </select>
+    <update id="releaseTask" parameterType="string">
+    UPDATE doctor_review set is_lock = 0,state=1,operator=NULL where operator = #{operator} and state=4
+  </update>
+    <update id="releaseOneTask" parameterType="long">
+    UPDATE doctor_review set is_lock = 0,state=1,operator=NULL where id = #{id}
+  </update>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from doctor_review
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from doctor_review
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.yhyt.health.model.DoctorReview">
+    insert into doctor_review (id, doctor_id, sex, 
+      realname, reason, mobile_number, 
+      department_id, practice_certificate, qualification_certificate, 
+      state, apply_time, review_time, 
+      operator)
+    values (#{id,jdbcType=BIGINT}, #{doctorId,jdbcType=BIGINT}, #{sex,jdbcType=TINYINT}, 
+      #{realname,jdbcType=VARCHAR}, #{reason,jdbcType=VARCHAR}, #{mobileNumber,jdbcType=VARCHAR}, 
+      #{departmentId,jdbcType=BIGINT}, #{practiceCertificate,jdbcType=VARCHAR}, #{qualificationCertificate,jdbcType=VARCHAR}, 
+      #{state,jdbcType=TINYINT}, #{applyTime,jdbcType=TIMESTAMP}, #{reviewTime,jdbcType=TIMESTAMP}, 
+      #{operator})
+  </insert>
+    <insert id="insertSelective" parameterType="com.yhyt.health.model.DoctorReview">
+        insert into doctor_review
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="doctorId != null">
+                doctor_id,
+            </if>
+            <if test="sex != null">
+                sex,
+            </if>
+            <if test="realname != null">
+                realname,
+            </if>
+            <if test="reason != null">
+                reason,
+            </if>
+            <if test="mobileNumber != null">
+                mobile_number,
+            </if>
+            <if test="departmentId != null">
+                department_id,
+            </if>
+            <if test="practiceCertificate != null">
+                practice_certificate,
+            </if>
+            <if test="qualificationCertificate != null">
+                qualification_certificate,
+            </if>
+            <if test="state != null">
+                state,
+            </if>
+            <if test="applyTime != null">
+                apply_time,
+            </if>
+            <if test="reviewTime != null">
+                review_time,
+            </if>
+            <if test="operator != null">
+                operator,
+            </if>
+            <if test="title != null">
+                title,
+            </if>
+            <if test="isLock != null">
+                is_lock,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="doctorId != null">
+                #{doctorId,jdbcType=BIGINT},
+            </if>
+            <if test="sex != null">
+                #{sex,jdbcType=TINYINT},
+            </if>
+            <if test="realname != null">
+                #{realname,jdbcType=VARCHAR},
+            </if>
+            <if test="reason != null">
+                #{reason,jdbcType=VARCHAR},
+            </if>
+            <if test="mobileNumber != null">
+                #{mobileNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="departmentId != null">
+                #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="practiceCertificate != null">
+                #{practiceCertificate,jdbcType=VARCHAR},
+            </if>
+            <if test="qualificationCertificate != null">
+                #{qualificationCertificate,jdbcType=VARCHAR},
+            </if>
+            <if test="state != null">
+                #{state,jdbcType=TINYINT},
+            </if>
+            <if test="applyTime != null">
+                #{applyTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="reviewTime != null">
+                #{reviewTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="operator != null">
+                #{operator},
+            </if>
+            <if test="title != null">
+                #{title},
+            </if>
+            <if test="isLock != null">
+                #{isLock},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.yhyt.health.model.DoctorReview">
+        update doctor_review
+        <set>
+            <if test="doctorId != null">
+                doctor_id = #{doctorId,jdbcType=BIGINT},
+            </if>
+            <if test="sex != null">
+                sex = #{sex,jdbcType=TINYINT},
+            </if>
+            <if test="realname != null">
+                realname = #{realname,jdbcType=VARCHAR},
+            </if>
+            <if test="reason != null">
+                reason = #{reason,jdbcType=VARCHAR},
+            </if>
+            <if test="mobileNumber != null">
+                mobile_number = #{mobileNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="departmentId != null">
+                department_id = #{departmentId,jdbcType=BIGINT},
+            </if>
+            <if test="practiceCertificate != null">
+                practice_certificate = #{practiceCertificate,jdbcType=VARCHAR},
+            </if>
+            <if test="qualificationCertificate != null">
+                qualification_certificate = #{qualificationCertificate,jdbcType=VARCHAR},
+            </if>
+            <if test="state != null">
+                state = #{state,jdbcType=TINYINT},
+            </if>
+            <if test="applyTime != null">
+                apply_time = #{applyTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="reviewTime != null">
+                review_time = #{reviewTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="operator != null">
+                operator = #{operator},
+            </if>
+            <if test="isLock != null">
+                is_lock = #{isLock},
+            </if>
+            <if test="title != null">
+                title = #{title},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.yhyt.health.model.DoctorReview">
+    update doctor_review
+    set doctor_id = #{doctorId,jdbcType=BIGINT},
+      sex = #{sex,jdbcType=TINYINT},
+      realname = #{realname,jdbcType=VARCHAR},
+      reason = #{reason,jdbcType=VARCHAR},
+      mobile_number = #{mobileNumber,jdbcType=VARCHAR},
+      department_id = #{departmentId,jdbcType=BIGINT},
+      practice_certificate = #{practiceCertificate,jdbcType=VARCHAR},
+      qualification_certificate = #{qualificationCertificate,jdbcType=VARCHAR},
+      state = #{state,jdbcType=TINYINT},
+      apply_time = #{applyTime,jdbcType=TIMESTAMP},
+      review_time = #{reviewTime,jdbcType=TIMESTAMP},
+      operator = #{operator}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <select id="getDoctorReviewList" parameterType="map" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"></include>
+        from doctor_review
+        where 1=1
+        <if test="doctorId != null">
+            and doctor_id = #{doctorId}
+        </if>
+        <if test="sort != null and ''!=sort">
+            order by ${sort}
+        </if>
+    </select>
+    <select id="getDoctorReviewingByDoctorId" parameterType="long" resultMap="BaseResultMap">
+        select id from doctor_review where doctor_id=#{doctorId} and state in (1,4)
+    </select>
+</mapper>

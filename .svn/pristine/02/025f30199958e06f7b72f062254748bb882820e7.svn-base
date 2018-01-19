@@ -1,0 +1,245 @@
+package com.yhyt.health.service;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.yhyt.health.constant.DoctorConstant;
+import com.yhyt.health.constant.ResultCode;
+import com.yhyt.health.mapper.*;
+import com.yhyt.health.model.*;
+import com.yhyt.health.model.vo.ImMessageVo;
+import com.yhyt.health.model.vo.PatientDetailVo;
+import com.yhyt.health.model.vo.app.PatientAppVO;
+import com.yhyt.health.result.AppResult;
+import com.yhyt.health.result.ResultStatus;
+import com.yhyt.health.service.api.DepartmentApi;
+import com.yhyt.health.util.BusinessException;
+import com.yhyt.health.util.DateUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
+
+import javax.annotation.Resource;
+import java.util.*;
+
+/**
+ * Created by shensh on 2017/9/6.
+ */
+@Service
+public class DeptPatientSignServiceImpl implements DeptPatientSignService {
+
+    @Autowired
+    private DeptPatientSignMapper deptPatientSignMapper;
+    @Autowired
+    private DoctorConstant doctorConstant;
+    @Autowired
+    private DepartmentMapper departmentMapper;
+    @Autowired
+    private DoctorMapper doctorMapper;
+    @Autowired
+    private DepartmentApi departmentApi;
+    @Autowired
+    private PatientCasearchivesMapper patientCasearchivesMapper;
+    @Autowired
+    private DialogAppointmentNoticeMapper dialogAppointmentNoticeMapper;
+    @Autowired
+    private RedisService redisService;
+    @Autowired
+    private MessageService messageService;
+    @Autowired
+    private PatientMapper patientMapper;
+    @Autowired
+    private DoctorCareMapper doctorCareMapper;
+    @Autowired
+    private DialogMapper dialogMapper;
+    @Autowired
+    private ImService imService;
+
+    @Resource(name = "loadBalanced")
+    private RestTemplate loadBalancedTemplate;
+
+    private static Logger logger = LoggerFactory.getLogger(DeptPatientSignServiceImpl.class);
+
+    public AppResult agreeCheck(Long replenishSignId) {
+        AppResult appResult = new AppResult();
+        PatientAppVO replenishSign = deptPatientSignMapper.getSignDetailBydeptSignId(replenishSignId);
+        if (replenishSign == null) {
+            appResult.setStatus(new ResultStatus("201", "未找到补签信息"));
+            return appResult;
+        }
+        if ("3".equals(replenishSign.getState())) {
+            appResult.setStatus(new ResultStatus("202", String.format("该申请已被%s医生拒绝，确认同意吗", replenishSign.getOperator())));
+            return appResult;
+        }
+        appResult.setResultCode(ResultCode.SUCCESS);
+        return appResult;
+    }
+
+    @Transactional
+    public AppResult agree(String token, Long replenishSignId) {
+        AppResult appResult = new AppResult();
+        Doctor doctor = (Doctor) redisService.get(doctorConstant.getRedis().get("global"), token);
+        // TODO: 2017/9/6 医生 底部两按钮刷新为“发消息” 、对话内扫码签到卡片状态变为“已同意”
+        PatientAppVO replenishSign = deptPatientSignMapper.getSignDetailBydeptSignId(Long.valueOf(replenishSignId));
+        //如果数据库已经同意，无需重复同意
+        if ("2".equals(replenishSign.getState())) {
+            appResult.setResultCode(ResultCode.SUCCESS);
+            return appResult;
+        }
+        //该医生默认打开“关注”该患者
+        if (replenishSign != null && null != doctor.getDepartmentId()) {
+            DoctorCare doctorCare = doctorCareMapper.queryDoctorCare(doctor.getId(), replenishSign.getId(), doctor.getDepartmentId());
+            if (doctorCare == null) {
+                DoctorCare doctorCareTemp = new DoctorCare();
+                doctorCareTemp.setDoctorId(doctor.getId());
+                doctorCareTemp.setPatientId(replenishSign.getId());
+                doctorCareTemp.setDepartmentId(doctor.getDepartmentId());
+                doctorCareTemp.setCreateTime(new Date());
+                doctorCareMapper.insert(doctorCareTemp);
+            }
+        }
+        Map restult = new HashMap();
+        if (replenishSign == null) {
+            appResult.setStatus(new ResultStatus("201", "未找到补签信息"));
+            return appResult;
+        }
+        String roomId = "";
+        if ("1".equals(replenishSign.getState()) || "3".equals(replenishSign.getState())) {
+            deptPatientSignMapper.agree(replenishSignId, doctor.getRealname());
+            //创建房间
+            DeptPatientSign deptPatientSign = deptPatientSignMapper.selectByPrimaryKey(Long.valueOf(replenishSignId));
+            if (deptPatientSign != null) {
+                //  2017/9/16  添加默认分组 、patient_casearchives(添加先判断)、添加通知
+                departmentApi.addPatientDefaultGroup(deptPatientSign.getDepartmentId(), deptPatientSign.getPatientId());
+                if (doctor != null) {
+                    DialogAppointmentNotice dialogAppointmentNotice = new DialogAppointmentNotice();
+                    dialogAppointmentNotice.setDoctorId(doctor.getId());
+                    dialogAppointmentNotice.setPatientId(deptPatientSign.getPatientId());
+                    dialogAppointmentNotice.setDialogAppointmentId(replenishSign.getId());
+                    dialogAppointmentNotice.setState((byte) 2);
+                    dialogAppointmentNotice.setMessage("扫码签到成功");
+                    dialogAppointmentNotice.setIsDoctorShow("2");
+                    dialogAppointmentNotice.setIsPatientShow("2");
+                    dialogAppointmentNotice.setDepartmentId(doctor.getDepartmentId());
+                    dialogAppointmentNotice.setType((byte) 3);
+                    dialogAppointmentNotice.setCreateTime(new Date());
+                    dialogAppointmentNoticeMapper.insertSelective(dialogAppointmentNotice);
+                    //发送消息
+                    messageService.sendMessage(replenishSign.getRequestPatientId()
+                            ,"2"
+                            ,"签到成功"
+                            , "您于"
+                                    + DateUtil.convert2String(new Date(),"yyyy年MM月dd日")
+                                    + "提交的认证资料审核通过"
+                            ,"4"
+                    );
+
+                } else {
+                    logger.error("扫码签到失败, 原因: 根据 token, 未找到医生信息");
+                }
+
+                Map map = new HashMap();
+                map.put("departmentId", deptPatientSign.getDepartmentId());
+                map.put("patientId", deptPatientSign.getPatientId());
+                PatientDetailVo patientDetailVo = patientCasearchivesMapper.selectPatientCasearchives(map);
+                if (patientDetailVo == null) {
+                    PatientCasearchives patientCasearchives = new PatientCasearchives();
+                    patientCasearchives.setDepartmentId(deptPatientSign.getDepartmentId());
+                    patientCasearchives.setPatientId(deptPatientSign.getPatientId());
+                    patientCasearchives.setType((byte) 3);
+                    patientCasearchives.setCreateTime(new Date());
+                    patientCasearchives.setUpdateTime(new Date());
+                    patientCasearchivesMapper.insertSelective(patientCasearchives);
+                }
+            }
+        }
+        //查询患者是否已认证
+        Patientl patientl = patientMapper.selectPatientlById(replenishSign.getId());
+        if (null == patientl.getIsauthenticated() || !"2".equals(patientl.getIsauthenticated())) {
+            try {
+                appResult = loadBalancedTemplate.postForObject(doctorConstant.getIm().get("givecardforfree") + "?isReceipt=false&patientId={1}", null, AppResult.class, replenishSign.getId());
+                if (!"200".equals(appResult.getStatus().getCode())) {
+                    logger.info("赠卡失败");
+                }
+            } catch (Exception e) {
+                logger.error("赠卡失败",e);
+            }
+        }
+
+        //查询对话信息
+        Dialog dialog = dialogMapper.queryBydeptIdAndpatientId(replenishSign.getDepartmentId(), replenishSign.getId());
+        if (null != dialog) {
+            //发送灰条提示
+            ImMessageVo imMessageVo = new ImMessageVo();
+            String roomIdsJson= null;
+            imMessageVo.setFromUserLogo(patientl.getHeadImage());
+            imMessageVo.setFromUserName(patientl.getRealname());
+            imMessageVo.setFromUserId(patientl.getId());
+            imMessageVo.setTimeSend(new Date().getTime());
+            imMessageVo.setType("0");
+            JSONArray roomIds = new JSONArray();
+            roomIds.add(dialog.getRoomId());
+            roomIdsJson  = JSONObject.toJSON(roomIds).toString();
+            if (!roomIds.isEmpty()) {
+                imMessageVo.setContent("患者同意预约");
+                Object msg = JSONObject.toJSON(imMessageVo);
+                imService.sendGroupMessage(null, msg.toString(), roomIdsJson);
+            }
+        }
+        //患者改为已认证
+        patientl.setId(replenishSign.getRequestPatientId());
+        patientl.setIsauthenticated("2");//已认证
+        patientMapper.updatePatientIsauthenticated(patientl);
+
+        appResult.setResultCode(ResultCode.SUCCESS);
+        restult.put("msg", "扫码签到成功");
+        restult.put("roomId", roomId);
+        appResult.setBody(restult);
+        return appResult;
+    }
+
+    @Override
+    public AppResult refuse(Long replenishSignId, String doctorName,String refuseReason) {
+        AppResult appResult = new AppResult();
+        PatientAppVO replenishSign = deptPatientSignMapper.getSignDetailBydeptSignId(replenishSignId);
+        Map restult = new HashMap();
+        if (replenishSign == null) {
+            appResult.setStatus(new ResultStatus("201", "未找到补签信息"));
+            return appResult;
+        }
+
+        if ("2".equals(replenishSign.getState())) {
+            appResult.setStatus(new ResultStatus("202", String.format("该申请已被%s医生同意，不能拒绝", replenishSign.getOperator())));
+            return appResult;
+        }
+
+        DeptPatientSign deptPatientSign = new DeptPatientSign();
+        deptPatientSign.setId(Long.valueOf(replenishSignId));
+        deptPatientSign.setRefuseReason(refuseReason);
+        deptPatientSign.setState((byte)3);
+        deptPatientSign.setReviewTime(new Date());
+        deptPatientSign.setOperator(doctorName);
+        deptPatientSignMapper.updateByPrimaryKeySelective(deptPatientSign);
+
+        //发送消息
+        messageService.sendMessage(replenishSign.getRequestPatientId()
+                ,"2"
+                ,"签到成功"
+                , "您于"
+                        + DateUtil.convert2String(new Date(),"yyyy年MM月dd日")
+                        + "提交的认证资料审核未通过;原因:"
+                        + (refuseReason==null?"":refuseReason)
+                ,"4"
+                );
+        appResult.setResultCode(ResultCode.SUCCESS);
+        restult.put("msg", "拒绝成功");
+        appResult.setBody(restult);
+        return appResult;
+    }
+}

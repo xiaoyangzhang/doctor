@@ -1,0 +1,25 @@
+package com.yhyt.health.mapper;
+
+import com.yhyt.health.model.Article;
+import com.yhyt.health.model.ArticleDTO;
+import com.yhyt.health.model.query.ArticleQuery;
+
+import java.util.List;
+
+public interface ArticleMapper {
+    int deleteByPrimaryKey(Long id);
+
+    int insert(Article record);
+
+    int insertSelective(Article record);
+
+    Article selectByPrimaryKey(Long id);
+
+    int updateByPrimaryKeySelective(Article record);
+
+    int updateByPrimaryKeyWithBLOBs(Article record);
+
+    int updateByPrimaryKey(Article record);
+
+    List<ArticleDTO> queryArticleListPage(ArticleQuery articleQuery);
+}

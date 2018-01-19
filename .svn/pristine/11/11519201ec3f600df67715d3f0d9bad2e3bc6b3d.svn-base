@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhyt.health.mapper.SysConfigMapper">
+  <resultMap id="BaseResultMap" type="com.yhyt.health.model.SysConfig">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="config_type" jdbcType="VARCHAR" property="configtype" />
+    <result column="salt1" jdbcType="VARCHAR" property="salt1" />
+    <result column="salt2" jdbcType="VARCHAR" property="salt2" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, config_type, salt1, salt2
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sys_config
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectSysConfig" parameterType="map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from sys_config
+    where 1=1
+    <if test="configType != null">
+       AND config_type = #{configType,jdbcType=VARCHAR}
+    </if>
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from sys_config
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yhyt.health.model.SysConfig">
+    insert into sys_config (id, config_type, salt1,
+      salt2)
+    values (#{id,jdbcType=BIGINT}, #{configtype,jdbcType=VARCHAR}, #{salt1,jdbcType=VARCHAR}, 
+      #{salt2,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yhyt.health.model.SysConfig">
+    insert into sys_config
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="configtype != null">
+        configType,
+      </if>
+      <if test="salt1 != null">
+        salt1,
+      </if>
+      <if test="salt2 != null">
+        salt2,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="configtype != null">
+        #{configtype,jdbcType=VARCHAR},
+      </if>
+      <if test="salt1 != null">
+        #{salt1,jdbcType=VARCHAR},
+      </if>
+      <if test="salt2 != null">
+        #{salt2,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yhyt.health.model.SysConfig">
+    update sys_config
+    <set>
+      <if test="configtype != null">
+        config_type = #{configtype,jdbcType=VARCHAR},
+      </if>
+      <if test="salt1 != null">
+        salt1 = #{salt1,jdbcType=VARCHAR},
+      </if>
+      <if test="salt2 != null">
+        salt2 = #{salt2,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yhyt.health.model.SysConfig">
+    update sys_config
+    set config_type = #{configtype,jdbcType=VARCHAR},
+      salt1 = #{salt1,jdbcType=VARCHAR},
+      salt2 = #{salt2,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

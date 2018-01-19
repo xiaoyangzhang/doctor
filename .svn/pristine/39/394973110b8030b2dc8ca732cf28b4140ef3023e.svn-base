@@ -1,0 +1,51 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+    <classPathEntry location="/Users/localadmin/workspace/yhyt/doctor/doctor-biz/sql/mysql-connector-java-5.1.34.jar" />
+    <context id="mysql" targetRuntime="MyBatis3">
+    <commentGenerator>
+        <property name="suppressAllComments" value="true" />
+    </commentGenerator>
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+                        connectionURL="jdbc:mysql://172.30.0.230:3306/xjk"
+                        userId="root"
+                        password="xjk1234">
+        </jdbcConnection>
+&lt;!&ndash;&ndash;&gt;
+        &lt;!&ndash;<javaTypeResolver >&ndash;&gt;
+            &lt;!&ndash;<property name="forceBigDecimals" value="false" />&ndash;&gt;
+        &lt;!&ndash;</javaTypeResolver>&ndash;&gt;
+&lt;!&ndash;&ndash;&gt;
+        <javaModelGenerator targetPackage="com.yhyt.health.model" targetProject="/Users/localadmin/workspace/yhyt/doctor/doctor-client/src/main/java">
+            <property name="enableSubPackages" value="true" />
+            <property name="trimStrings" value="true" />
+        </javaModelGenerator>
+&lt;!&ndash;&ndash;&gt;
+        <sqlMapGenerator targetPackage="mapper"  targetProject="src/main/resources">
+            <property name="enableSubPackages" value="true" />
+        </sqlMapGenerator>
+&lt;!&ndash;&ndash;&gt;
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.yhyt.health.mapper" targetProject="/Users/localadmin/workspace/yhyt/doctor/doctor-biz/src/main/java">
+            <property name="enableSubPackages" value="true" />
+        </javaClientGenerator>
+&lt;!&ndash;&ndash;&gt;
+        <table  tableName="article_department" domainObjectName="ArticleDepartment"
+               enableCountByExample="false" enableUpdateByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false" />
+<table  tableName="article_area" domainObjectName="ArticleArea"
+               enableCountByExample="false" enableUpdateByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false" />
+<table  tableName="article_log" domainObjectName="ArticleLog"
+               enableCountByExample="false" enableUpdateByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false" />
+<table  tableName="article" domainObjectName="Article"
+               enableCountByExample="false" enableUpdateByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false" />
+
+    </context>
+</generatorConfiguration>
+

@@ -1,0 +1,110 @@
+package com.yhyt.health.model.vo.app;
+
+import java.util.Date;
+
+/**
+ * @author gsh
+ * @create 2017-12-08 11:05
+ **/
+public class PatientObstetricInfoVo {
+
+    private Long obstericsId;
+    private String husbandName;
+    private String husbandMobile;
+    private String birthPlace;
+    private String resideAdress;
+    private Date expectBirthDate;
+    private String pregnantWeek;
+    private Date pregnantTime;
+    private Date produceTime;
+    private String departmentObstetricsIds;
+    private String remark;
+
+    public String getHusbandName() {
+        return husbandName;
+    }
+
+    public void setHusbandName(String husbandName) {
+        this.husbandName = husbandName;
+    }
+
+    public String getHusbandMobile() {
+        return husbandMobile;
+    }
+
+    public void setHusbandMobile(String husbandMobile) {
+        this.husbandMobile = husbandMobile;
+    }
+
+    public String getBirthPlace() {
+        return birthPlace;
+    }
+
+    public void setBirthPlace(String birthPlace) {
+        this.birthPlace = birthPlace;
+    }
+
+    public String getResideAdress() {
+        return resideAdress;
+    }
+
+    public void setResideAdress(String resideAdress) {
+        this.resideAdress = resideAdress;
+    }
+
+    public Date getExpectBirthDate() {
+        return expectBirthDate;
+    }
+
+    public void setExpectBirthDate(Date expectBirthDate) {
+        this.expectBirthDate = expectBirthDate;
+    }
+
+    public String getPregnantWeek() {
+        return pregnantWeek;
+    }
+
+    public void setPregnantWeek(String pregnantWeek) {
+        this.pregnantWeek = pregnantWeek;
+    }
+
+    public Date getPregnantTime() {
+        return pregnantTime;
+    }
+
+    public void setPregnantTime(Date pregnantTime) {
+        this.pregnantTime = pregnantTime;
+    }
+
+    public Date getProduceTime() {
+        return produceTime;
+    }
+
+    public void setProduceTime(Date produceTime) {
+        this.produceTime = produceTime;
+    }
+
+    public String getDepartmentObstetricsIds() {
+        return departmentObstetricsIds;
+    }
+
+    public void setDepartmentObstetricsIds(String departmentObstetricsIds) {
+        this.departmentObstetricsIds = departmentObstetricsIds;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
+
+    public Long getObstericsId() {
+        return obstericsId;
+    }
+
+    public void setObstericsId(Long obstericsId) {
+        this.obstericsId = obstericsId;
+    }
+}

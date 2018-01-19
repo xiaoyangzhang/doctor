@@ -1,0 +1,27 @@
+package com.yhyt.health.service;
+
+import com.github.pagehelper.PageInfo;
+import com.yhyt.health.model.Article;
+import com.yhyt.health.model.ArticleDTO;
+import com.yhyt.health.model.ArticleLogDTO;
+import com.yhyt.health.model.query.ArticleQuery;
+import com.yhyt.health.model.vo.ArticleVO;
+
+public interface ArticleService {
+
+    public int addArticle(ArticleDTO articleDTO);
+
+    public int editArticle(ArticleDTO articleDTO);
+
+    public int updateArticleState(ArticleLogDTO articleLogDTO);
+    public PageInfo<ArticleVO> queryArticleListPage(ArticleQuery articleQuery);
+    public ArticleDTO selectById(Long id,String action);
+
+    /**
+     * 定时器调用
+     * @return
+     */
+    public int updateStateForSchedule();
+
+    Article getArticleDetail(Long id);
+}

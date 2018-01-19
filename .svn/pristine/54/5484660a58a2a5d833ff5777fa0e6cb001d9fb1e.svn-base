@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhyt.health.mapper.SysFeedbackMapper">
+  <resultMap id="BaseResultMap" type="com.yhyt.health.model.SysFeedback">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="username" jdbcType="VARCHAR" property="username" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="device_info" jdbcType="VARCHAR" property="deviceInfo" />
+    <result column="app_version" jdbcType="VARCHAR" property="appVersion" />
+    <result column="realname" jdbcType="VARCHAR" property="realname" />
+    <result column="use_type" jdbcType="TINYINT" property="useType" />
+    <result column="deal_state" jdbcType="TINYINT" property="dealState" />
+    <result column="operator" jdbcType="VARCHAR" property="operator" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, content, user_id, username, create_time, device_info, app_version, realname, 
+    use_type, deal_state, operator
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sys_feedback
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from sys_feedback
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.yhyt.health.model.SysFeedback">
+    insert into sys_feedback (id, content, user_id, 
+      username, create_time, device_info, 
+      app_version, realname, use_type, 
+      deal_state, operator)
+    values (#{id,jdbcType=BIGINT}, #{content,jdbcType=VARCHAR}, #{userId,jdbcType=BIGINT}, 
+      #{username,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{deviceInfo,jdbcType=VARCHAR}, 
+      #{appVersion,jdbcType=VARCHAR}, #{realname,jdbcType=VARCHAR}, #{useType,jdbcType=TINYINT}, 
+      #{dealState,jdbcType=TINYINT}, #{operator,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yhyt.health.model.SysFeedback">
+    insert into sys_feedback
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="username != null">
+        username,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="deviceInfo != null">
+        device_info,
+      </if>
+      <if test="appVersion != null">
+        app_version,
+      </if>
+      <if test="realname != null">
+        realname,
+      </if>
+      <if test="useType != null">
+        use_type,
+      </if>
+      <if test="dealState != null">
+        deal_state,
+      </if>
+      <if test="operator != null">
+        operator,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="username != null">
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deviceInfo != null">
+        #{deviceInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="appVersion != null">
+        #{appVersion,jdbcType=VARCHAR},
+      </if>
+      <if test="realname != null">
+        #{realname,jdbcType=VARCHAR},
+      </if>
+      <if test="useType != null">
+        #{useType,jdbcType=TINYINT},
+      </if>
+      <if test="dealState != null">
+        #{dealState,jdbcType=TINYINT},
+      </if>
+      <if test="operator != null">
+        #{operator,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yhyt.health.model.SysFeedback">
+    update sys_feedback
+    <set>
+      <if test="content != null">
+        content = #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="username != null">
+        username = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deviceInfo != null">
+        device_info = #{deviceInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="appVersion != null">
+        app_version = #{appVersion,jdbcType=VARCHAR},
+      </if>
+      <if test="realname != null">
+        realname = #{realname,jdbcType=VARCHAR},
+      </if>
+      <if test="useType != null">
+        use_type = #{useType,jdbcType=TINYINT},
+      </if>
+      <if test="dealState != null">
+        deal_state = #{dealState,jdbcType=TINYINT},
+      </if>
+      <if test="operator != null">
+        operator = #{operator,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yhyt.health.model.SysFeedback">
+    update sys_feedback
+    set content = #{content,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=BIGINT},
+      username = #{username,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      device_info = #{deviceInfo,jdbcType=VARCHAR},
+      app_version = #{appVersion,jdbcType=VARCHAR},
+      realname = #{realname,jdbcType=VARCHAR},
+      use_type = #{useType,jdbcType=TINYINT},
+      deal_state = #{dealState,jdbcType=TINYINT},
+      operator = #{operator,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

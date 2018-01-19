@@ -1,0 +1,28 @@
+package com.yhyt.health.mapper;
+
+import java.util.List;
+import java.util.Map;
+
+import com.yhyt.health.model.DepartmentObstetricsDangers;
+import com.yhyt.health.model.Dictionary;
+import org.apache.ibatis.annotations.Param;
+
+public interface DepartmentObstetricsDangersMapper {
+    int deleteByPrimaryKey(Long id);
+
+    int insert(DepartmentObstetricsDangers record);
+
+    int insertSelective(DepartmentObstetricsDangers record);
+
+    DepartmentObstetricsDangers selectByPrimaryKey(Long id);
+
+    int updateByPrimaryKeySelective(DepartmentObstetricsDangers record);
+
+    int updateByPrimaryKey(DepartmentObstetricsDangers record);
+
+	List<Dictionary> getObstetricsDetailList(Map ap);
+
+    List<DepartmentObstetricsDangers> getDepartmentObstetricsDangersList(@Param("departmentObstetricsId") Long departmentObstetricsId);
+
+	List<Dictionary> getObstetricsDetailLists(Map ap);
+}

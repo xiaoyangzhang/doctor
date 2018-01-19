@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhyt.health.mapper.PatientMapper">
+    <resultMap id="BaseResultMap" type="com.yhyt.health.model.Patientl">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="username" jdbcType="VARCHAR" property="username" />
+        <result column="im_password" jdbcType="VARCHAR" property="imPassword"/>
+        <result column="password" jdbcType="VARCHAR" property="password" />
+        <result column="realname" jdbcType="VARCHAR" property="realname" />
+        <result column="head_image" jdbcType="VARCHAR" property="headImage" />
+        <result column="sex" jdbcType="TINYINT" property="sex" />
+        <result column="age" jdbcType="INTEGER" property="age" />
+        <result column="idno" jdbcType="VARCHAR" property="idno" />
+        <result column="birthday" jdbcType="DATE" property="birthday" />
+        <result column="insurance_location" jdbcType="VARCHAR" property="insuranceLocation" />
+        <result column="remain_count" jdbcType="INTEGER" property="remainCount" />
+        <result column="using_count" jdbcType="INTEGER" property="usingCount" />
+        <result column="total_count" jdbcType="INTEGER" property="totalCount" />
+        <result column="reside_location" jdbcType="VARCHAR" property="resideLocation" />
+        <result column="is_blacklist" jdbcType="TINYINT" property="isBlacklist" />
+        <result column="is_usefreecard" jdbcType="TINYINT" property="isUsefreecard" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="last_time" jdbcType="TIMESTAMP" property="lastTime" />
+        <result column="operator" jdbcType="VARCHAR" property="operator" />
+        <result column="is_authenticated" jdbcType="VARCHAR" property="isauthenticated" />
+    </resultMap>
+
+    <select id="searchpatient" parameterType="java.util.Map" resultMap="BaseResultMap">
+  	select a.* from patient a,dialog b where a.id=b.patient_id and b.department_id=#{departmentid} and a.realname like  concat('%',#{key},'%')
+  </select>
+    <select id="searchdepartmentpatient" parameterType="java.util.Map" resultMap="BaseResultMap">
+  select b.* from dialog a,patient b,dialog_appointment c where c.doctor_id_appointment is NULL and c.department_id=a.department_id and a.patient_id=b.id and a.department_id=#{departmentid} and date_format(c.appointment_time,'%Y-%m-%d')=#{searchdate}
+  </select>
+    <select id="transferpatient" parameterType="java.util.Map" resultMap="BaseResultMap">
+ select a.* from patient a,dialog_appointment_transfer b where a.id=b.patient_id and b.state=1 and b.department_id=#{departmentid}
+   </select>
+    <select id="dialogsignlist" parameterType="java.util.Map" resultMap="BaseResultMap">
+ select a.* from patient a,dept_patient_sign b where b.patient_id=a.id and b.state=1 and b.source=3 and b.department_id=#{departmentid}
+   </select>
+    <select id="dialogsigndetail" parameterType="java.util.Map" resultMap="BaseResultMap">
+ select a.* from patient a,dept_patient_sign b where b.patient_id=a.id and b.state=1 and b.source=3 and b.department_id=#{departmentid} and b.patient_id=#{patientid}
+   </select>
+    <select id="getPatientl" parameterType="java.util.Map" resultMap="BaseResultMap">
+ select a.* from patient a where a.id=#{patientid}
+   </select>
+    <select id="selectPatientlById" parameterType="Long" resultMap="BaseResultMap">
+        select a.* from patient a where a.id=#{id}
+    </select>
+    <update id="updatePatientIsauthenticated" parameterType="Patientl">
+        UPDATE patient SET is_authenticated = #{isauthenticated} WHERE id = #{id}
+    </update>
+</mapper>

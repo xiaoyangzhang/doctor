@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yhyt.health.mapper.DeviceMapper">
+    <resultMap id="BaseResultMap" type="com.yhyt.health.model.Device">
+        <result column="ios_id" jdbcType="VARCHAR" property="iosId"/>
+        <result column="jiguang_id" jdbcType="VARCHAR" property="jiguangId"/>
+        <result column="app_name" jdbcType="VARCHAR" property="appName"/>
+        <result column="huawei_id" jdbcType="VARCHAR" property="huaweiId"/>
+        <result column="xiaomi_id" jdbcType="VARCHAR" property="xiaomiId"/>
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="last_logout_time" jdbcType="TIMESTAMP" property="lastLogoutTime"/>
+        <result column="last_login_time" jdbcType="TIMESTAMP" property="lastLoginTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+    <insert id="insert" parameterType="com.yhyt.health.model.Device">
+    insert into device (ios_id, jiguang_id, app_name, 
+      huawei_id, xiaomi_id, user_id, 
+      status, last_logout_time, last_login_time, 
+      create_time)
+    values (#{iosId,jdbcType=VARCHAR}, #{jiguangId,jdbcType=VARCHAR}, #{appName,jdbcType=VARCHAR}, 
+      #{huaweiId,jdbcType=VARCHAR}, #{xiaomiId,jdbcType=VARCHAR}, #{userId,jdbcType=BIGINT}, 
+      #{status,jdbcType=INTEGER}, #{lastLogoutTime,jdbcType=TIMESTAMP}, #{lastLoginTime,jdbcType=TIMESTAMP}, 
+      #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+    <update id="updateByPrimaryKey" parameterType="Device" >
+        UPDATE device
+        SET ios_id = #{iosId}, jiguang_id=#{jiguangId}, app_name=#{appName},
+          huawei_id=#{huaweiId}, xiaomi_id=#{xiaomiId}, user_id=#{userId},
+          status=#{status}, last_logout_time=#{lastLogoutTime}, last_login_time=#{lastLoginTime}
+       WHERE user_id=#{userId,jdbcType=BIGINT} AND app_name=#{appName,jdbcType=VARCHAR}
+    </update>
+    <insert id="insertSelective" parameterType="com.yhyt.health.model.Device">
+        <selectKey resultType="java.lang.Long" keyProperty="id" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into device
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="iosId != null">
+                ios_id,
+            </if>
+            <if test="jiguangId != null">
+                jiguang_id,
+            </if>
+            <if test="appName != null">
+                app_name,
+            </if>
+            <if test="huaweiId != null">
+                huawei_id,
+            </if>
+            <if test="xiaomiId != null">
+                xiaomi_id,
+            </if>
+            <if test="userId != null">
+                user_id,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="lastLogoutTime != null">
+                last_logout_time,
+            </if>
+            <if test="lastLoginTime != null">
+                last_login_time,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="iosId != null">
+                #{iosId,jdbcType=VARCHAR},
+            </if>
+            <if test="jiguangId != null">
+                #{jiguangId,jdbcType=VARCHAR},
+            </if>
+            <if test="appName != null">
+                #{appName,jdbcType=VARCHAR},
+            </if>
+            <if test="huaweiId != null">
+                #{huaweiId,jdbcType=VARCHAR},
+            </if>
+            <if test="xiaomiId != null">
+                #{xiaomiId,jdbcType=VARCHAR},
+            </if>
+            <if test="userId != null">
+                #{userId,jdbcType=BIGINT},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=INTEGER},
+            </if>
+            <if test="lastLogoutTime != null">
+                #{lastLogoutTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="lastLoginTime != null">
+                #{lastLoginTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="Device">
+        update device
+        <set>
+            <if test="iosId != null">
+                ios_id=#{iosId,jdbcType=VARCHAR},
+            </if>
+            <if test="jiguangId != null">
+                jiguang_id=#{jiguangId,jdbcType=VARCHAR},
+            </if>
+            <if test="appName != null">
+                app_name=#{appName,jdbcType=VARCHAR},
+            </if>
+            <if test="huaweiId != null">
+                huawei_id=#{huaweiId,jdbcType=VARCHAR},
+            </if>
+            <if test="xiaomiId != null">
+                xiaomi_id=#{xiaomiId,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status=#{status,jdbcType=INTEGER},
+            </if>
+            <if test="lastLogoutTime != null">
+                last_logout_time=#{lastLogoutTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="lastLoginTime != null">
+                last_login_time=#{lastLoginTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createTime != null">
+                create_time=#{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where user_id=#{userId,jdbcType=BIGINT} AND app_name=#{appName,jdbcType=VARCHAR}
+    </update>
+    <select id="selectDevice" parameterType="map" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM device
+        WHERE 1=1
+        <if test="appName != null">
+            AND app_name = #{appName,jdbcType=VARCHAR}
+        </if>
+        <if test="userId != null">
+            AND user_id = #{userId,jdbcType=BIGINT}
+        </if>
+    </select>
+
+    <update id="logout" parameterType="Device">
+    update device set status=0 where user_id=#{userId,jdbcType=BIGINT} AND app_name=#{appName,jdbcType=VARCHAR}
+  </update>
+</mapper>
